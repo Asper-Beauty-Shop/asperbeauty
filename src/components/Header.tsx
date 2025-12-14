@@ -33,15 +33,32 @@ export const Header = () => {
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-primary border-b border-gold/20">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-taupe border-b border-gold/20 shadow-sm">
       <nav className="luxury-container">
         <div className="flex items-center justify-between h-20">
-          {/* Logo - Left */}
+          {/* Logo - Left with shiny gold effect */}
           <Link to="/" className="flex items-center gap-2">
-            <h1 className="font-display text-2xl md:text-3xl tracking-wider text-gold">
+            <h1 
+              className="font-display text-2xl md:text-3xl tracking-wider"
+              style={{
+                background: 'linear-gradient(135deg, hsl(46 100% 45%), hsl(46 100% 60%), hsl(46 100% 45%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                filter: 'drop-shadow(0 1px 2px hsla(46, 100%, 50%, 0.3))'
+              }}
+            >
               ASPER
             </h1>
-            <span className="hidden sm:block font-display text-sm text-gold/80 tracking-widest">
+            <span 
+              className="hidden sm:block font-display text-sm tracking-widest"
+              style={{
+                background: 'linear-gradient(135deg, hsl(46 100% 45%), hsl(46 100% 55%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
               {t.beautyShop}
             </span>
           </Link>
@@ -50,7 +67,7 @@ export const Header = () => {
           <div className="hidden lg:flex items-center gap-6">
             <Link
               to="/"
-              className="font-display text-sm tracking-wider text-cream hover:text-gold transition-colors"
+              className="font-display text-sm tracking-wider text-charcoal hover:text-gold transition-colors"
             >
               {t.home}
             </Link>
@@ -61,7 +78,9 @@ export const Header = () => {
               onMouseEnter={() => setCollectionsOpen(true)}
               onMouseLeave={() => setCollectionsOpen(false)}
             >
-              <button className="flex items-center gap-1 font-display text-sm tracking-wider text-cream hover:text-gold transition-colors">
+              <button 
+                className="flex items-center gap-1 font-display text-sm tracking-wider text-charcoal hover:text-gold transition-colors"
+              >
                 {t.shopByCategory}
                 <ChevronDown className={`h-3 w-3 transition-transform ${collectionsOpen ? 'rotate-180' : ''}`} />
               </button>
@@ -71,8 +90,16 @@ export const Header = () => {
                 <div className={`absolute top-full ${isRTL ? 'right-0' : 'left-1/2 -translate-x-1/2'} pt-4 z-50`}>
                   <div className="bg-cream border border-gold/30 shadow-2xl min-w-[420px] overflow-hidden animate-fade-in">
                     {/* Elegant Header */}
-                    <div className="bg-primary px-8 py-4 border-b border-gold/30">
-                      <h3 className="font-display text-gold text-sm tracking-[0.2em] uppercase">
+                    <div className="bg-taupe px-8 py-4 border-b border-gold/30">
+                      <h3 
+                        className="font-display text-sm tracking-[0.2em] uppercase"
+                        style={{
+                          background: 'linear-gradient(135deg, hsl(46 100% 45%), hsl(46 100% 60%))',
+                          WebkitBackgroundClip: 'text',
+                          WebkitTextFillColor: 'transparent',
+                          backgroundClip: 'text',
+                        }}
+                      >
                         {t.shopByCategory}
                       </h3>
                     </div>
@@ -94,7 +121,7 @@ export const Header = () => {
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-primary/5 px-8 py-4 border-t border-gold/20">
+                    <div className="bg-taupe/30 px-8 py-4 border-t border-gold/20">
                       <Link
                         to="/collections"
                         className="font-display text-xs tracking-[0.15em] text-gold hover:text-gold/80 transition-colors uppercase"
@@ -111,7 +138,7 @@ export const Header = () => {
               <Link
                 key={link.href}
                 to={link.href}
-                className="font-display text-sm tracking-wider text-cream hover:text-gold transition-colors"
+                className="font-display text-sm tracking-wider text-charcoal hover:text-gold transition-colors"
               >
                 {link.name}
               </Link>
@@ -126,7 +153,7 @@ export const Header = () => {
             </div>
 
             {/* Search Icon */}
-            <button className="p-2 text-gold border border-gold/30 rounded-full hover:bg-gold/10 transition-colors">
+            <button className="p-2 text-gold border border-gold/30 rounded-full hover:bg-gold/10 transition-colors shadow-sm shadow-gold/20">
               <Search className="h-4 w-4" />
             </button>
 
@@ -140,7 +167,7 @@ export const Header = () => {
             >
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className={`absolute -top-1 ${isRTL ? '-left-1' : '-right-1'} h-5 w-5 rounded-full bg-cream text-primary text-xs flex items-center justify-center font-body font-medium`}>
+                <span className={`absolute -top-1 ${isRTL ? '-left-1' : '-right-1'} h-5 w-5 rounded-full bg-gold text-charcoal text-xs flex items-center justify-center font-body font-medium shadow-md`}>
                   {totalItems}
                 </span>
               )}
@@ -149,7 +176,7 @@ export const Header = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 text-foreground"
+              className="lg:hidden p-2 text-charcoal"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -158,7 +185,7 @@ export const Header = () => {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t border-gold/20 animate-fade-in bg-primary">
+          <div className="lg:hidden border-t border-gold/20 animate-fade-in bg-taupe">
             {/* Language Switcher - Mobile (Fixed at top of menu) */}
             <div className="border-b border-gold/20">
               <LanguageSwitcher variant="mobile" />
@@ -168,7 +195,7 @@ export const Header = () => {
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="font-display text-cream hover:text-gold transition-colors py-2"
+                className="font-display text-charcoal hover:text-gold transition-colors py-2"
               >
                 {t.home}
               </Link>
@@ -177,7 +204,7 @@ export const Header = () => {
               <div>
                 <button
                   onClick={() => setMobileCollectionsOpen(!mobileCollectionsOpen)}
-                  className="flex items-center justify-between w-full font-display text-cream hover:text-gold transition-colors py-2"
+                  className="flex items-center justify-between w-full font-display text-charcoal hover:text-gold transition-colors py-2"
                 >
                   {t.shopByCategory}
                   <ChevronDown className={`h-4 w-4 transition-transform ${mobileCollectionsOpen ? 'rotate-180' : ''}`} />
@@ -190,7 +217,7 @@ export const Header = () => {
                         key={collection.name}
                         to={collection.href}
                         onClick={() => setMobileMenuOpen(false)}
-                        className="flex items-center gap-2 font-body text-sm text-cream/80 hover:text-gold transition-colors py-2"
+                        className="flex items-center gap-2 font-body text-sm text-charcoal/80 hover:text-gold transition-colors py-2"
                       >
                         <span className="text-gold text-xs">{collection.icon}</span>
                         {collection.name}
@@ -205,7 +232,7 @@ export const Header = () => {
                   key={link.href}
                   to={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="font-display text-cream hover:text-gold transition-colors py-2"
+                  className="font-display text-charcoal hover:text-gold transition-colors py-2"
                 >
                   {link.name}
                 </Link>

@@ -12,7 +12,7 @@ export const LanguageSwitcher = ({ variant = "default" }: { variant?: "default" 
     return (
       <button
         onClick={toggleLanguage}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gold text-cream font-display text-sm tracking-wider transition-colors hover:bg-gold-light"
+        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gold text-charcoal font-display text-sm tracking-wider transition-colors hover:bg-gold-light shadow-sm"
         aria-label="Toggle language"
       >
         <Globe className="w-4 h-4" />
@@ -24,7 +24,7 @@ export const LanguageSwitcher = ({ variant = "default" }: { variant?: "default" 
   return (
     <button
       onClick={toggleLanguage}
-      className="flex items-center gap-2 px-4 py-2 bg-gold text-cream font-display text-sm tracking-wider transition-all hover:bg-gold-light shadow-sm"
+      className="flex items-center gap-2 px-4 py-2 bg-gold text-charcoal font-display text-sm tracking-wider transition-all hover:bg-gold-light shadow-md shadow-gold/30"
       aria-label="Toggle language"
     >
       <Globe className="w-4 h-4" />
