@@ -14,13 +14,16 @@ export const Hero = () => {
 
       <div className="luxury-container relative z-10 text-center pt-20">
         <div className="max-w-4xl mx-auto">
-          {/* Main Heading */}
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl font-normal text-gold leading-tight mb-8 opacity-0 animate-fade-up">
+          {/* Gold divider above headline */}
+          <div className="w-32 h-px bg-gold mx-auto mb-8 opacity-0 animate-fade-up" />
+          
+          {/* Main Heading - larger size */}
+          <h1 className="font-display text-6xl md:text-8xl lg:text-9xl font-normal text-gold leading-tight opacity-0 animate-fade-up delay-100">
             Unbox Pure Indulgence
           </h1>
 
-          {/* Gold divider */}
-          <div className="w-24 h-px bg-gold mx-auto my-10 opacity-0 animate-fade-up delay-100" />
+          {/* Gold divider below headline */}
+          <div className="w-32 h-px bg-gold mx-auto mt-8 mb-10 opacity-0 animate-fade-up delay-200" />
 
           {/* Description */}
           <p className="font-body text-primary-foreground/80 text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-12 opacity-0 animate-fade-up delay-200">
