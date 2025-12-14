@@ -17,14 +17,22 @@ export const Newsletter = () => {
   };
 
   return (
-    <section id="contact" className="py-24 bg-primary text-primary-foreground">
+    <section id="contact" className="py-24 bg-taupe">
       <div className="luxury-container">
         <div className="max-w-2xl mx-auto text-center">
-          <p className="luxury-subheading text-gold-light mb-4">Stay Connected</p>
-          <h2 className="font-display text-4xl md:text-5xl mb-6">
+          <p className="luxury-subheading text-gold mb-4">Stay Connected</p>
+          <h2 
+            className="font-display text-4xl md:text-5xl mb-6"
+            style={{
+              background: 'linear-gradient(135deg, hsl(46 100% 45%), hsl(46 100% 60%), hsl(46 100% 45%))',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             Join Our World
           </h2>
-          <p className="font-body text-primary-foreground/70 mb-10 leading-relaxed">
+          <p className="font-body text-charcoal/70 mb-10 leading-relaxed">
             Subscribe to receive exclusive offers, early access to new arrivals, 
             and expert beauty insights delivered to your inbox.
           </p>
@@ -35,20 +43,20 @@ export const Newsletter = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 px-6 py-4 bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/40 font-body text-sm focus:outline-none focus:border-gold-light transition-colors"
+              className="flex-1 px-6 py-4 bg-cream border border-gold/30 text-charcoal placeholder:text-charcoal/40 font-body text-sm focus:outline-none focus:border-gold transition-colors"
               required
             />
             <Button 
               type="submit"
               variant="luxury-gold"
               size="luxury"
-              className="whitespace-nowrap"
+              className="whitespace-nowrap bg-gold text-charcoal hover:bg-gold-light shadow-md shadow-gold/30"
             >
               Subscribe
             </Button>
           </form>
 
-          <p className="text-xs text-primary-foreground/50 font-body mt-6">
+          <p className="text-xs text-charcoal/50 font-body mt-6">
             By subscribing, you agree to our Privacy Policy. Unsubscribe anytime.
           </p>
         </div>
