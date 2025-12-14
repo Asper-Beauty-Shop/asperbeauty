@@ -64,8 +64,8 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Newsletter with gold border */}
-          <div>
+          {/* Newsletter with maroon background */}
+          <div className="bg-maroon p-6 -m-2">
             <h3 className="font-display text-lg text-gold mb-6">Stay Connected</h3>
             <p className="font-body text-sm text-cream/70 mb-4">
               Subscribe to receive exclusive offers and updates.
@@ -76,11 +76,11 @@ export const Footer = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email"
-                className="w-full px-4 py-3 bg-transparent border border-gold text-cream font-body text-sm placeholder:text-cream/50 focus:outline-none focus:border-gold-light transition-colors"
+                className="w-full px-4 py-3 bg-cream/10 border border-gold/50 text-cream font-body text-sm placeholder:text-cream/50 focus:outline-none focus:border-gold transition-colors"
               />
               <button
                 type="submit"
-                className="w-full px-6 py-3 bg-transparent border border-gold text-gold font-display text-sm tracking-wider hover:bg-gold hover:text-primary transition-colors"
+                className="w-full px-6 py-3 bg-primary border-2 border-gold text-gold font-display text-sm tracking-wider hover:bg-gold hover:text-primary transition-colors"
               >
                 Subscribe
               </button>
