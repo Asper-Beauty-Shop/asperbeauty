@@ -6,6 +6,7 @@ interface Translations {
   // Navigation
   home: string;
   collections: string;
+  shopByCategory: string;
   brands: string;
   bestSellers: string;
   offers: string;
@@ -87,6 +88,7 @@ const translations: Record<Language, Translations> = {
     // Navigation
     home: 'Home',
     collections: 'Collections',
+    shopByCategory: 'Shop By Category',
     brands: 'Brands',
     bestSellers: 'Best Sellers',
     offers: 'Offers',
@@ -166,6 +168,7 @@ const translations: Record<Language, Translations> = {
     // Navigation
     home: 'الرئيسية',
     collections: 'المجموعات',
+    shopByCategory: 'تسوق حسب الفئة',
     brands: 'العلامات التجارية',
     bestSellers: 'الأكثر مبيعاً',
     offers: 'العروض',
