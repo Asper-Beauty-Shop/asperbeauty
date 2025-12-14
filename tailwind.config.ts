@@ -63,6 +63,10 @@ export default {
           DEFAULT: "hsl(var(--maroon))",
           light: "hsl(var(--maroon-light))",
         },
+        "cta-burgundy": {
+          DEFAULT: "hsl(var(--cta-burgundy))",
+          hover: "hsl(var(--cta-burgundy-hover))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
