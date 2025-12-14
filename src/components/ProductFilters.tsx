@@ -233,8 +233,8 @@ export const ProductFilters = ({
       )}
 
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block w-64 shrink-0">
-        <div className="sticky top-32 bg-cream/50 backdrop-blur-sm p-6 border border-gold/20 rounded-sm">
+      <div className="hidden lg:block w-72 shrink-0">
+        <div className="sticky top-32 bg-cream border border-gold/20 p-6">
           <FilterContent />
         </div>
       </div>

@@ -55,55 +55,51 @@ export const Header = () => {
               {t.home}
             </Link>
 
-            {/* Collections Dropdown */}
+            {/* Shop By Category Dropdown */}
             <div
               className="relative"
               onMouseEnter={() => setCollectionsOpen(true)}
               onMouseLeave={() => setCollectionsOpen(false)}
             >
               <button className="flex items-center gap-1 font-display text-sm tracking-wider text-cream hover:text-gold transition-colors">
-                {t.collections}
+                {t.shopByCategory}
                 <ChevronDown className={`h-3 w-3 transition-transform ${collectionsOpen ? 'rotate-180' : ''}`} />
               </button>
 
               {/* Mega Menu Dropdown */}
               {collectionsOpen && (
                 <div className={`absolute top-full ${isRTL ? 'right-0' : 'left-1/2 -translate-x-1/2'} pt-4 z-50`}>
-                  <div className="bg-cream border border-gold/30 rounded-lg shadow-2xl min-w-[320px] overflow-hidden animate-fade-in">
-                    {/* Header */}
-                    <div className="bg-primary px-6 py-3 border-b border-gold/20">
-                      <h3 className="font-display text-gold text-sm tracking-widest">
-                        {isRTL ? 'تسوق حسب الفئة' : 'SHOP BY CATEGORY'}
+                  <div className="bg-cream border border-gold/30 shadow-2xl min-w-[420px] overflow-hidden animate-fade-in">
+                    {/* Elegant Header */}
+                    <div className="bg-primary px-8 py-4 border-b border-gold/30">
+                      <h3 className="font-display text-gold text-sm tracking-[0.2em] uppercase">
+                        {t.shopByCategory}
                       </h3>
                     </div>
                     
-                    {/* Categories */}
-                    <div className="p-4">
-                      {collections.map((collection, index) => (
-                        <div key={collection.name}>
-                          <Link
-                            to={collection.href}
-                            className="flex items-center gap-3 px-4 py-3 text-primary hover:bg-primary/5 rounded-md transition-colors group"
-                          >
-                            <span className="text-gold text-xs">{collection.icon}</span>
-                            <span className="font-display text-sm tracking-wide group-hover:text-gold transition-colors">
-                              {collection.name}
-                            </span>
-                          </Link>
-                          {index < collections.length - 1 && (
-                            <div className="mx-4 border-b border-gold/10" />
-                          )}
-                        </div>
+                    {/* Categories Grid */}
+                    <div className="p-6 grid grid-cols-2 gap-x-8 gap-y-2">
+                      {collections.map((collection) => (
+                        <Link
+                          key={collection.name}
+                          to={collection.href}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-gold/5 transition-colors group"
+                        >
+                          <span className="text-gold text-sm font-display">{collection.icon}</span>
+                          <span className="font-display text-sm tracking-wide text-gold group-hover:text-gold/80 transition-colors">
+                            {collection.name}
+                          </span>
+                        </Link>
                       ))}
                     </div>
 
                     {/* Footer */}
-                    <div className="bg-primary/5 px-6 py-3 border-t border-gold/10">
+                    <div className="bg-primary/5 px-8 py-4 border-t border-gold/20">
                       <Link
                         to="/collections"
-                        className="font-display text-xs tracking-wider text-gold hover:text-gold/80 transition-colors"
+                        className="font-display text-xs tracking-[0.15em] text-gold hover:text-gold/80 transition-colors uppercase"
                       >
-                        {isRTL ? 'عرض جميع المجموعات ←' : 'VIEW ALL COLLECTIONS →'}
+                        {isRTL ? 'عرض جميع المجموعات ←' : 'View All Collections →'}
                       </Link>
                     </div>
                   </div>
@@ -177,13 +173,13 @@ export const Header = () => {
                 {t.home}
               </Link>
 
-              {/* Mobile Collections Accordion */}
+              {/* Mobile Shop By Category Accordion */}
               <div>
                 <button
                   onClick={() => setMobileCollectionsOpen(!mobileCollectionsOpen)}
                   className="flex items-center justify-between w-full font-display text-cream hover:text-gold transition-colors py-2"
                 >
-                  {t.collections}
+                  {t.shopByCategory}
                   <ChevronDown className={`h-4 w-4 transition-transform ${mobileCollectionsOpen ? 'rotate-180' : ''}`} />
                 </button>
                 

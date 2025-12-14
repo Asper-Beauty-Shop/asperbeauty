@@ -122,7 +122,7 @@ export const ProductGrid = ({ showFilters = false }: ProductGridProps) => {
               )}
 
               {filteredProducts.length > 0 ? (
-                <div className={`grid gap-12 lg:gap-16 ${showFilters ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto'}`}>
+                <div className={`grid gap-12 lg:gap-16 ${showFilters ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1 md:grid-cols-2 max-w-5xl mx-auto'}`}>
                   {filteredProducts.map((product) => (
                     <ProductCard key={product.node.id} product={product} />
                   ))}
