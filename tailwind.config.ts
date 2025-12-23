@@ -69,6 +69,9 @@ export default {
           DEFAULT: "hsl(var(--rose))",
           light: "hsl(var(--rose-light))",
         },
+        "shiny-gold": "hsl(var(--shiny-gold))",
+        "soft-ivory": "hsl(var(--soft-ivory))",
+        "dark-charcoal": "hsl(var(--dark-charcoal))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",

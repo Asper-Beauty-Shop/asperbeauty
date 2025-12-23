@@ -40,7 +40,7 @@ export default function CollectionDetail() {
     <div className={`min-h-screen bg-background ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <Header />
       
-      <main className="pt-32 pb-20">
+      <main className="pt-40 pb-20">
         <div className="luxury-container">
           {/* Editorial Collection Banner */}
           <div className="relative mb-16 overflow-hidden">

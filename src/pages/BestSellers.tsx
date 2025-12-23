@@ -11,7 +11,7 @@ export default function BestSellers() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-32 pb-20">
+      <main className="pt-40 pb-20">
         <div className="luxury-container">
           <div className="text-center mb-16">
             <h1 className="font-display text-4xl md:text-5xl text-cream mb-4">

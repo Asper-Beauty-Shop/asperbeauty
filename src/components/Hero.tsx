@@ -22,7 +22,7 @@ export const Hero = () => {
       <div className="absolute bottom-20 left-8 w-24 h-24 border-b border-l border-gold/30" />
       <div className="absolute bottom-20 right-8 w-24 h-24 border-b border-r border-gold/30" />
 
-      <div className="luxury-container relative z-10 text-center pt-20">
+      <div className="luxury-container relative z-10 text-center pt-36 lg:pt-24">
         <div className="max-w-4xl mx-auto">
           {/* Logo Image */}
           <div className="mb-8 opacity-0 animate-fade-up">

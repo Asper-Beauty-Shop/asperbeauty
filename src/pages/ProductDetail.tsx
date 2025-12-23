@@ -160,7 +160,7 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="pt-24 pb-32 lg:pb-24">
+      <main className="pt-36 pb-32 lg:pb-24">
         <div className="luxury-container">
           {/* Back link */}
           <Link
