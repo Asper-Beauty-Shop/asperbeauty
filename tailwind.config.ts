@@ -56,23 +56,22 @@ export default {
           light: "hsl(var(--gold-light))",
           glow: "hsl(var(--gold-glow))",
         },
-        ivory: "hsl(var(--ivory))",
-        charcoal: {
-          DEFAULT: "hsl(var(--charcoal))",
-          light: "hsl(var(--charcoal-light))",
+        emerald: {
+          DEFAULT: "hsl(var(--emerald))",
+          light: "hsl(var(--emerald-light))",
+          glow: "hsl(var(--emerald-glow))",
         },
-        taupe: {
-          DEFAULT: "hsl(var(--taupe))",
-          light: "hsl(var(--taupe-light))",
-          dark: "hsl(var(--taupe-dark))",
+        mint: {
+          DEFAULT: "hsl(var(--mint))",
+          dark: "hsl(var(--mint-dark))",
         },
-        "cta-burgundy": {
-          DEFAULT: "hsl(var(--cta-burgundy))",
-          hover: "hsl(var(--cta-burgundy-hover))",
+        sage: {
+          DEFAULT: "hsl(var(--sage))",
+          dark: "hsl(var(--sage-dark))",
         },
-        "cta-emerald": {
-          DEFAULT: "hsl(var(--cta-emerald))",
-          hover: "hsl(var(--cta-emerald-hover))",
+        forest: {
+          DEFAULT: "hsl(var(--forest))",
+          light: "hsl(var(--forest-light))",
         },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
