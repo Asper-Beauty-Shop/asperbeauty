@@ -124,10 +124,10 @@ const ProductDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center min-h-[60vh] pt-20">
-          <Loader2 className="w-8 h-8 animate-spin text-gold" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
         <Footer />
       </div>
@@ -136,11 +136,11 @@ const ProductDetail = () => {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-cream">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="flex flex-col items-center justify-center min-h-[60vh] pt-20">
           <h1 className="font-display text-2xl text-foreground mb-4">Product Not Found</h1>
-          <Link to="/" className="text-gold hover:underline font-body text-sm">
+          <Link to="/" className="text-primary hover:underline font-body text-sm">
             Return to Shop
           </Link>
         </div>
@@ -155,14 +155,14 @@ const ProductDetail = () => {
   const currencyCode = selectedVariant?.price.currencyCode || product.priceRange.minVariantPrice.currencyCode;
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="min-h-screen bg-background">
       <Header />
       <main className="pt-24 pb-32 lg:pb-24">
         <div className="luxury-container">
           {/* Back link */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors mb-8 font-body text-sm"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 font-body text-sm"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Shop
@@ -174,7 +174,7 @@ const ProductDetail = () => {
             {/* Left Side - Image Gallery (65% on desktop) */}
             <div className="w-full lg:w-[65%] lg:pr-10">
               {/* Main Image - Large & High Resolution */}
-              <div className="aspect-square bg-cream-dark overflow-hidden border border-gold/20 mb-4">
+              <div className="aspect-square bg-secondary overflow-hidden border border-emerald/20 mb-4 rounded-lg">
                 {images[selectedImage] ? (
                   <img
                     src={images[selectedImage].node.url}
@@ -195,10 +195,10 @@ const ProductDetail = () => {
                     <button
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
-                      className={`aspect-square overflow-hidden border-2 transition-all duration-300 ${
+                      className={`aspect-square overflow-hidden border-2 transition-all duration-300 rounded ${
                         selectedImage === idx 
-                          ? "border-gold shadow-md" 
-                          : "border-transparent hover:border-gold/50"
+                          ? "border-primary shadow-md" 
+                          : "border-transparent hover:border-emerald/50"
                       }`}
                     >
                       <img
@@ -212,13 +212,13 @@ const ProductDetail = () => {
               )}
             </div>
 
-            {/* Thick Cream Divider */}
-            <div className="hidden lg:block w-[2px] bg-cream-dark mx-2" />
+            {/* Thick Mint Divider */}
+            <div className="hidden lg:block w-[2px] bg-secondary mx-2" />
 
             {/* Right Side - Purchase Info (35% on desktop) */}
             <div className="w-full lg:w-[35%] lg:pl-10">
               {/* Brand */}
-              <p className="font-body text-xs tracking-widest uppercase text-gold mb-3">Asper Beauty</p>
+              <p className="font-body text-xs tracking-widest uppercase text-primary mb-3">Asper Beauty</p>
               
               {/* Title */}
               <h1 className="font-display text-2xl md:text-3xl lg:text-4xl text-foreground mb-4 leading-tight">
@@ -226,12 +226,20 @@ const ProductDetail = () => {
               </h1>
               
               {/* Price */}
-              <p className="font-display text-2xl lg:text-3xl text-gold mb-6">
+              <p 
+                className="font-display text-2xl lg:text-3xl mb-6"
+                style={{
+                  background: 'linear-gradient(135deg, hsl(160 84% 25%), hsl(160 84% 40%), hsl(160 84% 25%))',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
                 {currencyCode} {parseFloat(currentPrice).toFixed(2)}
               </p>
 
-              {/* Gold divider */}
-              <div className="w-12 h-px bg-gold mb-6" />
+              {/* Emerald divider */}
+              <div className="w-12 h-px bg-primary mb-6" />
 
               {/* Description */}
               <p className="font-body text-muted-foreground leading-relaxed text-sm mb-8">
@@ -249,10 +257,10 @@ const ProductDetail = () => {
                       <button
                         key={value}
                         onClick={() => setSelectedOptions({ ...selectedOptions, [option.name]: value })}
-                        className={`px-4 py-2 border font-body text-sm transition-all duration-300 ${
+                      className={`px-4 py-2 border font-body text-sm transition-all duration-300 rounded ${
                           selectedOptions[option.name] === value
-                            ? "border-gold bg-gold/10 text-foreground"
-                            : "border-border text-muted-foreground hover:border-gold hover:text-foreground"
+                            ? "border-primary bg-emerald/10 text-foreground"
+                            : "border-border text-muted-foreground hover:border-primary hover:text-foreground"
                         }`}
                       >
                         {value}
@@ -270,14 +278,14 @@ const ProductDetail = () => {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:bg-gold/10 transition-all duration-300"
+                    className="w-10 h-10 flex items-center justify-center border border-emerald/30 hover:border-primary hover:bg-emerald/10 transition-all duration-300 rounded"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="w-12 text-center font-display text-lg">{quantity}</span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 flex items-center justify-center border border-gold/30 hover:border-gold hover:bg-gold/10 transition-all duration-300"
+                    className="w-10 h-10 flex items-center justify-center border border-emerald/30 hover:border-primary hover:bg-emerald/10 transition-all duration-300 rounded"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -289,17 +297,17 @@ const ProductDetail = () => {
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedVariant?.availableForSale}
-                  className="w-full py-4 px-8 bg-cta-emerald text-white font-display text-base tracking-wider uppercase transition-all duration-300 hover:bg-cta-emerald-hover disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                  className="w-full py-4 px-8 bg-primary text-white font-display text-base tracking-wider uppercase transition-all duration-300 hover:bg-emerald-light disabled:opacity-50 disabled:cursor-not-allowed shadow-lg rounded"
                 >
                   {selectedVariant?.availableForSale ? "Add to Cart" : "Sold Out"}
                 </button>
               </div>
 
               {/* Additional Info - Icons */}
-              <div className="mt-8 pt-8 border-t border-gold/20 space-y-4">
+              <div className="mt-8 pt-8 border-t border-emerald/20 space-y-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Truck className="w-4 h-4 text-gold" />
+                  <div className="w-10 h-10 rounded-full bg-emerald/10 flex items-center justify-center">
+                    <Truck className="w-4 h-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-body text-sm text-foreground">Free Shipping</p>
@@ -307,8 +315,8 @@ const ProductDetail = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <RotateCcw className="w-4 h-4 text-gold" />
+                  <div className="w-10 h-10 rounded-full bg-emerald/10 flex items-center justify-center">
+                    <RotateCcw className="w-4 h-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-body text-sm text-foreground">Easy Returns</p>
@@ -316,8 +324,8 @@ const ProductDetail = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                    <Shield className="w-4 h-4 text-gold" />
+                  <div className="w-10 h-10 rounded-full bg-emerald/10 flex items-center justify-center">
+                    <Shield className="w-4 h-4 text-primary" />
                   </div>
                   <div>
                     <p className="font-body text-sm text-foreground">Authentic Products</p>
@@ -331,10 +339,18 @@ const ProductDetail = () => {
       </main>
 
       {/* Sticky Mobile Add to Cart Button */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-cream border-t border-gold/20 p-4 z-40 shadow-2xl">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-mint border-t border-emerald/20 p-4 z-40 shadow-2xl">
         <div className="flex items-center justify-between gap-4">
           <div className="flex-shrink-0">
-            <p className="font-display text-xl text-gold">
+            <p 
+              className="font-display text-xl"
+              style={{
+                background: 'linear-gradient(135deg, hsl(160 84% 25%), hsl(160 84% 40%))',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
               {currencyCode} {parseFloat(currentPrice).toFixed(2)}
             </p>
             <p className="font-body text-xs text-muted-foreground">Qty: {quantity}</p>
@@ -342,7 +358,7 @@ const ProductDetail = () => {
           <button
             onClick={handleAddToCart}
             disabled={!selectedVariant?.availableForSale}
-            className="flex-1 py-4 px-6 bg-cta-emerald text-white font-display text-sm tracking-wider uppercase transition-all duration-300 hover:bg-cta-emerald-hover disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+            className="flex-1 py-4 px-6 bg-primary text-white font-display text-sm tracking-wider uppercase transition-all duration-300 hover:bg-emerald-light disabled:opacity-50 disabled:cursor-not-allowed shadow-lg rounded"
           >
             {selectedVariant?.availableForSale ? "Add to Cart" : "Sold Out"}
           </button>
