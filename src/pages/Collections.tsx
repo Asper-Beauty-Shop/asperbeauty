@@ -50,19 +50,11 @@ export default function Collections() {
         <div className="luxury-container">
           {/* Page Header */}
           <div className="text-center mb-16">
-            <h1 
-              className="font-display text-4xl md:text-5xl mb-4"
-              style={{
-                background: 'linear-gradient(135deg, hsl(160 84% 25%), hsl(160 84% 40%), hsl(160 84% 25%))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              Our Collections
+            <h1 className="font-display text-4xl md:text-5xl text-cream mb-4">
+              Our <span className="text-gold">Collections</span>
             </h1>
-            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-emerald to-transparent mx-auto mb-6" />
-            <p className="font-body text-muted-foreground max-w-2xl mx-auto">
+            <div className="w-24 h-0.5 bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-6" />
+            <p className="font-body text-cream/60 max-w-2xl mx-auto">
               Discover our curated selection of premium beauty products, carefully chosen for the discerning customer.
             </p>
           </div>
@@ -73,24 +65,24 @@ export default function Collections() {
               <Link
                 key={collection.slug}
                 to={`/collections/${collection.slug}`}
-                className="group relative overflow-hidden rounded-lg aspect-[4/5] border border-emerald/20 hover:border-primary/50 transition-all duration-500"
+                className="group relative overflow-hidden aspect-[4/5] border border-gold/20 hover:border-gold/50 transition-all duration-500"
               >
                 <img
                   src={collection.image}
                   alt={collection.name}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-forest via-forest/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
                 
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-center">
-                  <h2 className="font-display text-2xl text-white mb-2 group-hover:text-emerald-glow transition-colors">
+                  <h2 className="font-display text-2xl text-cream mb-2 group-hover:text-gold transition-colors">
                     {collection.name}
                   </h2>
-                  <p className="font-body text-sm text-white/80">
+                  <p className="font-body text-sm text-cream/70">
                     {collection.description}
                   </p>
                   <div className="mt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="inline-block px-6 py-2 border border-emerald-glow text-emerald-glow font-display text-xs tracking-wider rounded">
+                    <span className="inline-block px-6 py-2 border border-gold text-gold font-display text-xs tracking-wider">
                       EXPLORE →
                     </span>
                   </div>
