@@ -25,8 +25,7 @@ export const Header = () => {
     { name: language === 'ar' ? 'العناية بالشعر' : 'Hair Care', href: "/collections/hair-care" },
     { name: language === 'ar' ? 'العناية بالجسم' : 'Body Care', href: "/collections/body-care" },
     { name: language === 'ar' ? 'المكياج' : 'Make Up', href: "/collections/make-up" },
-    { name: language === 'ar' ? 'العطور' : 'Fragrances', href: "/collections/fragrances" },
-    { name: language === 'ar' ? 'الأدوات والأجهزة' : 'Tools & Devices', href: "/collections/tools-devices" },
+    { name: language === 'ar' ? 'مشاكل البشرة' : 'Skin Concerns', href: "/skin-concerns" },
     { name: language === 'ar' ? 'العلامات التجارية' : 'Brands', href: "/brands" },
     { name: language === 'ar' ? 'العروض' : 'Offers', href: "/offers" },
   ];
