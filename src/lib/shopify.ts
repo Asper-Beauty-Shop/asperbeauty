@@ -196,8 +196,16 @@ const STOREFRONT_PRODUCT_BY_HANDLE_QUERY = `
   }
 `;
 
-export async function fetchProducts(first: number = 20): Promise<ShopifyProduct[]> {
-  const data = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first });
+export async function fetchProducts(first: number = 20, query?: string): Promise<ShopifyProduct[]> {
+  const data = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query });
+  if (!data) return [];
+  return data.data.products.edges;
+}
+
+export async function searchProducts(searchTerm: string, first: number = 10): Promise<ShopifyProduct[]> {
+  if (!searchTerm.trim()) return [];
+  const query = `title:*${searchTerm}* OR vendor:*${searchTerm}*`;
+  const data = await storefrontApiRequest(STOREFRONT_PRODUCTS_QUERY, { first, query });
   if (!data) return [];
   return data.data.products.edges;
 }

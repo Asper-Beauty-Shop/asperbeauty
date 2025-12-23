@@ -1,16 +1,21 @@
 import { ShoppingBag, Menu, X, Search, User } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useCartStore } from "@/stores/cartStore";
 import { CartDrawer } from "./CartDrawer";
 import { WishlistDrawer } from "./WishlistDrawer";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { SearchDropdown } from "./SearchDropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
 import asperLogo from "@/assets/asper-logo.jpg";
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [mobileSearchFocused, setMobileSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const totalItems = useCartStore((state) => state.getTotalItems());
   const setCartOpen = useCartStore((state) => state.setOpen);
   const { language, isRTL } = useLanguage();
@@ -61,20 +66,41 @@ export const Header = () => {
             </Link>
 
             {/* Search Bar - Center */}
-            <div className="flex-1 max-w-2xl mx-4 hidden md:block">
+            <div className="flex-1 max-w-2xl mx-4 hidden md:block relative">
               <div className="relative">
                 <input
+                  ref={searchInputRef}
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setSearchFocused(true)}
                   placeholder={language === 'ar' ? 'ابحثي عن المنتجات، العلامات التجارية...' : 'Search for products, brands...'}
                   className="w-full px-5 py-3 pr-12 rounded-full border border-gray-300 bg-white text-dark-charcoal placeholder:text-gray-400 font-body text-sm focus:outline-none focus:border-shiny-gold focus:ring-1 focus:ring-shiny-gold transition-colors"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 />
-                <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-shiny-gold transition-colors">
-                  <Search className="w-5 h-5" />
-                </button>
+                {searchQuery ? (
+                  <button 
+                    onClick={() => {
+                      setSearchQuery("");
+                      searchInputRef.current?.focus();
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-shiny-gold transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                ) : (
+                  <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-shiny-gold transition-colors">
+                    <Search className="w-5 h-5" />
+                  </button>
+                )}
               </div>
+              
+              <SearchDropdown
+                isOpen={searchFocused}
+                onClose={() => setSearchFocused(false)}
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+              />
             </div>
 
             {/* Icons - Right */}
@@ -136,20 +162,42 @@ export const Header = () => {
       {mobileMenuOpen && (
         <div className="lg:hidden bg-soft-ivory border-b border-gray-200 animate-fade-in">
           {/* Mobile Search Bar */}
-          <div className="px-4 py-3 border-b border-gray-200">
+          <div className="px-4 py-3 border-b border-gray-200 relative">
             <div className="relative">
               <input
+                ref={mobileSearchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
+                onFocus={() => setMobileSearchFocused(true)}
                 placeholder={language === 'ar' ? 'ابحثي عن المنتجات...' : 'Search for products...'}
                 className="w-full px-5 py-3 pr-12 rounded-full border border-gray-300 bg-white text-dark-charcoal placeholder:text-gray-400 font-body text-sm focus:outline-none focus:border-shiny-gold transition-colors"
                 dir={isRTL ? 'rtl' : 'ltr'}
               />
-              <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
-                <Search className="w-5 h-5" />
-              </button>
+              {searchQuery ? (
+                <button 
+                  onClick={() => {
+                    setSearchQuery("");
+                    mobileSearchInputRef.current?.focus();
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              ) : (
+                <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400">
+                  <Search className="w-5 h-5" />
+                </button>
+              )}
             </div>
+            
+            <SearchDropdown
+              isOpen={mobileSearchFocused}
+              onClose={() => setMobileSearchFocused(false)}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              isMobile
+            />
           </div>
 
           {/* Mobile Categories */}
