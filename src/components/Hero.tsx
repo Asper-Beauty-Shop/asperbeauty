@@ -1,55 +1,63 @@
 import { Button } from "@/components/ui/button";
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import asperLogo from "@/assets/asper-logo.jpg";
 
 export const Hero = () => {
   const { t } = useLanguage();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-mint via-background to-sage/30">
-      {/* Subtle background pattern */}
+    <section className="relative min-h-screen flex items-center justify-center bg-background">
+      {/* Subtle texture overlay */}
       <div className="absolute inset-0 opacity-[0.03]">
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--emerald)) 1px, transparent 0)`,
-          backgroundSize: '50px 50px'
+          backgroundImage: `radial-gradient(circle at 1px 1px, hsl(var(--gold)) 0.5px, transparent 0)`,
+          backgroundSize: '40px 40px'
         }} />
       </div>
 
+      {/* Elegant corner accents */}
+      <div className="absolute top-20 left-8 w-24 h-24 border-t border-l border-gold/30" />
+      <div className="absolute top-20 right-8 w-24 h-24 border-t border-r border-gold/30" />
+      <div className="absolute bottom-20 left-8 w-24 h-24 border-b border-l border-gold/30" />
+      <div className="absolute bottom-20 right-8 w-24 h-24 border-b border-r border-gold/30" />
+
       <div className="luxury-container relative z-10 text-center pt-20">
         <div className="max-w-4xl mx-auto">
-          {/* Emerald divider above headline */}
-          <div className="w-32 h-px bg-gradient-to-r from-transparent via-emerald to-transparent mx-auto mb-8 opacity-0 animate-fade-up" />
+          {/* Logo Image */}
+          <div className="mb-8 opacity-0 animate-fade-up">
+            <img 
+              src={asperLogo} 
+              alt="Asper Beauty Shop" 
+              className="w-48 h-48 md:w-64 md:h-64 mx-auto object-contain rounded-lg shadow-2xl shadow-black/30"
+            />
+          </div>
           
-          {/* Main Heading - Fresh Emerald with glow effect */}
+          {/* Gold divider */}
+          <div className="w-32 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mb-8 opacity-0 animate-fade-up delay-100" />
+          
+          {/* Main Heading - Elegant Cream */}
           <h1 
-            className="font-display text-6xl md:text-8xl lg:text-9xl font-normal leading-tight opacity-0 animate-fade-up delay-100"
-            style={{
-              background: 'linear-gradient(135deg, hsl(160 84% 25%), hsl(160 84% 40%), hsl(160 84% 25%))',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-              textShadow: '0 2px 20px hsla(160, 84%, 30%, 0.3)',
-              filter: 'drop-shadow(0 2px 4px hsla(160, 84%, 30%, 0.2))'
-            }}
+            className="font-display text-5xl md:text-7xl lg:text-8xl font-normal leading-tight opacity-0 animate-fade-up delay-200 text-cream"
           >
             {t.heroTitle}
           </h1>
 
-          {/* Emerald divider below headline */}
-          <div className="w-32 h-px bg-gradient-to-r from-transparent via-emerald to-transparent mx-auto mt-8 mb-10 opacity-0 animate-fade-up delay-200" />
+          {/* Gold divider below headline */}
+          <div className="w-32 h-px bg-gradient-to-r from-transparent via-gold to-transparent mx-auto mt-8 mb-10 opacity-0 animate-fade-up delay-300" />
 
-          {/* Description - Forest text */}
-          <p className="font-body text-forest text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-12 opacity-0 animate-fade-up delay-300">
+          {/* Description - Cream muted */}
+          <p className="font-body text-cream/70 text-base md:text-lg max-w-xl mx-auto leading-relaxed mb-12 opacity-0 animate-fade-up delay-400">
             {t.heroSubtitle}
           </p>
 
-          {/* CTA Button - Emerald accent */}
-          <div className="opacity-0 animate-fade-up delay-400">
+          {/* CTA Button - Gold accent */}
+          <div className="opacity-0 animate-fade-up delay-500">
             <Button 
               variant="luxury-outline" 
               size="luxury-lg"
               onClick={() => document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' })}
-              className="bg-mint text-primary border-2 border-primary hover:bg-primary hover:text-white font-display tracking-wider shadow-lg shadow-emerald/20"
+              className="bg-transparent text-gold border-2 border-gold hover:bg-gold hover:text-background font-display tracking-wider shadow-lg shadow-gold/10 transition-all duration-500"
             >
               {t.discoverCollections}
             </Button>
@@ -60,7 +68,7 @@ export const Hero = () => {
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0 animate-fade-up delay-500">
           <a 
             href="#products"
-            className="flex flex-col items-center gap-2 text-forest/60 hover:text-primary transition-colors"
+            className="flex flex-col items-center gap-2 text-cream/50 hover:text-gold transition-colors"
           >
             <span className="font-body text-xs tracking-widest uppercase">{t.scroll}</span>
             <ArrowDown className="w-4 h-4 animate-bounce" />
