@@ -48,6 +48,11 @@
     --gold-glow: 38 60% 75%;
     --rose: 350 45% 55%;
     --rose-light: 350 50% 65%;
+    
+    /* New header colors */
+    --shiny-gold: 45 100% 50%;
+    --soft-ivory: 240 100% 99%;
+    --dark-charcoal: 0 0% 20%;
 
     --font-display: 'Playfair Display', serif;
     --font-body: 'Montserrat', sans-serif;

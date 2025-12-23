@@ -62,7 +62,7 @@ export default function Collections() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="pt-32 pb-20">
+      <main className="pt-40 pb-20">
         <div className="luxury-container">
           {/* Page Header */}
           <div className="text-center mb-16">
