@@ -14,10 +14,10 @@
     --soft-ivory: 240 100% 99%;
     --soft-ivory-dark: 240 20% 95%;
     
-    /* Shiny Gold #FFC300 = HSL 45 100% 50% */
-    --shiny-gold: 45 100% 50%;
-    --shiny-gold-light: 45 100% 65%;
-    --shiny-gold-dark: 45 100% 40%;
+    /* Logo Gold #C5A028 = HSL 46 67% 46% */
+    --shiny-gold: 46 67% 46%;
+    --shiny-gold-light: 46 67% 58%;
+    --shiny-gold-dark: 46 67% 35%;
     
     /* Dark Charcoal #333333 = HSL 0 0% 20% */
     --dark-charcoal: 0 0% 20%;
@@ -44,8 +44,8 @@
     --muted: 50 20% 88%;
     --muted-foreground: 0 0% 45%;
 
-    /* Shiny Gold accent */
-    --accent: 45 100% 50%;
+    /* Logo Gold accent */
+    --accent: 46 67% 46%;
     --accent-foreground: 0 0% 15%;
 
     --destructive: 0 84.2% 60.2%;
@@ -53,7 +53,7 @@
 
     --border: 50 20% 85%;
     --input: 50 20% 85%;
-    --ring: 45 100% 50%;
+    --ring: 46 67% 46%;
 
     --radius: 0.25rem;
 
@@ -63,9 +63,9 @@
     --burgundy-dark: 345 100% 18%;
     --cream: 240 100% 99%;
     --cream-dark: 240 20% 95%;
-    --gold: 45 100% 50%;
-    --gold-light: 45 100% 65%;
-    --gold-glow: 45 100% 70%;
+    --gold: 46 67% 46%;
+    --gold-light: 46 67% 58%;
+    --gold-glow: 46 67% 65%;
     --rose: 350 45% 55%;
     --rose-light: 350 50% 65%;
 
@@ -79,7 +79,7 @@
     --sidebar-accent: 345 80% 35%;
     --sidebar-accent-foreground: 240 100% 99%;
     --sidebar-border: 345 80% 30%;
-    --sidebar-ring: 45 100% 50%;
+    --sidebar-ring: 46 67% 46%;
   }
 
   .dark {
@@ -102,7 +102,7 @@
     --muted: 345 60% 22%;
     --muted-foreground: 240 20% 75%;
 
-    --accent: 45 100% 50%;
+    --accent: 46 67% 46%;
     --accent-foreground: 345 100% 12%;
 
     --destructive: 0 62.8% 30.6%;
@@ -110,15 +110,15 @@
 
     --border: 345 60% 25%;
     --input: 345 60% 25%;
-    --ring: 45 100% 50%;
+    --ring: 46 67% 46%;
 
     --maroon: 345 100% 12%;
     --maroon-light: 345 80% 20%;
     --burgundy: 345 100% 12%;
     --burgundy-light: 345 80% 20%;
     --cream: 240 100% 99%;
-    --gold: 45 100% 50%;
-    --gold-light: 45 100% 60%;
+    --gold: 46 67% 46%;
+    --gold-light: 46 67% 58%;
 
     --sidebar-background: 345 100% 12%;
     --sidebar-foreground: 240 100% 99%;
@@ -127,7 +127,7 @@
     --sidebar-accent: 345 80% 20%;
     --sidebar-accent-foreground: 240 100% 99%;
     --sidebar-border: 345 60% 25%;
-    --sidebar-ring: 45 100% 50%;
+    --sidebar-ring: 46 67% 46%;
   }
 }
 
