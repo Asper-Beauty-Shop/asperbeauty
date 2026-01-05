@@ -23,7 +23,7 @@ export const Footer = () => {
             <h3 className="font-display text-lg mb-6 text-gold">
               {t.navigation}
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3 text-rose-900">
               {navigationLinks.map(item => <li key={item} className="text-primary">
                   <a href="#" className="font-body text-sm text-cream/60 hover:text-gold transition-colors">
                     {item}
