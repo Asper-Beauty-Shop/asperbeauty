@@ -99,8 +99,8 @@ export const BestSellers = () => {
 
         {/* Two Column Layout */}
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters - 20% */}
-          <aside className="lg:w-1/5 lg:sticky lg:top-36 lg:self-start">
+          {/* Sidebar Filters - Hidden on mobile */}
+          <aside className="hidden lg:block lg:w-1/5 lg:sticky lg:top-36 lg:self-start">
             <div className="bg-card p-6 rounded-lg border border-gold/20 shadow-sm">
               <h3 className="font-display text-lg text-burgundy mb-6 pb-3 border-b border-gold/30">
                 {isArabic ? 'تصفية حسب' : 'Filter By'}
@@ -220,13 +220,13 @@ export const BestSellers = () => {
           {/* Product Grid - 80% */}
           <div className="lg:w-4/5">
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="bg-card animate-pulse rounded-lg aspect-[3/4]" />
                 ))}
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 md:gap-6">
                 {filteredProducts.map((product: ShopifyProduct) => (
                   <ProductCard key={product.node.id} product={product} />
                 ))}
