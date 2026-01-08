@@ -49,6 +49,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
     : 0;
 
+  // Extract brand from vendor or title
+  const brand = (node as any).vendor || node.title.split(' ')[0];
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -87,46 +90,19 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Link to={`/product/${node.handle}`} className="group block">
-      <div className="bg-soft-ivory border border-border hover:border-shiny-gold/50 hover:shadow-xl hover:shadow-shiny-gold/5 transition-all duration-500 overflow-hidden relative rounded-sm">
-        {/* Badges */}
-        {(isBestseller || isNewArrival || isOnSale) && (
-          <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-            {isOnSale && (
-              <div className="bg-primary text-primary-foreground px-3 py-1.5 font-display text-xs tracking-widest uppercase shadow-lg">
-                <span className="flex items-center gap-1.5">
-                  -{discountPercent}%
-                </span>
-              </div>
-            )}
-            {isBestseller && (
-              <div className="bg-shiny-gold text-dark-charcoal px-3 py-1.5 font-display text-xs tracking-widest uppercase shadow-lg">
-                <span className="flex items-center gap-1.5">
-                  <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
-                  </svg>
-                  Bestseller
-                </span>
-              </div>
-            )}
-            {isNewArrival && !isBestseller && !isOnSale && (
-              <div className="bg-primary text-primary-foreground border border-shiny-gold/40 px-3 py-1.5 font-display text-xs tracking-widest uppercase shadow-lg">
-                New
-              </div>
-            )}
-          </div>
-        )}
+      {/* Luxury Card Container */}
+      <div className="bg-white rounded-lg overflow-hidden transition-all duration-400 ease-in-out border border-transparent group-hover:border-gold group-hover:shadow-lg">
         
         {/* Image Container */}
-        <div className="aspect-[3/4] bg-secondary overflow-hidden relative">
+        <div className="aspect-square bg-secondary overflow-hidden relative">
           {firstImage ? (
             <>
               <img
                 src={firstImage.url}
                 alt={firstImage.altText || node.title}
-                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-400 ease-in-out group-hover:scale-105"
                 loading="lazy"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-dark-charcoal/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </>
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-secondary">
@@ -134,77 +110,83 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             </div>
           )}
 
-          {/* Corner Accents */}
-          <div className="absolute top-3 left-3 w-5 h-5 border-t-2 border-l-2 border-shiny-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute top-3 right-3 w-5 h-5 border-t-2 border-r-2 border-shiny-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute bottom-3 left-3 w-5 h-5 border-b-2 border-l-2 border-shiny-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="absolute bottom-3 right-3 w-5 h-5 border-b-2 border-r-2 border-shiny-gold/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Badges */}
+          {(isBestseller || isNewArrival || isOnSale) && (
+            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+              {isOnSale && (
+                <div className="bg-burgundy text-white px-3 py-1 font-body text-xs tracking-wide uppercase">
+                  -{discountPercent}%
+                </div>
+              )}
+              {isBestseller && (
+                <div className="bg-gold text-burgundy px-3 py-1 font-body text-xs tracking-wide uppercase">
+                  Bestseller
+                </div>
+              )}
+              {isNewArrival && !isBestseller && !isOnSale && (
+                <div className="bg-burgundy text-white px-3 py-1 font-body text-xs tracking-wide uppercase">
+                  New
+                </div>
+              )}
+            </div>
+          )}
 
-          {/* Action Buttons */}
-          <div className="absolute top-4 right-4 flex flex-col gap-2 z-30">
-            <button
-              onClick={handleWishlistToggle}
-              className={`w-10 h-10 rounded-full backdrop-blur-sm border flex items-center justify-center transition-all duration-300 shadow-lg hover:scale-110 ${
-                isWishlisted 
-                  ? 'bg-shiny-gold border-shiny-gold text-dark-charcoal' 
-                  : 'bg-soft-ivory/90 border-shiny-gold/40 text-shiny-gold opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 hover:bg-shiny-gold hover:text-dark-charcoal'
-              }`}
-            >
-              <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
-            </button>
-            
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsQuickViewOpen(true);
-              }}
-              className="w-10 h-10 rounded-full bg-soft-ivory/90 backdrop-blur-sm border border-shiny-gold/40 flex items-center justify-center text-shiny-gold hover:bg-shiny-gold hover:text-dark-charcoal transition-all duration-300 shadow-lg hover:scale-110 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
-            >
-              <Eye className="w-4 h-4" />
-            </button>
-          </div>
+          {/* Wishlist Button */}
+          <button
+            onClick={handleWishlistToggle}
+            className={`absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-400 ${
+              isWishlisted 
+                ? 'bg-gold text-burgundy' 
+                : 'bg-white/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-gold hover:text-burgundy'
+            }`}
+          >
+            <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
+          </button>
 
-          {/* Quick add button */}
-          <div className="absolute inset-x-0 bottom-0 p-4 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 ease-out">
+          {/* Quick Add Button - Slides up from bottom */}
+          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-in-out">
             <Button
-              variant="luxury"
-              size="luxury"
-              className="w-full bg-soft-ivory/95 backdrop-blur-md text-primary border border-shiny-gold hover:bg-shiny-gold hover:text-dark-charcoal shadow-lg"
               onClick={handleAddToCart}
+              className="w-full bg-burgundy text-white hover:bg-burgundy-light rounded-none py-3 font-body text-xs tracking-widest uppercase"
             >
               <ShoppingBag className="w-4 h-4 me-2" />
-              {t.addToBag}
+              {language === 'ar' ? 'إضافة سريعة' : 'Quick Add'}
             </Button>
           </div>
+
+          {/* Quick View Button */}
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsQuickViewOpen(true);
+            }}
+            className="absolute bottom-14 right-3 z-20 w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-gold hover:text-burgundy transition-all duration-400"
+          >
+            <Eye className="w-4 h-4" />
+          </button>
         </div>
 
         {/* Content */}
-        <div className="p-5 text-center bg-soft-ivory relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-px bg-gradient-to-r from-transparent via-shiny-gold/50 to-transparent" />
-          
-          <h3 className="font-display text-base text-dark-charcoal mb-1.5 group-hover:text-primary transition-colors duration-300 line-clamp-2">
-            {translateTitle(node.title, language)}
-          </h3>
-          <p className="font-body text-xs text-muted-foreground mb-3 line-clamp-1 leading-relaxed">
-            {getLocalizedDescription(node.description, language, 60) || t.premiumProduct}
+        <div className="p-5 bg-white">
+          {/* Brand Name */}
+          <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-1">
+            {brand}
           </p>
           
-          {/* Gold Separator */}
-          <div className="flex items-center justify-center gap-2 my-3">
-            <div className="w-8 h-px bg-gradient-to-r from-transparent via-shiny-gold/60 to-shiny-gold/30" />
-            <div className="w-1.5 h-1.5 rounded-full bg-shiny-gold/60" />
-            <div className="w-8 h-px bg-gradient-to-l from-transparent via-shiny-gold/60 to-shiny-gold/30" />
-          </div>
+          {/* Product Title */}
+          <h3 className="font-display text-base text-foreground mb-2 line-clamp-2 leading-snug">
+            {translateTitle(node.title, language)}
+          </h3>
           
           {/* Price */}
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center gap-2">
             {isOnSale && originalPrice && (
-              <p className="font-display text-sm text-muted-foreground line-through">
+              <p className="font-body text-sm text-muted-foreground line-through">
                 {price.currencyCode} {originalPrice.toFixed(2)}
               </p>
             )}
-            <p className={`font-display text-lg font-medium tracking-wide ${isOnSale ? 'text-primary' : 'text-shiny-gold'}`}>
+            <p className={`font-display text-lg font-semibold ${isOnSale ? 'text-burgundy' : 'text-burgundy'}`}>
               {price.currencyCode} {currentPrice.toFixed(2)}
             </p>
           </div>
