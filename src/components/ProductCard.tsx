@@ -112,39 +112,39 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
           {/* Badges */}
           {(isBestseller || isNewArrival || isOnSale) && (
-            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+            <div className="absolute top-2 md:top-3 left-2 md:left-3 z-20 flex flex-col gap-1 md:gap-2">
               {isOnSale && (
-                <div className="bg-burgundy text-white px-3 py-1 font-body text-xs tracking-wide uppercase">
+                <div className="bg-burgundy text-white px-2 md:px-3 py-0.5 md:py-1 font-body text-[10px] md:text-xs tracking-wide uppercase">
                   -{discountPercent}%
                 </div>
               )}
               {isBestseller && (
-                <div className="bg-gold text-burgundy px-3 py-1 font-body text-xs tracking-wide uppercase">
+                <div className="bg-gold text-burgundy px-2 md:px-3 py-0.5 md:py-1 font-body text-[10px] md:text-xs tracking-wide uppercase">
                   Bestseller
                 </div>
               )}
               {isNewArrival && !isBestseller && !isOnSale && (
-                <div className="bg-burgundy text-white px-3 py-1 font-body text-xs tracking-wide uppercase">
+                <div className="bg-burgundy text-white px-2 md:px-3 py-0.5 md:py-1 font-body text-[10px] md:text-xs tracking-wide uppercase">
                   New
                 </div>
               )}
             </div>
           )}
 
-          {/* Wishlist Button */}
+          {/* Wishlist Button - Always visible on mobile */}
           <button
             onClick={handleWishlistToggle}
-            className={`absolute top-3 right-3 z-20 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-400 ${
+            className={`absolute top-2 md:top-3 right-2 md:right-3 z-20 w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-all duration-400 ${
               isWishlisted 
                 ? 'bg-gold text-burgundy' 
-                : 'bg-white/80 text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-gold hover:text-burgundy'
+                : 'bg-white/80 text-muted-foreground md:opacity-0 md:group-hover:opacity-100 hover:bg-gold hover:text-burgundy'
             }`}
           >
             <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''}`} />
           </button>
 
-          {/* Quick Add Button - Slides up from bottom */}
-          <div className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-in-out">
+          {/* Quick Add Button - Hidden on mobile (no hover) */}
+          <div className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-400 ease-in-out">
             <Button
               onClick={handleAddToCart}
               className="w-full bg-burgundy text-white hover:bg-burgundy-light rounded-none py-3 font-body text-xs tracking-widest uppercase"
@@ -154,39 +154,39 @@ export const ProductCard = ({ product }: ProductCardProps) => {
             </Button>
           </div>
 
-          {/* Quick View Button */}
+          {/* Quick View Button - Hidden on mobile */}
           <button
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               setIsQuickViewOpen(true);
             }}
-            className="absolute bottom-14 right-3 z-20 w-9 h-9 rounded-full bg-white/80 flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-gold hover:text-burgundy transition-all duration-400"
+            className="hidden md:flex absolute bottom-14 right-3 z-20 w-9 h-9 rounded-full bg-white/80 items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-gold hover:text-burgundy transition-all duration-400"
           >
             <Eye className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-5 bg-white">
+        <div className="p-3 md:p-5 bg-white">
           {/* Brand Name */}
-          <p className="font-body text-xs text-muted-foreground uppercase tracking-widest mb-1">
+          <p className="font-body text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest mb-1">
             {brand}
           </p>
           
           {/* Product Title */}
-          <h3 className="font-display text-base text-foreground mb-2 line-clamp-2 leading-snug">
+          <h3 className="font-display text-sm md:text-base text-foreground mb-2 line-clamp-2 leading-snug">
             {translateTitle(node.title, language)}
           </h3>
           
           {/* Price */}
           <div className="flex items-center gap-2">
             {isOnSale && originalPrice && (
-              <p className="font-body text-sm text-muted-foreground line-through">
+              <p className="font-body text-xs md:text-sm text-muted-foreground line-through">
                 {price.currencyCode} {originalPrice.toFixed(2)}
               </p>
             )}
-            <p className={`font-display text-lg font-semibold ${isOnSale ? 'text-burgundy' : 'text-burgundy'}`}>
+            <p className={`font-display text-base md:text-lg font-semibold ${isOnSale ? 'text-burgundy' : 'text-burgundy'}`}>
               {price.currencyCode} {currentPrice.toFixed(2)}
             </p>
           </div>

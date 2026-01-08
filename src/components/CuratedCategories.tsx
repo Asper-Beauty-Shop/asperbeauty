@@ -69,16 +69,19 @@ export const CuratedCategories = () => {
           <div className="w-16 h-px bg-gold mx-auto mt-4" />
         </div>
 
-        {/* Circular Category Cards */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-6 lg:gap-10">
+        {/* Circular Category Cards - Horizontal Scroll on Mobile */}
+        <div 
+          className="flex md:grid md:grid-cols-6 gap-6 lg:gap-10 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        >
           {categories.map((category) => (
             <Link 
               key={category.id}
               to={category.href}
-              className="group flex flex-col items-center"
+              className="group flex flex-col items-center flex-shrink-0"
             >
               {/* Circular Image Container */}
-              <div className="relative w-24 h-24 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-gold transition-all duration-400 group-hover:border-gold-light group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
+              <div className="relative w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-gold transition-all duration-400 group-hover:border-gold-light group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
                 <div className="absolute inset-0 transition-transform duration-400 group-hover:scale-105">
                   <img
                     src={category.image}
@@ -91,7 +94,7 @@ export const CuratedCategories = () => {
               </div>
               
               {/* Category Label */}
-              <span className="mt-4 font-body text-sm text-foreground text-center transition-colors duration-400 group-hover:text-gold">
+              <span className="mt-3 md:mt-4 font-body text-xs md:text-sm text-foreground text-center transition-colors duration-400 group-hover:text-gold whitespace-nowrap">
                 {isArabic ? category.nameAr : category.name}
               </span>
             </Link>

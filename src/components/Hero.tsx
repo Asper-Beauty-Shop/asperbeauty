@@ -25,8 +25,8 @@ export const Hero = () => {
   }, []);
 
   return (
-    <section className="min-h-[80vh] lg:min-h-[90vh] flex">
-      {/* Left Side - Deep Burgundy */}
+    <section className="min-h-[80vh] lg:min-h-[90vh] flex flex-col-reverse lg:flex-row">
+      {/* Left Side - Deep Burgundy (Text) - Shows second on mobile */}
       <div className="w-full lg:w-1/2 bg-burgundy flex items-center justify-center p-8 lg:p-16">
         <div className={`max-w-lg ${isArabic ? 'text-right' : 'text-left'}`}>
           {/* Script Sub-header */}
@@ -58,11 +58,11 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Right Side - Hero Image with Parallax */}
-      <div className="hidden lg:block w-1/2 relative overflow-hidden">
+      {/* Right Side - Hero Image with Parallax - Shows first on mobile */}
+      <div className="w-full lg:w-1/2 h-[50vh] lg:h-auto relative overflow-hidden">
         <div 
           ref={parallaxRef}
-          className="absolute inset-0 scale-110"
+          className="absolute inset-0 lg:scale-110"
         >
           <img
             src={heroSlide1}
@@ -71,7 +71,8 @@ export const Hero = () => {
           />
         </div>
         {/* Subtle gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-burgundy/20 to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-burgundy/20 to-transparent pointer-events-none lg:block hidden" />
+        <div className="absolute inset-0 bg-gradient-to-t from-burgundy/30 to-transparent pointer-events-none lg:hidden" />
       </div>
     </section>
   );
