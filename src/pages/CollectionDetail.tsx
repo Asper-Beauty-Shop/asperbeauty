@@ -4,18 +4,20 @@ import { Footer } from "@/components/Footer";
 import { ProductGrid } from "@/components/ProductGrid";
 import { getCategoryInfo, normalizeCategorySlug } from "@/lib/categoryMapping";
 import { useLanguage } from "@/contexts/LanguageContext";
-
 export default function CollectionDetail() {
-  const { slug } = useParams<{ slug: string }>();
-  const { language } = useLanguage();
+  const {
+    slug
+  } = useParams<{
+    slug: string;
+  }>();
+  const {
+    language
+  } = useLanguage();
   const isRtl = language === 'ar';
-  
   const normalizedSlug = slug ? normalizeCategorySlug(slug) : '';
   const category = getCategoryInfo(normalizedSlug);
-
   if (!category) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <main className="pt-32 pb-20">
           <div className="luxury-container text-center">
@@ -28,16 +30,12 @@ export default function CollectionDetail() {
           </div>
         </main>
         <Footer />
-      </div>
-    );
+      </div>;
   }
-
   const title = isRtl ? category.titleAr : category.title;
   const description = isRtl ? category.descriptionAr : category.description;
   const editorialTagline = isRtl ? category.editorialTaglineAr : category.editorialTagline;
-
-  return (
-    <div className={`min-h-screen bg-background ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
+  return <div className={`min-h-screen bg-background ${isRtl ? 'rtl' : 'ltr'}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <Header />
       
       <main className="pt-40 pb-20">
@@ -48,16 +46,16 @@ export default function CollectionDetail() {
             <div className="absolute left-0 right-0 top-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
             <div className="absolute left-0 right-0 bottom-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
             
-            <div className="py-12 px-6 md:px-12 text-center bg-secondary">
+            <div className="py-12 px-6 md:px-12 text-center bg-rose-950">
               {/* Category Icon/Flourish */}
-              <div className="flex justify-center mb-6">
+              <div className="flex justify-center mb-6 text-rose-900">
                 <div className="w-12 h-12 rounded-full border border-gold/40 flex items-center justify-center">
                   <span className="text-gold text-xl">✦</span>
                 </div>
               </div>
               
               {/* Collection Title */}
-              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-cream mb-4 tracking-wide">
+              <h1 className="font-display text-4xl md:text-5xl lg:text-6xl mb-4 tracking-wide text-rose-50">
                 {title}
               </h1>
               
@@ -70,7 +68,7 @@ export default function CollectionDetail() {
               </p>
               
               {/* Description */}
-              <p className="font-body text-cream/60 max-w-3xl mx-auto leading-relaxed">
+              <p className="font-body max-w-3xl mx-auto leading-relaxed text-rose-50">
                 {description}
               </p>
             </div>
@@ -82,6 +80,5 @@ export default function CollectionDetail() {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 }
