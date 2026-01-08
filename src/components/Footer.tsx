@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
-import asperLogo from "@/assets/asper-logo.jpg";
+import asperLogoHorizontal from "@/assets/asper-logo-horizontal.jpg";
 
 // TikTok icon component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -39,9 +39,9 @@ export const Footer = () => {
           <div>
             <Link to="/" className="inline-block mb-6">
               <img 
-                src={asperLogo} 
+                src={asperLogoHorizontal} 
                 alt="Asper Beauty Shop" 
-                className="h-16 rounded"
+                className="h-12 w-auto"
               />
             </Link>
             <p className="font-body text-cream mb-6">
