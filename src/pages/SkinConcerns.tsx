@@ -155,9 +155,9 @@ export default function SkinConcerns() {
                     <div className={`absolute inset-0 bg-gradient-to-t ${concern.color} to-black/60 transition-opacity duration-300`} />
                     <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-white">
                       <div className={`w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mb-4 transition-transform duration-300 ${isActive ? "scale-110" : "group-hover:scale-110"}`}>
-                        <IconComponent className="w-7 h-7 text-rose-950 bg-gold" />
+                        <IconComponent className="w-7 h-7 text-rose-950 bg-transparent" />
                       </div>
-                      <h3 className="font-display text-xl text-center mb-2 md:text-4xl text-rose-950 bg-gold">
+                      <h3 className="font-display text-xl text-center mb-2 md:text-4xl text-rose-950 bg-transparent font-extrabold">
                         {language === "ar" ? concern.nameAr : concern.nameEn}
                       </h3>
                       <p className="font-body text-sm text-center line-clamp-2 text-rose-950">
