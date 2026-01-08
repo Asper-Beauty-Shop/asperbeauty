@@ -2,35 +2,43 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Facebook, Instagram } from "lucide-react";
 import { Link } from "react-router-dom";
-import asperLogoHorizontal from "@/assets/asper-logo-horizontal.jpg";
+import asperLogo from "@/assets/asper-logo.jpg";
 
 // TikTok icon component
-const TikTokIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
-  </svg>
-);
-
+const TikTokIcon = ({
+  className
+}: {
+  className?: string;
+}) => <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+  </svg>;
 export const Footer = () => {
   const [email, setEmail] = useState("");
-  const { language } = useLanguage();
+  const {
+    language
+  } = useLanguage();
   const isArabic = language === "ar";
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle newsletter signup
     setEmail("");
   };
-
-  const conciergLinks = [
-    { name: isArabic ? 'تتبع الطلب' : 'Track Order', href: '/tracking' },
-    { name: isArabic ? 'سياسة الشحن' : 'Shipping Policy', href: '/shipping' },
-    { name: isArabic ? 'الإرجاع والاستبدال' : 'Returns & Exchanges', href: '/returns' },
-    { name: isArabic ? 'استشارة البشرة' : 'Skin Consultation', href: '/consultation' },
-  ];
-
-  return (
-    <footer className="bg-burgundy" style={{ borderTop: '1px solid hsl(var(--gold))' }}>
+  const conciergLinks = [{
+    name: isArabic ? 'تتبع الطلب' : 'Track Order',
+    href: '/tracking'
+  }, {
+    name: isArabic ? 'سياسة الشحن' : 'Shipping Policy',
+    href: '/shipping'
+  }, {
+    name: isArabic ? 'الإرجاع والاستبدال' : 'Returns & Exchanges',
+    href: '/returns'
+  }, {
+    name: isArabic ? 'استشارة البشرة' : 'Skin Consultation',
+    href: '/consultation'
+  }];
+  return <footer className="bg-burgundy" style={{
+    borderTop: '1px solid hsl(var(--gold))'
+  }}>
       {/* Main Footer Content */}
       <div className="luxury-container py-20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
@@ -38,11 +46,7 @@ export const Footer = () => {
           {/* Column 1 - Brand Identity */}
           <div>
             <Link to="/" className="inline-block mb-6">
-              <img 
-                src={asperLogoHorizontal} 
-                alt="Asper Beauty Shop" 
-                className="h-12 w-auto"
-              />
+              <img src={asperLogo} alt="Asper Beauty Shop" className="h-16 rounded" />
             </Link>
             <p className="font-body text-cream mb-6">
               {isArabic ? 'إعادة تعريف الجمال في الأردن.' : 'Redefining Beauty in Jordan.'}
@@ -50,28 +54,13 @@ export const Footer = () => {
             
             {/* Social Icons - Gold Outlines */}
             <div className="flex items-center gap-4">
-              <a 
-                href="https://instagram.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400"
-              >
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400">
                 <Instagram className="w-4 h-4" strokeWidth={1.5} />
               </a>
-              <a 
-                href="https://facebook.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400"
-              >
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400">
                 <Facebook className="w-4 h-4" strokeWidth={1.5} />
               </a>
-              <a 
-                href="https://tiktok.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400"
-              >
+              <a href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full border border-gold flex items-center justify-center text-gold hover:bg-gold hover:text-burgundy transition-all duration-400">
                 <TikTokIcon className="w-4 h-4" />
               </a>
             </div>
@@ -83,16 +72,11 @@ export const Footer = () => {
               {isArabic ? 'خدمة العملاء' : 'Concierge'}
             </h3>
             <ul className="space-y-3">
-              {conciergLinks.map((item) => (
-                <li key={item.href}>
-                  <Link 
-                    to={item.href}
-                    className="font-body text-sm text-cream hover:text-gold transition-colors duration-400"
-                  >
+              {conciergLinks.map(item => <li key={item.href}>
+                  <Link to={item.href} className="font-body text-sm text-cream hover:text-gold transition-colors duration-400">
                     {item.name}
                   </Link>
-                </li>
-              ))}
+                </li>)}
             </ul>
           </div>
 
@@ -105,11 +89,8 @@ export const Footer = () => {
               <p className="font-body text-sm text-cream">
                 {isArabic ? 'عمّان، الأردن' : 'Amman, Jordan'}
               </p>
-              <a 
-                href="mailto:concierge@asperbeauty.com" 
-                className="font-body text-sm text-cream hover:text-gold transition-colors duration-400 block"
-              >
-                concierge@asperbeauty.com
+              <a href="mailto:concierge@asperbeauty.com" className="font-body text-sm text-cream hover:text-gold transition-colors duration-400 block">
+                asperpharma@gmail.com
               </a>
             </div>
           </div>
@@ -120,17 +101,8 @@ export const Footer = () => {
               {isArabic ? 'اكتشف الحصريات' : 'Unlock Exclusives'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-3">
-              <input 
-                type="email" 
-                value={email} 
-                onChange={(e) => setEmail(e.target.value)} 
-                placeholder={isArabic ? 'بريدك الإلكتروني' : 'Your email'}
-                className="w-full px-4 py-3 bg-transparent border border-white text-white font-body text-sm placeholder:text-white/50 focus:outline-none focus:border-gold transition-colors duration-400 rounded"
-              />
-              <button 
-                type="submit" 
-                className="w-full px-6 py-3 bg-gold text-burgundy font-display text-sm tracking-wider hover:bg-gold-light transition-colors duration-400 rounded"
-              >
+              <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={isArabic ? 'بريدك الإلكتروني' : 'Your email'} className="w-full px-4 py-3 bg-transparent border border-white text-white font-body text-sm placeholder:text-white/50 focus:outline-none focus:border-gold transition-colors duration-400 rounded" />
+              <button type="submit" className="w-full px-6 py-3 bg-gold text-burgundy font-display text-sm tracking-wider hover:bg-gold-light transition-colors duration-400 rounded">
                 {isArabic ? 'اشترك' : 'Subscribe'}
               </button>
             </form>
@@ -146,6 +118,5 @@ export const Footer = () => {
           </p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
