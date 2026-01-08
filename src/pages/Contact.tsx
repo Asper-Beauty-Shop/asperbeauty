@@ -57,7 +57,7 @@ export default function Contact() {
                     <h3 className="font-display text-sm text-cream mb-1">
                       {isAr ? 'الهاتف' : 'Phone'}
                     </h3>
-                    <p className="font-body text-cream/60" dir="ltr">+962 7 XXXX XXXX</p>
+                    <p className="font-body text-cream/60" dir="ltr">+962 79 999 1234</p>
                   </div>
                 </div>
 
