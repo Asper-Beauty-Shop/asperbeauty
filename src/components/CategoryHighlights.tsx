@@ -1,10 +1,10 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Spotlight images
-import skinCareSpotlight from "@/assets/spotlights/skin-care-spotlight.jpg";
-import hairCareSpotlight from "@/assets/spotlights/hair-care-spotlight.jpg";
-import makeUpSpotlight from "@/assets/spotlights/make-up-spotlight.jpg";
+// Spotlight images - WebP for better compression
+import skinCareSpotlight from "@/assets/spotlights/skin-care-spotlight.webp";
+import hairCareSpotlight from "@/assets/spotlights/hair-care-spotlight.webp";
+import makeUpSpotlight from "@/assets/spotlights/make-up-spotlight.webp";
 
 const categories = [
   {

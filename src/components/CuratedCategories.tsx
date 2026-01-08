@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Category images
-import skinCare from "@/assets/categories/skin-care.jpg";
-import fragrances from "@/assets/categories/fragrances.jpg";
-import hairCare from "@/assets/categories/hair-care.jpg";
-import bodyCare from "@/assets/categories/body-care.jpg";
-import makeUp from "@/assets/categories/make-up.jpg";
-import toolsDevices from "@/assets/categories/tools-devices.jpg";
+// Category images - WebP for better compression
+import skinCare from "@/assets/categories/skin-care.webp";
+import fragrances from "@/assets/categories/fragrances.webp";
+import hairCare from "@/assets/categories/hair-care.webp";
+import bodyCare from "@/assets/categories/body-care.webp";
+import makeUp from "@/assets/categories/make-up.webp";
+import toolsDevices from "@/assets/categories/tools-devices.webp";
 
 const categories = [
   {
