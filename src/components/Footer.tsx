@@ -89,7 +89,10 @@ export const Footer = () => {
               <p className="font-body text-sm text-cream">
                 {isArabic ? 'عمّان، الأردن' : 'Amman, Jordan'}
               </p>
-              <a href="mailto:concierge@asperbeauty.com" className="font-body text-sm text-cream hover:text-gold transition-colors duration-400 block">
+              <a href="tel:+962790656666" className="font-body text-sm text-cream hover:text-gold transition-colors duration-400 block">
+                +962 79 065 6666
+              </a>
+              <a href="mailto:asperpharma@gmail.com" className="font-body text-sm text-cream hover:text-gold transition-colors duration-400 block">
                 asperpharma@gmail.com
               </a>
             </div>
