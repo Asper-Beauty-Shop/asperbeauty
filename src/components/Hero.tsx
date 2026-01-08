@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
 
-// Hero image placeholder
-import heroSlide1 from "@/assets/hero/hero-slide-1.jpg";
+// Hero image - WebP for better compression
+import heroSlide1 from "@/assets/hero/hero-slide-1.webp";
 
 export const Hero = () => {
   const { language } = useLanguage();
