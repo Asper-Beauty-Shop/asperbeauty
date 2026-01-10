@@ -1,56 +1,39 @@
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-// Category images - WebP for better compression
-import skinCare from "@/assets/categories/skin-care.webp";
-import fragrances from "@/assets/categories/fragrances.webp";
-import hairCare from "@/assets/categories/hair-care.webp";
-import bodyCare from "@/assets/categories/body-care.webp";
-import makeUp from "@/assets/categories/make-up.webp";
-import toolsDevices from "@/assets/categories/tools-devices.webp";
+import { TestTube, Sparkles, Scissors, Heart } from "lucide-react";
 
 const categories = [
   {
-    id: 'dermo-cosmetics',
-    name: 'Dermo-Cosmetics',
-    nameAr: 'مستحضرات طبية',
-    image: skinCare,
-    href: '/collections/skin-care'
+    id: 'clinical-skincare',
+    name: 'Clinical Skincare',
+    nameAr: 'العناية السريرية',
+    icon: TestTube,
+    href: '/collections/skin-care',
+    color: 'from-burgundy/20 to-burgundy/5',
   },
   {
-    id: 'luxury-scents',
-    name: 'Luxury Scents',
-    nameAr: 'عطور فاخرة',
-    image: fragrances,
-    href: '/collections/fragrances'
+    id: 'niche-fragrance',
+    name: 'Niche Fragrance',
+    nameAr: 'العطور الفاخرة',
+    icon: Sparkles,
+    href: '/collections/fragrances',
+    color: 'from-gold/20 to-gold/5',
   },
   {
-    id: 'organic-hair',
-    name: 'Organic Hair',
-    nameAr: 'عناية الشعر',
-    image: hairCare,
-    href: '/collections/hair-care'
+    id: 'dermo-hair',
+    name: 'Dermo-Hair',
+    nameAr: 'العناية بالشعر',
+    icon: Scissors,
+    href: '/collections/hair-care',
+    color: 'from-rose/20 to-rose/5',
   },
   {
-    id: 'mother-baby',
-    name: 'Mother & Baby',
+    id: 'mother-child',
+    name: 'Mother & Child',
     nameAr: 'الأم والطفل',
-    image: bodyCare,
-    href: '/collections/body-care'
-  },
-  {
-    id: 'supplements',
-    name: 'Supplements',
-    nameAr: 'المكملات',
-    image: toolsDevices,
-    href: '/collections/supplements'
-  },
-  {
-    id: 'mens-care',
-    name: "Men's Care",
-    nameAr: 'عناية الرجال',
-    image: makeUp,
-    href: '/collections/men'
+    icon: Heart,
+    href: '/collections/body-care',
+    color: 'from-cream to-white',
   },
 ];
 
@@ -59,19 +42,19 @@ export const CuratedCategories = () => {
   const isArabic = language === "ar";
 
   return (
-    <section className="py-16 lg:py-24 bg-cream">
+    <section className="py-16 lg:py-24 bg-white">
       <div className="luxury-container">
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="font-display text-3xl lg:text-4xl text-foreground mb-2">
-            {isArabic ? 'منتقى لك' : 'Curated for You'}
+            {isArabic ? 'المجموعات الحصرية' : 'Concierge Collections'}
           </h2>
           <div className="w-16 h-px bg-gold mx-auto mt-4" />
         </div>
 
-        {/* Circular Category Cards - Horizontal Scroll on Mobile */}
+        {/* Circular Category Cards */}
         <div 
-          className="flex md:grid md:grid-cols-6 gap-6 lg:gap-10 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0"
+          className="flex md:grid md:grid-cols-4 gap-8 lg:gap-12 overflow-x-auto md:overflow-visible pb-4 md:pb-0 -mx-6 px-6 md:mx-0 md:px-0 justify-center"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {categories.map((category) => (
@@ -80,24 +63,18 @@ export const CuratedCategories = () => {
               to={category.href}
               className="group flex flex-col items-center flex-shrink-0"
             >
-              {/* Circular Image Container */}
-              <div className="relative w-20 h-20 md:w-28 md:h-28 lg:w-32 lg:h-32 rounded-full overflow-hidden border-2 border-gold transition-all duration-400 group-hover:border-gold-light group-hover:shadow-[0_0_20px_rgba(212,175,55,0.3)]">
-                <div className="absolute inset-0 transition-transform duration-400 group-hover:scale-105">
-                  <img
-                    src={category.image}
-                    alt={isArabic ? category.nameAr : category.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                    width={128}
-                    height={128}
-                  />
-                </div>
+              {/* Circular Icon Container */}
+              <div className={`relative w-24 h-24 md:w-32 md:h-32 lg:w-36 lg:h-36 rounded-full overflow-hidden border-2 border-gold transition-all duration-400 group-hover:border-gold-light group-hover:shadow-[0_0_30px_rgba(212,175,55,0.4)] bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+                <category.icon 
+                  className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 text-burgundy transition-transform duration-400 group-hover:scale-110" 
+                  strokeWidth={1.5} 
+                />
                 {/* Gold glow overlay on hover */}
-                <div className="absolute inset-0 bg-gold/0 group-hover:bg-gold/10 transition-colors duration-400" />
+                <div className="absolute inset-0 bg-gold/0 group-hover:bg-gold/10 transition-colors duration-400 rounded-full" />
               </div>
               
               {/* Category Label */}
-              <span className="mt-3 md:mt-4 font-body text-xs md:text-sm text-foreground text-center transition-colors duration-400 group-hover:text-gold whitespace-nowrap">
+              <span className="mt-4 md:mt-5 font-display text-sm md:text-base text-foreground text-center transition-colors duration-400 group-hover:text-gold">
                 {isArabic ? category.nameAr : category.name}
               </span>
             </Link>
