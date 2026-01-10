@@ -9,10 +9,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { 
   Upload, FileSpreadsheet, Sparkles, Image, ShoppingBag, 
-  CheckCircle2, AlertCircle, Loader2, Play, Pause, RefreshCw 
+  CheckCircle2, AlertCircle, Loader2, Play, Pause, RefreshCw,
+  Download, Table
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
 
 interface ProcessedProduct {
   sku: string;
@@ -33,6 +35,34 @@ interface UploadSummary {
   brands: Record<string, number>;
 }
 
+interface RawProduct {
+  sku: string;
+  name: string;
+  costPrice: number;
+  sellingPrice: number;
+}
+
+// Column name mappings for Arabic Excel files
+const COLUMN_MAPPINGS = {
+  sku: ["الرمز", "رمز", "SKU", "Code", "Barcode", "الباركود"],
+  name: ["اسم المادة", "اسم المنتج", "Product Name", "Name", "المنتج", "الاسم"],
+  costPrice: ["الكلفة", "سعر الشراء", "Cost", "Cost Price", "التكلفة"],
+  sellingPrice: ["سعر البيع", "السعر", "Price", "Selling Price", "Sale Price"],
+};
+
+// Find the matching column name from the headers
+function findColumn(headers: string[], possibleNames: string[]): string | null {
+  for (const name of possibleNames) {
+    const found = headers.find(h => 
+      h.toLowerCase().trim() === name.toLowerCase().trim() ||
+      h.includes(name) ||
+      name.includes(h)
+    );
+    if (found) return found;
+  }
+  return null;
+}
+
 export default function BulkUpload() {
   const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "shopify">("upload");
   const [products, setProducts] = useState<ProcessedProduct[]>([]);
@@ -40,34 +70,151 @@ export default function BulkUpload() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0, stage: "" });
-  const [rawData, setRawData] = useState<any[]>([]);
+  const [rawData, setRawData] = useState<RawProduct[]>([]);
+  const [fileName, setFileName] = useState<string>("");
+  const [parseError, setParseError] = useState<string>("");
+  const [previewData, setPreviewData] = useState<RawProduct[]>([]);
 
-  // Parse Excel/CSV file
+  // Parse Excel/CSV file using xlsx library
   const handleFileUpload = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     setIsProcessing(true);
-    toast.info("Parsing file...");
+    setParseError("");
+    setFileName(file.name);
+    toast.info(`Parsing ${file.name}...`);
 
     try {
-      // For now, use the pre-parsed data from the Excel file
-      // In production, you'd use a library like xlsx to parse
-      const mockData = [
-        { sku: "777284", name: "BLACK HAIR PINS", costPrice: 0.259, sellingPrice: 0.500 },
-        { sku: "737383722396", name: "PALMERS OLIVE OIL COND 400 ML", costPrice: 4.487, sellingPrice: 9.750 },
-        { sku: "737383722622", name: "PALMER-S OLIVE OIL BODY LOTION PUMP (400ML)", costPrice: 6.840, sellingPrice: 10.000 },
-        { sku: "737383743893", name: "PALMERS COCOA BUTTER FORMULA BODY LOTION 400 ML", costPrice: 10.310, sellingPrice: 14.950 },
-        { sku: "737383772223", name: "PALMERS SKINSUCCESS FADE CREAM (OILY SKIN) (75GM)", costPrice: 8.836, sellingPrice: 15.950 },
-        // Add more sample data...
-      ];
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
       
-      setRawData(mockData);
-      toast.success(`Loaded ${mockData.length} products from file`);
+      // Get the first sheet
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      // Convert to JSON with headers
+      const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { 
+        defval: "",
+        raw: false 
+      });
+
+      if (jsonData.length === 0) {
+        throw new Error("No data found in the Excel file");
+      }
+
+      // Get headers from the first row
+      const headers = Object.keys(jsonData[0]);
+      console.log("Found headers:", headers);
+
+      // Find matching columns
+      const skuCol = findColumn(headers, COLUMN_MAPPINGS.sku);
+      const nameCol = findColumn(headers, COLUMN_MAPPINGS.name);
+      const costCol = findColumn(headers, COLUMN_MAPPINGS.costPrice);
+      const priceCol = findColumn(headers, COLUMN_MAPPINGS.sellingPrice);
+
+      console.log("Mapped columns:", { skuCol, nameCol, costCol, priceCol });
+
+      if (!nameCol) {
+        throw new Error(`Could not find product name column. Found columns: ${headers.join(", ")}`);
+      }
+
+      // Parse products
+      const parsedProducts: RawProduct[] = jsonData
+        .map((row, index) => {
+          const name = String(row[nameCol] || "").trim();
+          if (!name) return null;
+
+          return {
+            sku: String(row[skuCol || ""] || `SKU-${index + 1}`).trim(),
+            name,
+            costPrice: parseFloat(String(row[costCol || ""] || "0").replace(/[^0-9.]/g, "")) || 0,
+            sellingPrice: parseFloat(String(row[priceCol || ""] || "0").replace(/[^0-9.]/g, "")) || 0,
+          };
+        })
+        .filter((p): p is RawProduct => p !== null && p.name.length > 0);
+
+      if (parsedProducts.length === 0) {
+        throw new Error("No valid products found in the file");
+      }
+
+      setRawData(parsedProducts);
+      setPreviewData(parsedProducts.slice(0, 10));
+      toast.success(`Successfully loaded ${parsedProducts.length} products from ${file.name}`);
       setStep("categorize");
-    } catch (error) {
-      toast.error("Failed to parse file");
-      console.error(error);
+    } catch (error: any) {
+      console.error("Parse error:", error);
+      setParseError(error.message || "Failed to parse file");
+      toast.error(`Failed to parse file: ${error.message}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, []);
+
+  // Load the bundled Excel file
+  const loadBundledFile = useCallback(async () => {
+    setIsProcessing(true);
+    setParseError("");
+    setFileName("products-data.xlsx");
+    toast.info("Loading product data...");
+
+    try {
+      const response = await fetch("/data/products-data.xlsx");
+      if (!response.ok) throw new Error("Failed to fetch file");
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: "array" });
+      
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      
+      const jsonData = XLSX.utils.sheet_to_json<Record<string, any>>(worksheet, { 
+        defval: "",
+        raw: false 
+      });
+
+      if (jsonData.length === 0) {
+        throw new Error("No data found in the Excel file");
+      }
+
+      const headers = Object.keys(jsonData[0]);
+      console.log("Found headers:", headers);
+
+      const skuCol = findColumn(headers, COLUMN_MAPPINGS.sku);
+      const nameCol = findColumn(headers, COLUMN_MAPPINGS.name);
+      const costCol = findColumn(headers, COLUMN_MAPPINGS.costPrice);
+      const priceCol = findColumn(headers, COLUMN_MAPPINGS.sellingPrice);
+
+      if (!nameCol) {
+        throw new Error(`Could not find product name column. Found columns: ${headers.join(", ")}`);
+      }
+
+      const parsedProducts: RawProduct[] = jsonData
+        .map((row, index) => {
+          const name = String(row[nameCol] || "").trim();
+          if (!name) return null;
+
+          return {
+            sku: String(row[skuCol || ""] || `SKU-${index + 1}`).trim(),
+            name,
+            costPrice: parseFloat(String(row[costCol || ""] || "0").replace(/[^0-9.]/g, "")) || 0,
+            sellingPrice: parseFloat(String(row[priceCol || ""] || "0").replace(/[^0-9.]/g, "")) || 0,
+          };
+        })
+        .filter((p): p is RawProduct => p !== null && p.name.length > 0);
+
+      if (parsedProducts.length === 0) {
+        throw new Error("No valid products found in the file");
+      }
+
+      setRawData(parsedProducts);
+      setPreviewData(parsedProducts.slice(0, 10));
+      toast.success(`Successfully loaded ${parsedProducts.length} products`);
+      setStep("categorize");
+    } catch (error: any) {
+      console.error("Load error:", error);
+      setParseError(error.message || "Failed to load file");
+      toast.error(`Failed to load file: ${error.message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -252,62 +399,89 @@ export default function BulkUpload() {
               <CardContent>
                 {/* Upload Step */}
                 {step === "upload" && (
-                  <div className="text-center py-12">
-                    <div className="border-2 border-dashed border-taupe/30 rounded-xl p-12 hover:border-burgundy/50 transition-colors">
-                      <Upload className="w-12 h-12 mx-auto mb-4 text-taupe" />
-                      <p className="text-charcoal mb-4">Drop your Excel or CSV file here</p>
-                      <input
-                        type="file"
-                        accept=".xlsx,.xls,.csv"
-                        onChange={handleFileUpload}
-                        className="hidden"
-                        id="file-upload"
-                      />
-                      <label htmlFor="file-upload">
-                        <Button asChild disabled={isProcessing}>
-                          <span>
-                            {isProcessing ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Processing...
-                              </>
-                            ) : (
-                              <>
-                                <FileSpreadsheet className="w-4 h-4 mr-2" />
-                                Choose File
-                              </>
-                            )}
-                          </span>
-                        </Button>
-                      </label>
-                      <p className="text-sm text-taupe mt-4">
-                        Expected columns: SKU, Product Name, Cost Price, Selling Price
-                      </p>
+                  <div className="space-y-8">
+                    <div className="text-center py-8">
+                      <div className="border-2 border-dashed border-taupe/30 rounded-xl p-12 hover:border-burgundy/50 transition-colors">
+                        <Upload className="w-12 h-12 mx-auto mb-4 text-taupe" />
+                        <p className="text-charcoal mb-4">Drop your Excel or CSV file here</p>
+                        <input
+                          type="file"
+                          accept=".xlsx,.xls,.csv"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="file-upload"
+                        />
+                        <label htmlFor="file-upload">
+                          <Button asChild disabled={isProcessing}>
+                            <span>
+                              {isProcessing ? (
+                                <>
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                  Processing...
+                                </>
+                              ) : (
+                                <>
+                                  <FileSpreadsheet className="w-4 h-4 mr-2" />
+                                  Choose File
+                                </>
+                              )}
+                            </span>
+                          </Button>
+                        </label>
+                        <p className="text-sm text-taupe mt-4">
+                          Supports Arabic columns: الرمز، اسم المادة، سعر البيع، الكلفة
+                        </p>
+                      </div>
+                      
+                      {parseError && (
+                        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                          <AlertCircle className="w-4 h-4 inline mr-2" />
+                          {parseError}
+                        </div>
+                      )}
                     </div>
                     
-                    {/* Demo button for testing */}
-                    <div className="mt-8">
+                    {/* Quick Load Options */}
+                    <div className="grid md:grid-cols-2 gap-4">
                       <Button 
                         variant="outline" 
+                        size="lg"
+                        onClick={loadBundledFile}
+                        disabled={isProcessing}
+                        className="h-auto py-6 flex-col gap-2"
+                      >
+                        <Download className="w-6 h-6" />
+                        <span className="font-medium">Load Your Product Data</span>
+                        <span className="text-xs text-taupe">1,526 products from كشف المواد</span>
+                      </Button>
+                      
+                      <Button 
+                        variant="outline"
+                        size="lg"
                         onClick={() => {
-                          setRawData([
+                          const sampleData: RawProduct[] = [
                             { sku: "777284", name: "BLACK HAIR PINS", costPrice: 0.259, sellingPrice: 0.500 },
                             { sku: "737383722396", name: "PALMERS OLIVE OIL COND 400 ML", costPrice: 4.487, sellingPrice: 9.750 },
                             { sku: "737383722622", name: "PALMER-S OLIVE OIL BODY LOTION PUMP (400ML)", costPrice: 6.840, sellingPrice: 10.000 },
                             { sku: "737383743893", name: "PALMERS COCOA BUTTER FORMULA BODY LOTION 400 ML", costPrice: 10.310, sellingPrice: 14.950 },
                             { sku: "737383772223", name: "PALMERS SKINSUCCESS FADE CREAM (OILY SKIN) (75GM)", costPrice: 8.836, sellingPrice: 15.950 },
                             { sku: "737383787772", name: "PALMERS SKIN SUCCESS DEEP CLEANSING (250 ML)", costPrice: 4.333, sellingPrice: 9.500 },
-                            { sku: "737768773629", name: "SUNDOWN PAPAYAA ENZYME (100 CHEWABLE TAB)", costPrice: 9.600, sellingPrice: 12.900 },
+                            { sku: "737768773629", name: "SUNDOWN PAPAYA ENZYME (100 CHEWABLE TAB)", costPrice: 9.600, sellingPrice: 12.900 },
                             { sku: "764642727334", name: "JAMIESON VIT C 500 CHEWABLE (100+20TABLETS)", costPrice: 9.418, sellingPrice: 13.900 },
                             { sku: "722277947238", name: "SPEED STICK OCEAN SURF (51G)", costPrice: 1.650, sellingPrice: 2.750 },
                             { sku: "7447477", name: "ARTELAC ADVANCED E/D (30*0.5ML)", costPrice: 5.672, sellingPrice: 8.630 },
-                          ]);
+                          ];
+                          setRawData(sampleData);
+                          setPreviewData(sampleData);
+                          setFileName("sample-data");
                           toast.success("Loaded 10 sample products");
                           setStep("categorize");
                         }}
+                        className="h-auto py-6 flex-col gap-2"
                       >
-                        <Sparkles className="w-4 h-4 mr-2" />
-                        Use Sample Data (10 products)
+                        <Sparkles className="w-6 h-6" />
+                        <span className="font-medium">Use Sample Data</span>
+                        <span className="text-xs text-taupe">10 products for testing</span>
                       </Button>
                     </div>
                   </div>
@@ -317,25 +491,67 @@ export default function BulkUpload() {
                 {step === "categorize" && (
                   <div className="space-y-6">
                     <div className="bg-taupe/5 rounded-lg p-6">
-                      <h3 className="font-medium text-charcoal mb-2">Products Loaded: {rawData.length}</h3>
-                      <p className="text-sm text-taupe">
-                        Click the button below to automatically categorize products using AI
-                      </p>
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <h3 className="font-medium text-charcoal">Products Loaded: {rawData.length}</h3>
+                          {fileName && <p className="text-sm text-taupe">From: {fileName}</p>}
+                        </div>
+                        <Badge variant="secondary" className="text-sm">
+                          <Table className="w-3 h-3 mr-1" />
+                          {rawData.length} rows
+                        </Badge>
+                      </div>
+                      
+                      {/* Data Preview Table */}
+                      <div className="bg-white rounded-lg border overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-sm">
+                            <thead className="bg-taupe/10">
+                              <tr>
+                                <th className="px-4 py-2 text-left font-medium text-charcoal">SKU</th>
+                                <th className="px-4 py-2 text-left font-medium text-charcoal">Product Name</th>
+                                <th className="px-4 py-2 text-right font-medium text-charcoal">Cost</th>
+                                <th className="px-4 py-2 text-right font-medium text-charcoal">Price</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-taupe/10">
+                              {previewData.map((product, i) => (
+                                <tr key={product.sku + i} className="hover:bg-taupe/5">
+                                  <td className="px-4 py-2 text-taupe font-mono text-xs">{product.sku}</td>
+                                  <td className="px-4 py-2 text-charcoal">{product.name}</td>
+                                  <td className="px-4 py-2 text-right text-taupe">${product.costPrice.toFixed(2)}</td>
+                                  <td className="px-4 py-2 text-right font-medium text-gold">${product.sellingPrice.toFixed(2)}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                        {rawData.length > 10 && (
+                          <div className="px-4 py-2 bg-taupe/5 text-center text-sm text-taupe">
+                            Showing 10 of {rawData.length} products
+                          </div>
+                        )}
+                      </div>
                     </div>
                     
-                    <Button onClick={categorizeProducts} disabled={isProcessing} size="lg" className="w-full">
-                      {isProcessing ? (
-                        <>
-                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                          Categorizing...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Auto-Categorize Products
-                        </>
-                      )}
-                    </Button>
+                    <div className="flex gap-4">
+                      <Button variant="outline" onClick={() => setStep("upload")}>
+                        ← Back
+                      </Button>
+                      <Button onClick={categorizeProducts} disabled={isProcessing} size="lg" className="flex-1">
+                        {isProcessing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Categorizing...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-2" />
+                            Auto-Categorize {rawData.length} Products
+                          </>
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 )}
 
