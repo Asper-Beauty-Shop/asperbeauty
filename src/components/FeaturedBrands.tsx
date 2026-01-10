@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { AnimatedSection } from "./AnimatedSection";
 
 // Brand logos
 import vichyLogo from "@/assets/brands/vichy-logo.webp";
@@ -83,7 +84,7 @@ export const FeaturedBrands = () => {
     <section className="py-16 lg:py-20 bg-white">
       <div className="luxury-container">
         {/* Section Header */}
-        <div className="text-center mb-12">
+        <AnimatedSection className="text-center mb-12">
           <span className="font-script text-2xl text-gold mb-2 block">
             {isArabic ? 'علامات تجارية فاخرة' : 'Luxury Brands'}
           </span>
@@ -91,62 +92,64 @@ export const FeaturedBrands = () => {
             {isArabic ? 'العلامات المميزة' : 'Featured Brands'}
           </h2>
           <div className="w-16 h-px bg-gold mx-auto mt-4" />
-        </div>
+        </AnimatedSection>
 
         {/* Carousel Container */}
-        <div className="relative group">
-          {/* Navigation Arrows - Desktop */}
-          <button 
-            onClick={() => scroll('left')} 
-            className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-white border border-gold/30 items-center justify-center text-foreground hover:bg-gold hover:text-white transition-all duration-400 opacity-0 group-hover:opacity-100 shadow-lg"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button 
-            onClick={() => scroll('right')} 
-            className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-white border border-gold/30 items-center justify-center text-foreground hover:bg-gold hover:text-white transition-all duration-400 opacity-0 group-hover:opacity-100 shadow-lg"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
+        <AnimatedSection animation="fade-up" delay={200}>
+          <div className="relative group">
+            {/* Navigation Arrows - Desktop */}
+            <button 
+              onClick={() => scroll('left')} 
+              className="hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 rounded-full bg-white border border-gold/30 items-center justify-center text-foreground hover:bg-gold hover:text-white transition-all duration-400 opacity-0 group-hover:opacity-100 shadow-lg"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <button 
+              onClick={() => scroll('right')} 
+              className="hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 rounded-full bg-white border border-gold/30 items-center justify-center text-foreground hover:bg-gold hover:text-white transition-all duration-400 opacity-0 group-hover:opacity-100 shadow-lg"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
 
-          {/* Scrollable Brands */}
-          <div 
-            ref={scrollRef} 
-            className="flex gap-6 lg:gap-8 overflow-x-auto scrollbar-hide pb-4 scroll-smooth" 
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {brands.map(brand => (
-              <Link 
-                key={brand.id} 
-                to={brand.href} 
-                className="group/brand flex-shrink-0"
-              >
-                {/* Brand Card */}
-                <div className="w-40 lg:w-48 rounded-xl p-6 lg:p-8 border border-gold/10 bg-cream/30 transition-all duration-400 hover:border-gold/40 hover:shadow-xl hover:bg-white text-center">
-                  {/* Brand Logo */}
-                  <div className="h-20 lg:h-24 flex items-center justify-center mb-4">
-                    <img 
-                      src={brand.logo} 
-                      alt={brand.name}
-                      className="max-h-full max-w-full object-contain transition-transform duration-400 group-hover/brand:scale-110"
-                      loading="lazy"
-                      width={150}
-                      height={80}
-                    />
+            {/* Scrollable Brands */}
+            <div 
+              ref={scrollRef} 
+              className="flex gap-6 lg:gap-8 overflow-x-auto scrollbar-hide pb-4 scroll-smooth" 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {brands.map(brand => (
+                <Link 
+                  key={brand.id} 
+                  to={brand.href} 
+                  className="group/brand flex-shrink-0"
+                >
+                  {/* Brand Card */}
+                  <div className="w-40 lg:w-48 rounded-xl p-6 lg:p-8 border border-gold/10 bg-cream/30 transition-all duration-400 hover:border-gold/40 hover:shadow-xl hover:bg-white text-center">
+                    {/* Brand Logo */}
+                    <div className="h-20 lg:h-24 flex items-center justify-center mb-4">
+                      <img 
+                        src={brand.logo} 
+                        alt={brand.name}
+                        className="max-h-full max-w-full object-contain transition-transform duration-400 group-hover/brand:scale-110"
+                        loading="lazy"
+                        width={150}
+                        height={80}
+                      />
+                    </div>
+                    
+                    {/* Shop Link - appears on hover */}
+                    <span className="font-body text-xs uppercase tracking-widest text-burgundy/60 group-hover/brand:text-gold transition-colors duration-400">
+                      {isArabic ? 'تسوق الآن' : 'Shop Now'}
+                    </span>
                   </div>
-                  
-                  {/* Shop Link - appears on hover */}
-                  <span className="font-body text-xs uppercase tracking-widest text-burgundy/60 group-hover/brand:text-gold transition-colors duration-400">
-                    {isArabic ? 'تسوق الآن' : 'Shop Now'}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
+        </AnimatedSection>
 
         {/* View All Brands Link */}
-        <div className="text-center mt-10">
+        <AnimatedSection animation="fade" delay={400} className="text-center mt-10">
           <Link 
             to="/brands" 
             className="inline-flex items-center gap-2 font-body text-sm text-foreground hover:text-gold transition-colors duration-400 uppercase tracking-widest"
@@ -154,7 +157,7 @@ export const FeaturedBrands = () => {
             {isArabic ? 'عرض جميع العلامات' : 'View All Brands'}
             <ChevronRight className="w-4 h-4" />
           </Link>
-        </div>
+        </AnimatedSection>
       </div>
     </section>
   );

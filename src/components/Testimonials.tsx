@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { AnimatedSection } from "./AnimatedSection";
 
 const testimonials = [
   {
@@ -56,7 +57,7 @@ export const Testimonials = () => {
     <section className="py-20 lg:py-28 bg-burgundy">
       <div className="luxury-container">
         {/* Section Header */}
-        <div className="text-center mb-16">
+        <AnimatedSection className="text-center mb-16">
           <span className="font-script text-2xl lg:text-3xl text-gold block mb-2">
             {isArabic ? 'ماذا يقول عملاؤنا' : 'What Our Clients Say'}
           </span>
@@ -64,65 +65,64 @@ export const Testimonials = () => {
             {isArabic ? 'شهادات العملاء' : 'Testimonials'}
           </h2>
           <div className="w-16 h-px bg-gold mx-auto" />
-        </div>
+        </AnimatedSection>
 
         {/* Testimonial Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <div
-              key={testimonial.id}
-              className="bg-cream/5 backdrop-blur-sm border border-gold/20 rounded-lg p-8 transition-all duration-400 hover:border-gold/50 hover:bg-cream/10 group"
-            >
-              {/* Quote Icon */}
-              <div className="text-gold/30 mb-6">
-                <svg className="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-              </div>
+          {testimonials.map((testimonial, index) => (
+            <AnimatedSection key={testimonial.id} animation="fade-up" delay={index * 150}>
+              <div className="bg-cream/5 backdrop-blur-sm border border-gold/20 rounded-lg p-8 transition-all duration-400 hover:border-gold/50 hover:bg-cream/10 group h-full">
+                {/* Quote Icon */}
+                <div className="text-gold/30 mb-6">
+                  <svg className="w-10 h-10" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
+                  </svg>
+                </div>
 
-              {/* Review Text */}
-              <p className="font-body text-cream/80 leading-relaxed mb-6 min-h-[100px]">
-                {isArabic ? testimonial.reviewAr : testimonial.review}
-              </p>
+                {/* Review Text */}
+                <p className="font-body text-cream/80 leading-relaxed mb-6 min-h-[100px]">
+                  {isArabic ? testimonial.reviewAr : testimonial.review}
+                </p>
 
-              {/* Rating */}
-              <div className="mb-6">
-                <StarRating rating={testimonial.rating} />
-              </div>
+                {/* Rating */}
+                <div className="mb-6">
+                  <StarRating rating={testimonial.rating} />
+                </div>
 
-              {/* Gold Divider */}
-              <div className="w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mb-6" />
+                {/* Gold Divider */}
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-gold/30 to-transparent mb-6" />
 
-              {/* Author Info */}
-              <div className="flex items-center gap-4">
-                {/* Avatar with Gold Ring */}
-                <div className="relative">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold to-gold-light opacity-0 group-hover:opacity-100 transition-opacity duration-400 blur-sm" />
-                  <div className="relative w-14 h-14 rounded-full border-2 border-gold overflow-hidden">
-                    <img
-                      src={testimonial.avatar}
-                      alt={isArabic ? testimonial.nameAr : testimonial.name}
-                      className="w-full h-full object-cover"
-                    />
+                {/* Author Info */}
+                <div className="flex items-center gap-4">
+                  {/* Avatar with Gold Ring */}
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gold to-gold-light opacity-0 group-hover:opacity-100 transition-opacity duration-400 blur-sm" />
+                    <div className="relative w-14 h-14 rounded-full border-2 border-gold overflow-hidden">
+                      <img
+                        src={testimonial.avatar}
+                        alt={isArabic ? testimonial.nameAr : testimonial.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Name & Location */}
+                  <div>
+                    <h4 className="font-display text-base text-cream">
+                      {isArabic ? testimonial.nameAr : testimonial.name}
+                    </h4>
+                    <p className="font-body text-xs text-gold/70">
+                      {isArabic ? testimonial.locationAr : testimonial.location}
+                    </p>
                   </div>
                 </div>
-
-                {/* Name & Location */}
-                <div>
-                  <h4 className="font-display text-base text-cream">
-                    {isArabic ? testimonial.nameAr : testimonial.name}
-                  </h4>
-                  <p className="font-body text-xs text-gold/70">
-                    {isArabic ? testimonial.locationAr : testimonial.location}
-                  </p>
-                </div>
               </div>
-            </div>
+            </AnimatedSection>
           ))}
         </div>
 
         {/* Bottom Accent */}
-        <div className="flex flex-col items-center mt-16">
+        <AnimatedSection animation="fade" delay={500} className="flex flex-col items-center mt-16">
           <div className="flex items-center gap-3">
             <div className="w-12 h-px bg-gradient-to-r from-transparent to-gold/50" />
             <span className="font-script text-2xl text-gold">
@@ -130,7 +130,7 @@ export const Testimonials = () => {
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-gold/50" />
           </div>
-        </div>
+        </AnimatedSection>
       </div>
     </section>
   );
