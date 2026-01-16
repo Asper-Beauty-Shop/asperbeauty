@@ -17,12 +17,19 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate initial page load with minimum skeleton display time
+    const handleLoad = () => setIsLoading(false);
+    
+    // Hide skeleton once window loads or timeout finishes (whichever comes last for safety)
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
 
-    return () => clearTimeout(timer);
+    window.addEventListener("load", handleLoad);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("load", handleLoad);
+    };
   }, []);
 
   if (isLoading) {
