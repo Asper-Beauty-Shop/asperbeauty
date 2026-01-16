@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      cod_orders: {
+        Row: {
+          city: string
+          created_at: string
+          customer_email: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_address: string
+          id: string
+          items: Json
+          notes: string | null
+          order_number: string
+          shipping_cost: number
+          status: string
+          subtotal: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name: string
+          customer_phone: string
+          delivery_address: string
+          id?: string
+          items: Json
+          notes?: string | null
+          order_number: string
+          shipping_cost?: number
+          status?: string
+          subtotal: number
+          total: number
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          customer_email?: string | null
+          customer_name?: string
+          customer_phone?: string
+          delivery_address?: string
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_number?: string
+          shipping_cost?: number
+          status?: string
+          subtotal?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
