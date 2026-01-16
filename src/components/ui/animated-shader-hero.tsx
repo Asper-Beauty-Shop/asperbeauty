@@ -26,6 +26,12 @@ interface HeroProps {
   className?: string;
 }
 
+// Luxury palette colors in normalized RGB (0-1 range)
+// Burgundy: #4A0E19 -> vec3(0.29, 0.055, 0.098)
+// Gold: #D4AF37 -> vec3(0.831, 0.686, 0.216)
+// Cream: #F3E5DC -> vec3(0.953, 0.898, 0.863)
+// Dark Brown: #2C1A1D -> vec3(0.173, 0.102, 0.114)
+
 const defaultShaderSource = `#version 300 es
 precision highp float;
 out vec4 O;
@@ -35,6 +41,13 @@ uniform float time;
 #define T time
 #define R resolution
 #define MN min(R.x,R.y)
+
+// Luxury palette colors
+const vec3 burgundy = vec3(0.29, 0.055, 0.098);
+const vec3 gold = vec3(0.831, 0.686, 0.216);
+const vec3 cream = vec3(0.953, 0.898, 0.863);
+const vec3 darkBrown = vec3(0.173, 0.102, 0.114);
+const vec3 maroon = vec3(0.35, 0.08, 0.12);
 
 float rnd(vec2 p) {
   p=fract(p*vec2(12.9898,78.233));
@@ -65,7 +78,7 @@ float fbm(vec2 p) {
 float clouds(vec2 p) {
   float d=1., t=.0;
   for (float i=.0; i<3.; i++) {
-    float a=d*fbm(i*10.+p.x*.2+.2*(1.+i)*p.y+d+i*i+p);
+    float a=d*fbm(i*10.+p.x*.15+.15*(1.+i)*p.y+d+i*i+p);
     t=mix(t,d,a);
     d=a;
     p*=2./(i+1.);
@@ -74,20 +87,46 @@ float clouds(vec2 p) {
 }
 
 void main(void) {
-  vec2 uv=(FC-.5*R)/MN,st=uv*vec2(2,1);
-  vec3 col=vec3(0);
-  float bg=clouds(vec2(st.x+T*.5,-st.y));
-  uv*=1.-.3*(sin(T*.2)*.5+.5);
-  for (float i=1.; i<12.; i++) {
-    uv+=.1*cos(i*vec2(.1+.01*i, .8)+i*i+T*.5+.1*uv.x);
-    vec2 p=uv;
-    float d=length(p);
-    col+=.00125/d*(cos(sin(i)*vec3(1,2,3))+1.);
-    float b=noise(i+p+bg*1.731);
-    col+=.002*b/length(max(p,vec2(b*p.x*.02,p.y)));
-    col=mix(col,vec3(bg*.25,bg*.137,bg*.05),d);
+  vec2 uv=(FC-.5*R)/MN, st=uv*vec2(2,1);
+  
+  // Base gradient from dark brown to burgundy
+  float gradientY = (uv.y + 1.0) * 0.5;
+  vec3 col = mix(darkBrown, burgundy, gradientY * 0.8);
+  
+  // Animated cloud-like texture
+  float bg = clouds(vec2(st.x + T * 0.3, -st.y));
+  
+  // Subtle breathing effect
+  uv *= 1.0 - 0.15 * (sin(T * 0.15) * 0.5 + 0.5);
+  
+  // Gold particle shimmer effect
+  for (float i = 1.0; i < 8.0; i++) {
+    uv += 0.08 * cos(i * vec2(0.1 + 0.01 * i, 0.6) + i * i + T * 0.4 + 0.1 * uv.x);
+    vec2 p = uv;
+    float d = length(p);
+    
+    // Gold shimmer particles
+    float shimmer = 0.0008 / d;
+    vec3 goldShimmer = gold * shimmer * (0.5 + 0.5 * sin(T + i));
+    col += goldShimmer;
+    
+    // Subtle cream highlights
+    float b = noise(i + p + bg * 1.5);
+    col += cream * 0.003 * b / length(max(p, vec2(b * p.x * 0.02, p.y)));
+    
+    // Blend with maroon undertones
+    col = mix(col, mix(maroon, burgundy, bg * 0.8), d * 0.4);
   }
-  O=vec4(col,1);
+  
+  // Add subtle gold accent glow at edges
+  float edgeGlow = smoothstep(0.8, 1.5, length(uv));
+  col = mix(col, gold * 0.3, edgeGlow * 0.2 * (0.5 + 0.5 * sin(T * 0.5)));
+  
+  // Enhance contrast and richness
+  col = pow(col, vec3(0.95));
+  col = clamp(col, 0.0, 1.0);
+  
+  O = vec4(col, 1);
 }`;
 
 class WebGLRenderer {
