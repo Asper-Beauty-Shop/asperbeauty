@@ -79,26 +79,6 @@ export const LuxuryHero = () => {
         </div>
       </button>
 
-      {/* CSS for custom animations */}
-      <style>{`
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .animate-fade-in-up {
-          animation: fade-in-up 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-        }
-
-        @keyframes slow-zoom {
-          0% { transform: scale(1); }
-          100% { transform: scale(1.1); }
-        }
-        
-        .animate-slow-zoom {
-          animation: slow-zoom 20s linear infinite alternate;
-        }
-      `}</style>
     </div>
   );
 };
