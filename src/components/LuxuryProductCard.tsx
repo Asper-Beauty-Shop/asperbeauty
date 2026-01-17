@@ -31,7 +31,7 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
         <img
           src={product.image_url}
           alt={product.title}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105"
         />
 
         {/* 'Quick Add' Overlay - Slides up slowly */}

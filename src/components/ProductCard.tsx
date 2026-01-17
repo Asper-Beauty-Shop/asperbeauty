@@ -101,7 +101,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
               <OptimizedImage
                 src={firstImage.url}
                 alt={firstImage.altText || node.title}
-                className="w-full h-full object-cover transition-transform duration-400 ease-in-out group-hover:scale-105"
+                className="w-full h-full object-contain mix-blend-multiply transition-transform duration-400 ease-in-out group-hover:scale-105"
                 loading="lazy"
                 width={400}
                 height={400}
