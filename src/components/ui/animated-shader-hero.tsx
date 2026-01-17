@@ -497,6 +497,9 @@ const AnimatedShaderHero: React.FC<HeroProps> = ({
         style={{ touchAction: 'none' }}
       />
       
+      {/* Luxury Portrait Background Overlay */}
+      <div className="hero-portrait-background" aria-hidden="true" />
+      
       {/* Hero Content Overlay */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
         {/* Trust Badge */}
