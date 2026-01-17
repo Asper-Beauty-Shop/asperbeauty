@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { Plus, ShoppingBag, Star, Sparkles, Loader2, TrendingUp, Award } from "lucide-react";
+import { Plus, ShoppingBag, Star, Sparkles, Loader2, TrendingUp, Award, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { getProductImage } from "@/lib/productImageUtils";
+import { ProductQuickView } from "./ProductQuickView";
 
 // Product type from Supabase
 interface Product {
@@ -49,19 +50,33 @@ const getBadgeIcon = (category: string) => {
 };
 
 // ProductCard Component
-const ProductCard = ({ product }: { product: Product }) => {
+const ProductCard = ({ 
+  product, 
+  onQuickView 
+}: { 
+  product: Product; 
+  onQuickView: (product: Product) => void;
+}) => {
   const { language } = useLanguage();
   const imageUrl = getProductImage(product.image_url, product.category, product.title);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation();
     toast.success(language === 'ar' ? 'تمت الإضافة إلى السلة' : 'Added to cart', {
       description: product.title,
       position: "top-center",
     });
   };
 
+  const handleQuickView = () => {
+    onQuickView(product);
+  };
+
   return (
-    <article className="group relative bg-white rounded-xl overflow-hidden border border-gold/10 shadow-gold-sm hover:shadow-gold-lg transition-all duration-500 ease-luxury">
+    <article 
+      className="group relative bg-white rounded-xl overflow-hidden border border-gold/10 shadow-gold-sm hover:shadow-gold-lg transition-all duration-500 ease-luxury cursor-pointer animate-fade-in"
+      onClick={handleQuickView}
+    >
       {/* Image Container */}
       <div className="relative aspect-square overflow-hidden bg-cream">
         <img
@@ -79,8 +94,21 @@ const ProductCard = ({ product }: { product: Product }) => {
           {product.category}
         </Badge>
 
+        {/* Quick View Button */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleQuickView();
+            }}
+            className="w-12 h-12 rounded-full bg-cream/95 backdrop-blur-sm border border-gold/50 flex items-center justify-center hover:bg-burgundy hover:text-white hover:border-burgundy transition-all duration-300 shadow-lg transform scale-90 group-hover:scale-100"
+          >
+            <Eye className="w-5 h-5" />
+          </button>
+        </div>
+
         {/* Hover Overlay */}
-        <div className="absolute inset-0 bg-burgundy/0 group-hover:bg-burgundy/10 transition-colors duration-500" />
+        <div className="absolute inset-0 bg-burgundy/0 group-hover:bg-burgundy/10 transition-colors duration-500 pointer-events-none" />
       </div>
 
       {/* Content */}
@@ -134,7 +162,18 @@ export const ProductCatalog = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState("all");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
 
+  const handleQuickView = (product: Product) => {
+    setSelectedProduct(product);
+    setIsQuickViewOpen(true);
+  };
+
+  const handleCloseQuickView = () => {
+    setIsQuickViewOpen(false);
+    setTimeout(() => setSelectedProduct(null), 300);
+  };
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -248,11 +287,20 @@ export const ProductCatalog = () => {
           </div>
         )}
 
-        {/* Product Grid */}
+        {/* Product Grid with animation wrapper */}
         {!isLoading && !error && filteredProducts.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          <div 
+            key={activeFilter} 
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8"
+          >
+            {filteredProducts.map((product, index) => (
+              <div
+                key={product.id}
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <ProductCard product={product} onQuickView={handleQuickView} />
+              </div>
             ))}
           </div>
         )}
@@ -270,6 +318,13 @@ export const ProductCatalog = () => {
 
       {/* Decorative bottom accent */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-64 h-px bg-gradient-to-r from-transparent via-gold to-transparent" />
+
+      {/* Quick View Modal */}
+      <ProductQuickView
+        product={selectedProduct}
+        isOpen={isQuickViewOpen}
+        onClose={handleCloseQuickView}
+      />
     </section>
   );
 };
