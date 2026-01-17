@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Plus, ShoppingBag, Star, Sparkles, Loader2 } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { Plus, ShoppingBag, Star, Sparkles, Loader2, TrendingUp, Award } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -117,12 +118,22 @@ const ProductCard = ({ product }: { product: Product }) => {
   );
 };
 
+// Category filter options
+const CATEGORY_FILTERS = [
+  { value: "all", labelEn: "All", labelAr: "الكل", icon: null },
+  { value: "Best Seller", labelEn: "Best Seller", labelAr: "الأكثر مبيعاً", icon: Star },
+  { value: "New Arrival", labelEn: "New Arrival", labelAr: "وصل حديثاً", icon: Sparkles },
+  { value: "Trending", labelEn: "Trending", labelAr: "رائج", icon: TrendingUp },
+  { value: "Featured", labelEn: "Featured", labelAr: "مميز", icon: Award },
+];
+
 // ProductCatalog Section Component
 export const ProductCatalog = () => {
   const { language } = useLanguage();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -146,6 +157,12 @@ export const ProductCatalog = () => {
 
     fetchProducts();
   }, []);
+
+  // Filter products based on active category
+  const filteredProducts = useMemo(() => {
+    if (activeFilter === "all") return products;
+    return products.filter((product) => product.category === activeFilter);
+  }, [products, activeFilter]);
 
   return (
     <section className="py-16 md:py-24 bg-cream relative overflow-hidden">
@@ -181,6 +198,29 @@ export const ProductCatalog = () => {
           </p>
         </div>
 
+        {/* Category Filter Tabs */}
+        <div className="flex justify-center mb-10">
+          <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full max-w-3xl">
+            <TabsList className="w-full flex flex-wrap justify-center gap-2 bg-transparent h-auto p-0">
+              {CATEGORY_FILTERS.map((filter) => {
+                const IconComponent = filter.icon;
+                return (
+                  <TabsTrigger
+                    key={filter.value}
+                    value={filter.value}
+                    className="px-4 py-2.5 rounded-full font-body text-xs uppercase tracking-wider border border-gold/20 bg-white text-muted-foreground data-[state=active]:bg-burgundy data-[state=active]:text-white data-[state=active]:border-burgundy data-[state=active]:shadow-gold-md hover:border-gold/50 transition-all duration-300"
+                  >
+                    {IconComponent && (
+                      <IconComponent className="w-3.5 h-3.5 me-1.5" />
+                    )}
+                    {language === 'ar' ? filter.labelAr : filter.labelEn}
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </Tabs>
+        </div>
+
         {/* Loading State */}
         {isLoading && (
           <div className="flex items-center justify-center py-20">
@@ -198,18 +238,20 @@ export const ProductCatalog = () => {
         )}
 
         {/* Empty State */}
-        {!isLoading && !error && products.length === 0 && (
+        {!isLoading && !error && filteredProducts.length === 0 && (
           <div className="text-center py-20">
             <p className="text-muted-foreground">
-              {language === 'ar' ? 'لا توجد منتجات متاحة' : 'No products available'}
+              {language === 'ar' 
+                ? activeFilter === "all" ? 'لا توجد منتجات متاحة' : 'لا توجد منتجات في هذه الفئة'
+                : activeFilter === "all" ? 'No products available' : 'No products in this category'}
             </p>
           </div>
         )}
 
         {/* Product Grid */}
-        {!isLoading && !error && products.length > 0 && (
+        {!isLoading && !error && filteredProducts.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
