@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload, Loader2, Image as ImageIcon, ShieldCheck, Wand2, RefreshCw, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Loader2, Image as ImageIcon, ShieldCheck, Wand2, RefreshCw, Sparkles, Eraser } from "lucide-react";
 import { getProductImage } from "@/lib/productImageUtils";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -63,6 +63,7 @@ const ManageProducts = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [isEnriching, setIsEnriching] = useState(false);
   const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [removingBgId, setRemovingBgId] = useState<string | null>(null);
   const [enrichResults, setEnrichResults] = useState<{ id: string; title: string; status: string; image_url?: string }[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -343,6 +344,50 @@ const ManageProducts = () => {
       toast.error('Failed to generate AI images');
     } finally {
       setIsGeneratingAI(false);
+    }
+  };
+
+  const handleRemoveBackground = async (product: Product) => {
+    if (!product.image_url) {
+      toast.error('Product has no image to process');
+      return;
+    }
+
+    try {
+      setRemovingBgId(product.id);
+      toast.info('Removing background with AI...', { duration: 5000 });
+      
+      const { data, error } = await supabase.functions.invoke('remove-background', {
+        body: { 
+          productId: product.id, 
+          imageUrl: product.image_url 
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast.success('Background removed successfully!');
+        // Refresh products list
+        const { data: refreshedProducts } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (refreshedProducts) setProducts(refreshedProducts);
+      } else {
+        throw new Error(data.error || 'Background removal failed');
+      }
+    } catch (error: any) {
+      console.error('Background removal error:', error);
+      if (error.message?.includes('Rate limit')) {
+        toast.error('Rate limit exceeded. Please wait and try again.');
+      } else if (error.message?.includes('credits')) {
+        toast.error('AI credits exhausted. Please add credits.');
+      } else {
+        toast.error('Failed to remove background');
+      }
+    } finally {
+      setRemovingBgId(null);
     }
   };
 
@@ -637,6 +682,22 @@ const ManageProducts = () => {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
+                          {product.image_url && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleRemoveBackground(product)}
+                              disabled={removingBgId === product.id}
+                              className="text-muted-foreground hover:text-primary"
+                              title="Remove Background"
+                            >
+                              {removingBgId === product.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Eraser className="w-4 h-4" />
+                              )}
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
