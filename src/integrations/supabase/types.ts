@@ -83,10 +83,12 @@ export type Database = {
           is_on_sale: boolean | null
           original_price: number | null
           price: number
+          scent: string | null
           skin_concerns: string[] | null
           source_url: string | null
           subcategory: string | null
           tags: string[] | null
+          texture: string | null
           title: string
           updated_at: string
           volume_ml: string | null
@@ -102,10 +104,12 @@ export type Database = {
           is_on_sale?: boolean | null
           original_price?: number | null
           price: number
+          scent?: string | null
           skin_concerns?: string[] | null
           source_url?: string | null
           subcategory?: string | null
           tags?: string[] | null
+          texture?: string | null
           title: string
           updated_at?: string
           volume_ml?: string | null
@@ -121,10 +125,12 @@ export type Database = {
           is_on_sale?: boolean | null
           original_price?: number | null
           price?: number
+          scent?: string | null
           skin_concerns?: string[] | null
           source_url?: string | null
           subcategory?: string | null
           tags?: string[] | null
+          texture?: string | null
           title?: string
           updated_at?: string
           volume_ml?: string | null

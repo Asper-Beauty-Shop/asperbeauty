@@ -33,6 +33,8 @@ interface SupabaseProduct {
   tags: string[] | null;
   volume_ml: string | null;
   skin_concerns: string[] | null;
+  texture: string | null;
+  scent: string | null;
 }
 
 const ProductDetail = () => {
@@ -184,10 +186,11 @@ const ProductDetail = () => {
 
   // Smart Defaults for Scraped Data
   const brandName = product.brand || (isArabic ? "مجموعة حصرية" : "Exclusive Collection");
-  const textureInfo = product.volume_ml 
-    ? `${product.volume_ml}ml - ${isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula"}`
-    : (isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula");
-  const scentInfo = isArabic ? "خالٍ من العطور / طبيعي" : "Fragrance-free / Natural";
+  const textureInfo = product.texture 
+    || (product.volume_ml 
+      ? `${product.volume_ml}ml - ${isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula"}`
+      : (isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula"));
+  const scentInfo = product.scent || (isArabic ? "خالٍ من العطور / طبيعي" : "Fragrance-free / Natural");
   
   // If we only have 1 image, duplicate it for gallery effect
   const galleryImages = product.image_url 
