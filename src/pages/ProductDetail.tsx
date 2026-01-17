@@ -145,12 +145,20 @@ const ProductDetail = () => {
   const isOnSale = product?.is_on_sale && originalPrice && originalPrice > currentPrice;
   const discountPercent = product?.discount_percent || 0;
 
+  // 💎 LUXURY LOADING STATE
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="flex items-center justify-center min-h-[60vh] pt-36">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="grid lg:grid-cols-2 min-h-screen pt-20">
+          <div className="bg-muted/30 aspect-[4/5] animate-pulse" />
+          <div className="p-8 lg:p-16 space-y-6">
+            <div className="h-4 w-32 bg-muted rounded animate-pulse" />
+            <div className="h-10 w-3/4 bg-muted rounded animate-pulse" />
+            <div className="h-8 w-24 bg-muted rounded animate-pulse" />
+            <div className="h-20 w-full bg-muted rounded animate-pulse" />
+            <div className="h-14 w-full bg-muted rounded animate-pulse" />
+          </div>
         </div>
         <Footer />
       </div>
@@ -174,6 +182,18 @@ const ProductDetail = () => {
     );
   }
 
+  // Smart Defaults for Scraped Data
+  const brandName = product.brand || (isArabic ? "مجموعة حصرية" : "Exclusive Collection");
+  const textureInfo = product.volume_ml 
+    ? `${product.volume_ml}ml - ${isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula"}`
+    : (isArabic ? "قوام حريري سريع الامتصاص" : "Silky, fast-absorbing formula");
+  const scentInfo = isArabic ? "خالٍ من العطور / طبيعي" : "Fragrance-free / Natural";
+  
+  // If we only have 1 image, duplicate it for gallery effect
+  const galleryImages = product.image_url 
+    ? [product.image_url, product.image_url] 
+    : ["https://images.unsplash.com/photo-1571781535014-53bd44f29186?q=80&w=1200"];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -181,22 +201,26 @@ const ProductDetail = () => {
       {/* Split Screen Layout */}
       <div className="grid lg:grid-cols-2 min-h-screen pt-20">
         
-        {/* LEFT: The Gallery */}
+        {/* LEFT: The Gallery (Cinematic Scroll) */}
         <div className="bg-muted/30 lg:overflow-y-auto">
-          <div className="relative aspect-[4/5] overflow-hidden">
-            <img 
-              src={product.image_url || "https://images.unsplash.com/photo-1571781535014-53bd44f29186?q=80&w=1200"} 
-              alt={product.title}
-              className="w-full h-full object-cover"
-            />
-            {isOnSale && (
-              <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-4 py-2 text-sm font-medium rounded">
-                -{discountPercent}% OFF
+          <div className="space-y-1">
+            {galleryImages.map((img, idx) => (
+              <div key={idx} className="relative aspect-[4/5] overflow-hidden">
+                <img 
+                  src={img} 
+                  alt={`${product.title} - View ${idx + 1}`}
+                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+                />
+                {idx === 0 && isOnSale && (
+                  <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-4 py-2 text-sm font-medium rounded">
+                    -{discountPercent}% OFF
+                  </div>
+                )}
+                <div className="absolute bottom-6 left-6 text-xs font-light tracking-widest text-white/70 uppercase">
+                  Figure 0{idx + 1} — {idx === 0 ? "The Vessel" : "The Texture"}
+                </div>
               </div>
-            )}
-            <div className="absolute bottom-6 left-6 text-xs font-light tracking-widest text-white/70 uppercase">
-              Figure 01 — The Vessel
-            </div>
+            ))}
           </div>
         </div>
 
@@ -266,18 +290,14 @@ const ProductDetail = () => {
                   <Droplets className="w-4 h-4 text-primary" />
                   {isArabic ? "القوام" : "Texture"}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {isArabic ? "سيروم حريري خفيف" : "Silky, lightweight serum"}
-                </p>
+                <p className="text-sm text-muted-foreground">{textureInfo}</p>
               </div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <Sparkles className="w-4 h-4 text-primary" />
                   {isArabic ? "العطر" : "Scent"}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  {isArabic ? "خالٍ من العطور" : "Fragrance-free"}
-                </p>
+                <p className="text-sm text-muted-foreground">{scentInfo}</p>
               </div>
             </div>
 
