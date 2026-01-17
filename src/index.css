@@ -580,3 +580,36 @@
 .animate-pulse-subtle {
   animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* Luxury Beauty Background - Full Page Subtle Overlay */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/luxury-beauty-background.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: -1;
+  filter: sepia(0.3) saturate(0.7) brightness(1.1);
+  mix-blend-mode: multiply;
+}
+
+/* Hero Portrait Background - More Visible in Hero */
+.hero-portrait-background {
+  position: absolute;
+  inset: 0;
+  background-image: url('/luxury-beauty-background.jpg');
+  background-size: cover;
+  background-position: center right;
+  background-repeat: no-repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  filter: sepia(0.25) saturate(0.65) brightness(1.15);
+  mix-blend-mode: multiply;
+}
