@@ -2,48 +2,36 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// Import category images
-import skinCareImg from "@/assets/categories/skin-care.webp";
-import hairCareImg from "@/assets/categories/hair-care.webp";
-import makeUpImg from "@/assets/categories/make-up.webp";
-import fragrancesImg from "@/assets/categories/fragrances.webp";
-import bodyCareImg from "@/assets/categories/body-care.webp";
-
-const CATEGORIES = [
+const CATS = [
   { 
-    name: "Skin Care", 
-    nameAr: "العناية بالبشرة", 
-    image: skinCareImg,
-    href: "/shop?category=Skin%20Care",
-    color: "from-rose-200/80"
+    name: "Skin", 
+    nameAr: "البشرة",
+    img: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=300",
+    href: "/shop?category=Skin%20Care"
   },
   { 
-    name: "Hair Care", 
-    nameAr: "العناية بالشعر", 
-    image: hairCareImg,
-    href: "/shop?category=Hair%20Care",
-    color: "from-amber-200/80"
+    name: "Hair", 
+    nameAr: "الشعر",
+    img: "https://images.unsplash.com/photo-1522337660859-02fbefca4702?auto=format&fit=crop&w=300",
+    href: "/shop?category=Hair%20Care"
   },
   { 
-    name: "Make Up", 
-    nameAr: "المكياج", 
-    image: makeUpImg,
-    href: "/shop?category=Makeup",
-    color: "from-pink-200/80"
+    name: "Makeup", 
+    nameAr: "المكياج",
+    img: "https://images.unsplash.com/photo-1522338228045-9b68e7751395?auto=format&fit=crop&w=300",
+    href: "/shop?category=Makeup"
   },
   { 
-    name: "Fragrances", 
-    nameAr: "العطور", 
-    image: fragrancesImg,
-    href: "/shop?category=Fragrances",
-    color: "from-purple-200/80"
+    name: "Fragrance", 
+    nameAr: "العطور",
+    img: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=300",
+    href: "/shop?category=Fragrances"
   },
   { 
-    name: "Body Care", 
-    nameAr: "العناية بالجسم", 
-    image: bodyCareImg,
-    href: "/shop?category=Body%20Care",
-    color: "from-emerald-200/80"
+    name: "Body", 
+    nameAr: "الجسم",
+    img: "https://images.unsplash.com/photo-1552693673-1bf958298935?auto=format&fit=crop&w=300",
+    href: "/shop?category=Body%20Care"
   },
 ];
 
@@ -52,46 +40,28 @@ export const LuxuryCategories = () => {
   const isAr = language === "ar";
 
   return (
-    <section className="bg-background py-16 md:py-24">
-      <div className="container mx-auto max-w-7xl px-4">
-        {/* Section Header */}
-        <div className="mb-10 text-center md:mb-14">
-          <span className="mb-3 inline-block font-sans text-xs font-medium uppercase tracking-[0.3em] text-muted-foreground">
-            {isAr ? "تسوق حسب الفئة" : "Shop By Category"}
-          </span>
-          <h2 className="font-serif text-3xl font-light tracking-tight text-foreground md:text-4xl">
-            {isAr ? "اكتشف مجموعاتنا" : "Explore Our Collections"}
-          </h2>
-        </div>
-
-        {/* Category Bubbles Grid */}
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8">
-          {CATEGORIES.map((category) => (
-            <Link
-              key={category.name}
-              to={category.href}
-              className="group flex flex-col items-center gap-3"
-            >
-              {/* Circular Image with Hover Effect */}
-              <div className="relative h-24 w-24 overflow-hidden rounded-full border-2 border-muted bg-muted/30 transition-all duration-500 group-hover:border-primary group-hover:shadow-xl md:h-32 md:w-32">
-                <img
-                  src={category.image}
-                  alt={isAr ? category.nameAr : category.name}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                {/* Overlay Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-t ${category.color} to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-40`} />
-              </div>
-              
-              {/* Category Name */}
-              <span className="font-sans text-sm font-medium tracking-wide text-foreground transition-colors duration-300 group-hover:text-primary">
-                {isAr ? category.nameAr : category.name}
-              </span>
-            </Link>
-          ))}
-        </div>
+    <div className="py-16 bg-background overflow-x-auto">
+      <div className="container mx-auto px-4 flex justify-between items-center min-w-[600px]">
+        {CATS.map((c) => (
+          <Link 
+            key={c.name} 
+            to={c.href} 
+            className="group flex flex-col items-center gap-4"
+          >
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-transparent group-hover:border-gold-300 transition-all p-1">
+              <img 
+                src={c.img} 
+                className="w-full h-full object-cover rounded-full" 
+                alt={isAr ? c.nameAr : c.name} 
+              />
+            </div>
+            <span className="font-serif text-lg text-foreground italic group-hover:text-gold-500 transition-colors">
+              {isAr ? c.nameAr : c.name}
+            </span>
+          </Link>
+        ))}
       </div>
-    </section>
+    </div>
   );
 };
 
