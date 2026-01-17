@@ -427,6 +427,21 @@ const AnimatedShaderHero: React.FC<HeroProps> = ({
   className = ""
 }) => {
   const canvasRef = useShaderBackground();
+  const portraitRef = useRef<HTMLDivElement>(null);
+
+  // Parallax effect for portrait background
+  useEffect(() => {
+    const handleScroll = () => {
+      if (portraitRef.current) {
+        const scrollY = window.scrollY;
+        const parallaxSpeed = 0.3;
+        portraitRef.current.style.transform = `translateY(${scrollY * parallaxSpeed}px)`;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className={cn("relative w-full min-h-screen overflow-hidden", className)}>
@@ -497,8 +512,8 @@ const AnimatedShaderHero: React.FC<HeroProps> = ({
         style={{ touchAction: 'none' }}
       />
       
-      {/* Luxury Portrait Background Overlay */}
-      <div className="hero-portrait-background" aria-hidden="true" />
+      {/* Luxury Portrait Background Overlay with Parallax */}
+      <div ref={portraitRef} className="hero-portrait-background" aria-hidden="true" />
       
       {/* Hero Content Overlay */}
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 text-center">
