@@ -32,8 +32,9 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, Upload, Loader2, Image as ImageIcon, ShieldCheck } from "lucide-react";
+import { Plus, Pencil, Trash2, Upload, Loader2, Image as ImageIcon, ShieldCheck, Wand2, RefreshCw } from "lucide-react";
 import { getProductImage } from "@/lib/productImageUtils";
+import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Product {
@@ -60,6 +61,8 @@ const ManageProducts = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [isEnriching, setIsEnriching] = useState(false);
+  const [enrichResults, setEnrichResults] = useState<{ id: string; title: string; status: string; image_url?: string }[] | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
@@ -272,6 +275,38 @@ const ManageProducts = () => {
     }
   };
 
+  const handleEnrichProducts = async () => {
+    try {
+      setIsEnriching(true);
+      setEnrichResults(null);
+      
+      const { data, error } = await supabase.functions.invoke('enrich-products');
+      
+      if (error) throw error;
+      
+      setEnrichResults(data.results || []);
+      
+      const successCount = data.results?.filter((r: any) => r.status === 'success').length || 0;
+      
+      if (successCount > 0) {
+        toast.success(`Enriched ${successCount} products with images`);
+        // Refresh products list
+        const { data: refreshedProducts } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (refreshedProducts) setProducts(refreshedProducts);
+      } else {
+        toast.info('No new images found. Try adding source URLs to products.');
+      }
+    } catch (error: any) {
+      console.error('Enrichment error:', error);
+      toast.error('Failed to enrich products');
+    } finally {
+      setIsEnriching(false);
+    }
+  };
+
   if (!authChecked || (authChecked && !isAdmin)) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center">
@@ -297,16 +332,31 @@ const ManageProducts = () => {
               </h1>
             </div>
             
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button 
-                  onClick={() => handleOpenDialog()}
-                  className="bg-burgundy hover:bg-burgundy-light text-white font-body uppercase tracking-wider"
-                >
-                  <Plus className="w-4 h-4 me-2" />
-                  Add Product
-                </Button>
-              </DialogTrigger>
+            <div className="flex items-center gap-3">
+              <Button
+                onClick={handleEnrichProducts}
+                disabled={isEnriching}
+                variant="outline"
+                className="border-gold/30 text-gold hover:bg-gold/10"
+              >
+                {isEnriching ? (
+                  <RefreshCw className="w-4 h-4 me-2 animate-spin" />
+                ) : (
+                  <Wand2 className="w-4 h-4 me-2" />
+                )}
+                {isEnriching ? 'Enriching...' : 'Auto-Enrich Images'}
+              </Button>
+              
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button 
+                    onClick={() => handleOpenDialog()}
+                    className="bg-burgundy hover:bg-burgundy-light text-white font-body uppercase tracking-wider"
+                  >
+                    <Plus className="w-4 h-4 me-2" />
+                    Add Product
+                  </Button>
+                </DialogTrigger>
               
               <DialogContent className="max-w-lg">
                 <DialogHeader>
@@ -446,7 +496,41 @@ const ManageProducts = () => {
                 </form>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
+
+          {/* Enrichment Results */}
+          {enrichResults && enrichResults.length > 0 && (
+            <div className="mb-6 p-4 bg-white rounded-xl border border-gold/20">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-display text-lg">Enrichment Results</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setEnrichResults(null)}
+                  className="text-muted-foreground"
+                >
+                  Dismiss
+                </Button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                {enrichResults.map((result) => (
+                  <div key={result.id} className="flex items-center gap-2 text-sm p-2 rounded bg-cream/50">
+                    <Badge
+                      variant={result.status === 'success' ? 'default' : 'secondary'}
+                      className={result.status === 'success' ? 'bg-green-500' : ''}
+                    >
+                      {result.status === 'success' ? '✓' : result.status === 'fetch_failed' ? '⚠' : '✗'}
+                    </Badge>
+                    <span className="truncate text-xs">{result.title}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                ✓ = Image found | ⚠ = Site blocked | ✗ = No image found
+              </p>
+            </div>
+          )}
 
           {/* Products Table */}
           <div className="bg-white rounded-xl border border-gold/20 shadow-gold-sm overflow-hidden">
