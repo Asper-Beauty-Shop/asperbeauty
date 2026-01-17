@@ -25,9 +25,10 @@ export const CartDrawer = () => {
     isOpen,
     updateQuantity, 
     removeItem, 
-    createCheckout,
     setOpen,
     getTotalPrice,
+    getCheckoutUrl,
+    syncCart,
   } = useCartStore();
   
   const totalPrice = getTotalPrice();
@@ -39,20 +40,20 @@ export const CartDrawer = () => {
   const shippingProgress = Math.min(100, (totalPrice / FREE_SHIPPING_THRESHOLD) * 100);
   const hasFreeShipping = totalPrice >= FREE_SHIPPING_THRESHOLD;
 
-  const handleCheckout = async () => {
-    try {
-      await createCheckout();
-      const checkoutUrl = useCartStore.getState().checkoutUrl;
-      if (checkoutUrl) {
-        window.open(checkoutUrl, '_blank');
-        setOpen(false);
-      }
-    } catch (error) {
-      if (import.meta.env.DEV) {
-        console.error('Checkout failed:', error);
-      }
-      toast.error("Checkout failed. Please try again.");
+  const handleCheckout = () => {
+    const checkoutUrl = getCheckoutUrl();
+    if (checkoutUrl) {
+      window.open(checkoutUrl, '_blank');
+      setOpen(false);
+    } else {
+      toast.error("Checkout not available. Please try again.");
     }
+  };
+
+  // Sync cart when drawer opens
+  const handleDrawerOpen = (open: boolean) => {
+    if (open) syncCart();
+    handleOpenChange(open);
   };
 
   const handleCODSuccess = (orderNum: string) => {
@@ -79,7 +80,7 @@ export const CartDrawer = () => {
   };
 
   return (
-    <Sheet open={isOpen} onOpenChange={handleOpenChange}>
+    <Sheet open={isOpen} onOpenChange={handleDrawerOpen}>
       <SheetContent 
         className={`w-full sm:max-w-md flex flex-col h-full bg-background p-0 ${isRTL ? 'border-r border-l-0' : 'border-l'} border-gold/20`}
         side={isRTL ? 'left' : 'right'}
