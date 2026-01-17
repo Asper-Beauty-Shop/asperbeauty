@@ -127,6 +127,7 @@ interface OrderItem {
   variantTitle?: string;
   price: string;
   quantity: number;
+  imageUrl?: string | null;
 }
 
 // ============================================================
@@ -159,7 +160,7 @@ async function verifyHCaptcha(token: string): Promise<boolean> {
 }
 
 // ============================================================
-// EMAIL GENERATION
+// EMAIL GENERATION - Enhanced Luxury Template
 // ============================================================
 function generateOrderEmailHtml(
   customerName: string,
@@ -174,146 +175,247 @@ function generateOrderEmailHtml(
   customerPhone: string,
   trackingUrl: string
 ): string {
+  // Generate items HTML with product images
   const itemsHtml = items.map(item => `
     <tr>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">
-        <strong>${escapeHtml(item.productTitle)}</strong>
-        ${item.variantTitle ? `<br><span style="color: #666; font-size: 13px;">${escapeHtml(item.variantTitle)}</span>` : ''}
+      <td style="padding: 16px 12px; border-bottom: 1px solid #f0ebe5; vertical-align: top;">
+        <table role="presentation" style="width: 100%;">
+          <tr>
+            ${item.imageUrl ? `
+              <td style="width: 60px; vertical-align: top;">
+                <img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.productTitle)}" 
+                  style="width: 55px; height: 55px; object-fit: cover; border-radius: 8px; border: 1px solid #e8e0d8;" />
+              </td>
+            ` : ''}
+            <td style="padding-left: ${item.imageUrl ? '12px' : '0'}; vertical-align: top;">
+              <p style="margin: 0 0 4px; color: #333; font-size: 14px; font-weight: 600;">${escapeHtml(item.productTitle)}</p>
+              ${item.variantTitle ? `<p style="margin: 0 0 4px; color: #888; font-size: 12px;">${escapeHtml(item.variantTitle)}</p>` : ''}
+              <p style="margin: 0; color: #666; font-size: 13px;">Qty: ${item.quantity}</p>
+            </td>
+            <td style="text-align: right; vertical-align: top; width: 100px;">
+              <p style="margin: 0; color: #4A0E19; font-size: 14px; font-weight: 600;">${(parseFloat(item.price) * item.quantity).toFixed(2)} JOD</p>
+            </td>
+          </tr>
+        </table>
       </td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${parseFloat(item.price).toFixed(2)} JOD</td>
-      <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">${(parseFloat(item.price) * item.quantity).toFixed(2)} JOD</td>
     </tr>
   `).join('');
 
   return `
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Order Confirmation - Asper Beauty</title>
+  <!--[if mso]>
+  <noscript>
+    <xml>
+      <o:OfficeDocumentSettings>
+        <o:PixelsPerInch>96</o:PixelsPerInch>
+      </o:OfficeDocumentSettings>
+    </xml>
+  </noscript>
+  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f5f2;">
-  <table role="presentation" style="width: 100%; border-collapse: collapse;">
+<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f5f2; -webkit-font-smoothing: antialiased;">
+  <table role="presentation" style="width: 100%; border-collapse: collapse; background-color: #f8f5f2;">
     <tr>
       <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+        <table role="presentation" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 16px; box-shadow: 0 8px 30px rgba(74, 14, 25, 0.08); overflow: hidden;">
           
-          <!-- Header -->
+          <!-- Premium Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #4A0E19 0%, #6b1525 100%); padding: 30px; text-align: center; border-radius: 12px 12px 0 0;">
-              <h1 style="margin: 0; color: #D4AF37; font-size: 28px; font-weight: 700; letter-spacing: 1px;">ASPER BEAUTY</h1>
-              <p style="margin: 8px 0 0; color: #F3E5DC; font-size: 14px;">Your Luxury Beauty Destination in Jordan</p>
+            <td style="background: linear-gradient(135deg, #4A0E19 0%, #6b1525 50%, #4A0E19 100%); padding: 40px 30px; text-align: center;">
+              <table role="presentation" style="width: 100%;">
+                <tr>
+                  <td align="center">
+                    <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin-bottom: 20px;"></div>
+                    <h1 style="margin: 0; color: #D4AF37; font-size: 32px; font-weight: 700; letter-spacing: 4px; font-family: Georgia, 'Times New Roman', serif;">ASPER BEAUTY</h1>
+                    <p style="margin: 12px 0 0; color: #F3E5DC; font-size: 12px; letter-spacing: 2px; text-transform: uppercase;">Your Luxury Beauty Destination in Jordan</p>
+                    <div style="width: 60px; height: 2px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin-top: 20px;"></div>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Order Confirmation -->
+          <!-- Success Message -->
           <tr>
-            <td style="padding: 40px 30px;">
-              <div style="text-align: center; margin-bottom: 30px;">
-                <div style="width: 70px; height: 70px; background-color: #d4edda; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 15px;">
-                  <span style="color: #28a745; font-size: 36px;">✓</span>
-                </div>
-                <h2 style="margin: 0; color: #4A0E19; font-size: 24px;">Order Confirmed!</h2>
-                <p style="margin: 10px 0 0; color: #666;">Thank you for your order, ${escapeHtml(customerName)}!</p>
+            <td style="padding: 50px 40px 35px; text-align: center; background: linear-gradient(180deg, #fefefe 0%, #f8f5f2 100%);">
+              <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%); border-radius: 50%; margin: 0 auto 20px; display: inline-block; line-height: 80px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);">
+                <span style="color: #28a745; font-size: 42px; font-weight: bold;">✓</span>
               </div>
-              
-              <div style="background-color: #f8f5f2; border-radius: 8px; padding: 20px; margin-bottom: 30px; text-align: center;">
-                <p style="margin: 0 0 5px; color: #666; font-size: 14px;">Order Number</p>
-                <p style="margin: 0; color: #4A0E19; font-size: 22px; font-weight: 700;">${escapeHtml(orderNumber)}</p>
-              </div>
-              
-              <!-- Order Items -->
-              <h3 style="color: #4A0E19; font-size: 18px; margin: 0 0 15px; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">Order Details</h3>
-              <table role="presentation" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-                <thead>
-                  <tr style="background-color: #f8f5f2;">
-                    <th style="padding: 12px; text-align: left; color: #4A0E19; font-size: 13px;">Product</th>
-                    <th style="padding: 12px; text-align: center; color: #4A0E19; font-size: 13px;">Qty</th>
-                    <th style="padding: 12px; text-align: right; color: #4A0E19; font-size: 13px;">Price</th>
-                    <th style="padding: 12px; text-align: right; color: #4A0E19; font-size: 13px;">Total</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${itemsHtml}
-                </tbody>
+              <h2 style="margin: 0 0 10px; color: #4A0E19; font-size: 28px; font-weight: 600; font-family: Georgia, serif;">Order Confirmed!</h2>
+              <p style="margin: 0; color: #666; font-size: 16px;">Thank you for your order, <strong style="color: #4A0E19;">${escapeHtml(customerName)}</strong></p>
+            </td>
+          </tr>
+          
+          <!-- Order Number Card -->
+          <tr>
+            <td style="padding: 0 40px 35px;">
+              <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #f8f5f2 0%, #f0ebe5 100%); border-radius: 12px; border: 1px solid #e8e0d8;">
+                <tr>
+                  <td style="padding: 25px; text-align: center;">
+                    <p style="margin: 0 0 8px; color: #888; font-size: 11px; text-transform: uppercase; letter-spacing: 2px;">Order Number</p>
+                    <p style="margin: 0; color: #4A0E19; font-size: 26px; font-weight: 700; letter-spacing: 1px; font-family: Georgia, serif;">${escapeHtml(orderNumber)}</p>
+                  </td>
+                </tr>
               </table>
-              
-              <!-- Order Summary -->
-              <table role="presentation" style="width: 100%; margin-bottom: 30px;">
+            </td>
+          </tr>
+          
+          <!-- Order Items Section -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <table role="presentation" style="width: 100%;">
                 <tr>
-                  <td style="padding: 8px 0; color: #666;">Subtotal</td>
-                  <td style="padding: 8px 0; text-align: right; color: #333;">${subtotal.toFixed(2)} JOD</td>
-                </tr>
-                <tr>
-                  <td style="padding: 8px 0; color: #666;">Shipping</td>
-                  <td style="padding: 8px 0; text-align: right; color: ${shippingCost === 0 ? '#28a745' : '#333'};">${shippingCost === 0 ? 'FREE' : shippingCost.toFixed(2) + ' JOD'}</td>
-                </tr>
-                <tr style="border-top: 2px solid #D4AF37;">
-                  <td style="padding: 15px 0 0; color: #4A0E19; font-size: 18px; font-weight: 700;">Total</td>
-                  <td style="padding: 15px 0 0; text-align: right; color: #4A0E19; font-size: 18px; font-weight: 700;">${total.toFixed(2)} JOD</td>
+                  <td>
+                    <h3 style="margin: 0 0 5px; color: #4A0E19; font-size: 16px; font-weight: 600; font-family: Georgia, serif;">Order Details</h3>
+                    <div style="width: 40px; height: 2px; background: #D4AF37; margin-bottom: 20px;"></div>
+                  </td>
                 </tr>
               </table>
               
-              <!-- Delivery Info -->
-              <h3 style="color: #4A0E19; font-size: 18px; margin: 0 0 15px; border-bottom: 2px solid #D4AF37; padding-bottom: 10px;">Delivery Information</h3>
-              <table role="presentation" style="width: 100%; margin-bottom: 30px;">
+              <table role="presentation" style="width: 100%; background-color: #fefefe; border-radius: 10px; border: 1px solid #f0ebe5;">
+                ${itemsHtml}
+              </table>
+              
+              <!-- Totals -->
+              <table role="presentation" style="width: 100%; margin-top: 20px;">
                 <tr>
-                  <td style="padding: 8px 0; color: #666; width: 120px;">Name:</td>
-                  <td style="padding: 8px 0; color: #333;">${escapeHtml(customerName)}</td>
+                  <td style="padding: 8px 0; color: #666; font-size: 14px;">Subtotal</td>
+                  <td style="padding: 8px 0; text-align: right; color: #333; font-size: 14px;">${subtotal.toFixed(2)} JOD</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; color: #666;">Phone:</td>
-                  <td style="padding: 8px 0; color: #333;">${escapeHtml(customerPhone)}</td>
+                  <td style="padding: 8px 0; color: #666; font-size: 14px;">Shipping</td>
+                  <td style="padding: 8px 0; text-align: right; font-size: 14px; ${shippingCost === 0 ? 'color: #28a745; font-weight: 600;' : 'color: #333;'}">${shippingCost === 0 ? '✨ FREE' : shippingCost.toFixed(2) + ' JOD'}</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; color: #666;">City:</td>
-                  <td style="padding: 8px 0; color: #333;">${escapeHtml(city)}</td>
+                  <td colspan="2" style="padding: 15px 0 0;">
+                    <div style="height: 2px; background: linear-gradient(90deg, #D4AF37, #e8c547, #D4AF37);"></div>
+                  </td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; color: #666; vertical-align: top;">Address:</td>
-                  <td style="padding: 8px 0; color: #333;">${escapeHtml(deliveryAddress)}</td>
+                  <td style="padding: 15px 0 0; color: #4A0E19; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">Total</td>
+                  <td style="padding: 15px 0 0; text-align: right; color: #4A0E19; font-size: 20px; font-weight: 700; font-family: Georgia, serif;">${total.toFixed(2)} JOD</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Delivery Information -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <table role="presentation" style="width: 100%;">
+                <tr>
+                  <td>
+                    <h3 style="margin: 0 0 5px; color: #4A0E19; font-size: 16px; font-weight: 600; font-family: Georgia, serif;">Delivery Information</h3>
+                    <div style="width: 40px; height: 2px; background: #D4AF37; margin-bottom: 20px;"></div>
+                  </td>
                 </tr>
               </table>
               
-              <!-- Payment Method -->
-              <div style="background-color: #fff8e1; border: 1px solid #D4AF37; border-radius: 8px; padding: 20px; text-align: center; margin-bottom: 30px;">
-                <p style="margin: 0; color: #4A0E19; font-size: 16px; font-weight: 600;">💵 Cash on Delivery</p>
-                <p style="margin: 8px 0 0; color: #666; font-size: 14px;">Please have ${total.toFixed(2)} JOD ready upon delivery</p>
-              </div>
-              
-              <!-- Track Order Button -->
-              <div style="text-align: center; margin-bottom: 30px;">
-                <a href="${trackingUrl}" style="display: inline-block; background: linear-gradient(135deg, #4A0E19 0%, #6b1525 100%); color: #D4AF37; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                  📦 Track Your Order
-                </a>
-              </div>
+              <table role="presentation" style="width: 100%; background-color: #fefefe; border-radius: 10px; border: 1px solid #f0ebe5; padding: 20px;">
+                <tr>
+                  <td style="padding: 10px 20px; color: #888; font-size: 13px; width: 100px;">Name</td>
+                  <td style="padding: 10px 20px; color: #333; font-size: 14px; font-weight: 500;">${escapeHtml(customerName)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 20px; color: #888; font-size: 13px;">Phone</td>
+                  <td style="padding: 10px 20px; color: #333; font-size: 14px;">${escapeHtml(customerPhone)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 20px; color: #888; font-size: 13px;">City</td>
+                  <td style="padding: 10px 20px; color: #333; font-size: 14px;">${escapeHtml(city)}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 10px 20px; color: #888; font-size: 13px; vertical-align: top;">Address</td>
+                  <td style="padding: 10px 20px; color: #333; font-size: 14px; line-height: 1.5;">${escapeHtml(deliveryAddress)}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Payment Method Badge -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #fff8e1 0%, #fff3cd 100%); border: 2px solid #D4AF37; border-radius: 12px;">
+                <tr>
+                  <td style="padding: 22px; text-align: center;">
+                    <p style="margin: 0 0 6px; color: #4A0E19; font-size: 18px; font-weight: 700;">💵 Cash on Delivery</p>
+                    <p style="margin: 0; color: #8B7355; font-size: 14px;">Please have <strong style="color: #4A0E19;">${total.toFixed(2)} JOD</strong> ready upon delivery</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Track Order CTA -->
+          <tr>
+            <td style="padding: 0 40px 35px; text-align: center;">
+              <a href="${trackingUrl}" style="display: inline-block; background: linear-gradient(135deg, #4A0E19 0%, #6b1525 100%); color: #D4AF37; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-weight: 600; font-size: 16px; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(74, 14, 25, 0.25);">
+                📦 Track Your Order
+              </a>
+            </td>
+          </tr>
 
-              <!-- Confirmation Token -->
-              <div style="background-color: #f0f8ff; border: 1px solid #bee3f8; border-radius: 8px; padding: 15px; text-align: center; margin-bottom: 30px;">
-                <p style="margin: 0 0 5px; color: #666; font-size: 13px;">Your Confirmation Token (for tracking)</p>
-                <p style="margin: 0; color: #2c5282; font-size: 12px; font-family: monospace; word-break: break-all;">${escapeHtml(confirmationToken)}</p>
-              </div>
-              
-              <!-- What's Next -->
-              <div style="background-color: #f8f5f2; border-radius: 8px; padding: 20px;">
-                <h4 style="margin: 0 0 15px; color: #4A0E19; font-size: 16px;">What's Next?</h4>
-                <ol style="margin: 0; padding-left: 20px; color: #666; line-height: 1.8;">
-                  <li>We'll call you to confirm your order</li>
-                  <li>Your order will be prepared and shipped</li>
-                  <li>Pay cash when your order arrives</li>
-                </ol>
-              </div>
+          <!-- Token Section -->
+          <tr>
+            <td style="padding: 0 40px 30px;">
+              <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%); border: 1px solid #bee3f8; border-radius: 10px;">
+                <tr>
+                  <td style="padding: 18px; text-align: center;">
+                    <p style="margin: 0 0 8px; color: #666; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Confirmation Token (for tracking)</p>
+                    <p style="margin: 0; color: #2c5282; font-size: 10px; font-family: 'Courier New', monospace; word-break: break-all; background: rgba(255,255,255,0.6); padding: 8px; border-radius: 6px;">${escapeHtml(confirmationToken)}</p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
-          <!-- Footer -->
+          <!-- What's Next -->
           <tr>
-            <td style="background-color: #4A0E19; padding: 25px; text-align: center; border-radius: 0 0 12px 12px;">
-              <p style="margin: 0 0 10px; color: #D4AF37; font-size: 14px;">Need help? Contact us:</p>
-              <p style="margin: 0; color: #F3E5DC; font-size: 13px;">📞 +962 79 065 6666 | 📧 asperpharma@gmail.com</p>
-              <p style="margin: 15px 0 0; color: #999; font-size: 12px;">© 2024 Asper Beauty. All rights reserved.</p>
+            <td style="padding: 0 40px 35px;">
+              <table role="presentation" style="width: 100%; background: linear-gradient(135deg, #f8f5f2 0%, #f0ebe5 100%); border-radius: 12px; padding: 25px;">
+                <tr>
+                  <td style="padding: 25px;">
+                    <h4 style="margin: 0 0 18px; color: #4A0E19; font-size: 16px; font-weight: 600; font-family: Georgia, serif;">What's Next?</h4>
+                    <table role="presentation" style="width: 100%;">
+                      <tr>
+                        <td style="padding: 8px 0; vertical-align: top; width: 30px;">
+                          <span style="display: inline-block; width: 24px; height: 24px; background: #D4AF37; color: #4A0E19; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700;">1</span>
+                        </td>
+                        <td style="padding: 8px 0 8px 12px; color: #555; font-size: 14px; line-height: 1.5;">We'll call you to confirm your order</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; vertical-align: top;">
+                          <span style="display: inline-block; width: 24px; height: 24px; background: #D4AF37; color: #4A0E19; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700;">2</span>
+                        </td>
+                        <td style="padding: 8px 0 8px 12px; color: #555; font-size: 14px; line-height: 1.5;">Your order will be prepared and shipped</td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0; vertical-align: top;">
+                          <span style="display: inline-block; width: 24px; height: 24px; background: #D4AF37; color: #4A0E19; border-radius: 50%; text-align: center; line-height: 24px; font-size: 12px; font-weight: 700;">3</span>
+                        </td>
+                        <td style="padding: 8px 0 8px 12px; color: #555; font-size: 14px; line-height: 1.5;">Pay cash when your order arrives</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Premium Footer -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #4A0E19 0%, #3a0b14 100%); padding: 35px 40px; text-align: center;">
+              <p style="margin: 0 0 12px; color: #D4AF37; font-size: 14px; font-weight: 500;">Need help? We're here for you</p>
+              <p style="margin: 0 0 20px; color: #F3E5DC; font-size: 13px;">📞 +962 79 065 6666 &nbsp;|&nbsp; 📧 asperpharma@gmail.com</p>
+              <div style="width: 80px; height: 1px; background: linear-gradient(90deg, transparent, #D4AF37, transparent); margin: 0 auto 20px;"></div>
+              <p style="margin: 0 0 8px; color: #D4AF37; font-size: 11px; letter-spacing: 1px;">100% AUTHENTIC PRODUCTS • JFDA AUTHORIZED RETAILER</p>
+              <p style="margin: 0; color: #888; font-size: 11px;">© 2025 Asper Beauty. All rights reserved.</p>
             </td>
           </tr>
           
