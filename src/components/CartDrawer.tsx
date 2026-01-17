@@ -81,19 +81,22 @@ export const CartDrawer = () => {
   return (
     <Sheet open={isOpen} onOpenChange={handleOpenChange}>
       <SheetContent 
-        className={`w-full sm:max-w-md flex flex-col h-full bg-white p-0 ${isRTL ? 'border-r border-l-0' : 'border-l'} border-gold/30`}
+        className={`w-full sm:max-w-md flex flex-col h-full bg-white p-0 ${isRTL ? 'border-r border-l-0' : 'border-l'} border-gold/40 shadow-gold-lg`}
         side={isRTL ? 'left' : 'right'}
         style={{
-          transition: 'transform 0.4s ease-in-out',
+          transition: 'transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)',
         }}
       >
+        {/* Decorative Gold Accent Line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold to-transparent" />
+        
         {/* Header */}
-        <SheetHeader className="flex-shrink-0 p-6 pb-4 border-b border-gold/20">
+        <SheetHeader className="flex-shrink-0 p-6 pb-4 border-b border-gold/30 bg-gradient-to-b from-cream/50 to-transparent">
           <div className="flex items-center justify-between">
             {checkoutMode === 'cod' && (
               <button 
                 onClick={handleBackToCart}
-                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-400 mr-2"
+                className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-gold transition-colors duration-500 mr-2"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -108,7 +111,7 @@ export const CartDrawer = () => {
             </SheetTitle>
             <button 
               onClick={() => handleOpenChange(false)}
-              className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors duration-400"
+              className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-gold hover:rotate-90 transition-all duration-500"
             >
               <X className="w-5 h-5" />
             </button>
@@ -171,9 +174,9 @@ export const CartDrawer = () => {
                   <div className="flex-1 overflow-y-auto p-6 min-h-0">
                     <div className="space-y-4">
                       {items.map((item) => (
-                        <div key={item.variantId} className="flex gap-4 py-4 border-b border-gold/10">
+                        <div key={item.variantId} className="flex gap-4 py-4 border-b border-gold/20 hover:bg-cream/30 transition-colors duration-500 rounded-lg px-2 -mx-2">
                           {/* Thumbnail */}
-                          <div className="w-16 h-16 bg-cream rounded overflow-hidden flex-shrink-0">
+                          <div className="w-16 h-16 bg-cream rounded-lg overflow-hidden flex-shrink-0 border border-gold/20 shadow-gold-sm">
                             {item.product.node.images?.edges?.[0]?.node && (
                               <img
                                 src={item.product.node.images.edges[0].node.url}
@@ -202,25 +205,25 @@ export const CartDrawer = () => {
                           <div className="flex flex-col items-end justify-between flex-shrink-0">
                             <button
                               onClick={() => removeItem(item.variantId)}
-                              className="text-muted-foreground hover:text-foreground transition-colors duration-400"
+                              className="text-muted-foreground hover:text-burgundy transition-colors duration-500"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                             
                             {/* Stepper */}
-                            <div className="flex items-center border border-gold/30 rounded">
+                            <div className="flex items-center border border-gold/40 rounded-lg overflow-hidden shadow-gold-sm">
                               <button
                                 onClick={() => updateQuantity(item.variantId, item.quantity - 1)}
-                                className="w-7 h-7 flex items-center justify-center text-foreground hover:bg-gold/10 transition-colors duration-400"
+                                className="w-7 h-7 flex items-center justify-center text-foreground hover:bg-gold/20 transition-colors duration-500"
                               >
                                 <Minus className="h-3 w-3" />
                               </button>
-                              <span className="w-8 text-center text-sm font-body text-foreground">
+                              <span className="w-8 text-center text-sm font-body text-foreground bg-cream/50">
                                 {item.quantity}
                               </span>
                               <button
                                 onClick={() => updateQuantity(item.variantId, item.quantity + 1)}
-                                className="w-7 h-7 flex items-center justify-center text-foreground hover:bg-gold/10 transition-colors duration-400"
+                                className="w-7 h-7 flex items-center justify-center text-foreground hover:bg-gold/20 transition-colors duration-500"
                               >
                                 <Plus className="h-3 w-3" />
                               </button>
@@ -232,30 +235,30 @@ export const CartDrawer = () => {
                   </div>
                   
                   {/* Footer - Pinned to Bottom */}
-                  <div className="flex-shrink-0 p-6 border-t border-gold/20 bg-white">
+                  <div className="flex-shrink-0 p-6 border-t border-gold/30 bg-gradient-to-t from-cream/30 to-white">
                     {/* Subtotal */}
                     <div className="flex justify-between items-center mb-4">
                       <span className="font-display text-lg text-foreground">
                         {isArabic ? 'المجموع الفرعي' : 'Subtotal'}
                       </span>
-                      <span className="font-display text-xl font-bold text-foreground">
+                      <span className="font-display text-xl font-bold text-burgundy">
                         {items[0]?.price.currencyCode || 'JOD'} {totalPrice.toFixed(2)}
                       </span>
                     </div>
                     
-                    {/* COD Button - Primary */}
+                    {/* COD Button - Primary with luxury styling */}
                     <button 
                       onClick={() => setCheckoutMode('cod')}
                       disabled={items.length === 0}
-                      className="w-full py-4 px-8 bg-burgundy text-white font-display text-sm tracking-widest uppercase transition-all duration-400 hover:bg-burgundy-light hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2"
+                      className="w-full py-4 px-8 bg-gradient-to-r from-burgundy via-burgundy to-burgundy-light text-white font-display text-sm tracking-widest uppercase transition-all duration-500 hover:shadow-gold-lg hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg flex items-center justify-center gap-2 shadow-gold-md"
                     >
                       <Truck className="w-4 h-4" />
                       {isArabic ? 'الدفع عند الاستلام' : 'Cash on Delivery'}
                     </button>
                     
                     {/* Trust Badge */}
-                    <div className="flex items-center justify-center gap-2 mt-4">
-                      <Lock className="w-3 h-3 text-muted-foreground" />
+                    <div className="flex items-center justify-center gap-2 mt-4 py-2 px-4 bg-cream/50 rounded-full border border-gold/20">
+                      <Lock className="w-3 h-3 text-gold" />
                       <span className="text-xs text-muted-foreground font-body">
                         {isArabic ? 'توصيل آمن' : 'Secure Delivery'}
                       </span>
