@@ -22,6 +22,7 @@ interface ProcessedProduct {
   sku: string;
   name: string;
   category: string;
+  usage?: string;
   brand: string;
   price: number;
   costPrice: number;
@@ -34,6 +35,7 @@ interface ProcessedProduct {
 interface UploadSummary {
   total: number;
   categories: Record<string, number>;
+  usages?: Record<string, number>;
   brands: Record<string, number>;
 }
 
@@ -408,13 +410,14 @@ export default function BulkUpload() {
               action: "create-shopify-product", 
               product: {
                 title: product.name,
-                body: `${product.brand} - ${product.category}`,
+                body: `${product.brand} - ${product.category}${product.usage ? ` - ${product.usage}` : ''}`,
                 vendor: product.brand,
                 product_type: product.category,
-                tags: `${product.category}, ${product.brand}, bulk-upload`,
+                tags: [product.category, product.brand, product.usage, "bulk-upload"].filter(Boolean).join(", "),
                 price: product.price.toFixed(2),
                 sku: product.sku,
                 imageUrl: product.imageUrl,
+                usage: product.usage
               }
             },
           });
@@ -695,13 +698,25 @@ export default function BulkUpload() {
                   <div className="space-y-6">
                     {/* Category Summary */}
                     {summary && (
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {Object.entries(summary.categories).map(([category, count]) => (
-                          <div key={category} className="bg-taupe/5 rounded-lg p-4">
-                            <p className="text-sm text-taupe">{category}</p>
-                            <p className="text-2xl font-serif text-charcoal">{count}</p>
+                      <div className="space-y-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          {Object.entries(summary.categories).map(([category, count]) => (
+                            <div key={category} className="bg-taupe/5 rounded-lg p-4">
+                              <p className="text-sm text-taupe">{category}</p>
+                              <p className="text-2xl font-serif text-charcoal">{count}</p>
+                            </div>
+                          ))}
+                        </div>
+                        {summary.usages && (
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                             {Object.entries(summary.usages).map(([usage, count]) => (
+                              <div key={usage} className="bg-blue-50/50 rounded-lg p-4">
+                                <p className="text-sm text-blue-600">{usage}</p>
+                                <p className="text-2xl font-serif text-charcoal">{count}</p>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        )}
                       </div>
                     )}
 
@@ -875,8 +890,9 @@ export default function BulkUpload() {
                               </div>
                             </div>
                             <p className="text-xs font-medium text-charcoal truncate">{product.name}</p>
-                            <div className="flex items-center gap-1 mt-1">
+                            <div className="flex items-center gap-1 mt-1 flex-wrap">
                               <Badge variant="secondary" className="text-[10px]">{product.category}</Badge>
+                              {product.usage && <Badge variant="outline" className="text-[10px] border-blue-200 text-blue-600">{product.usage}</Badge>}
                             </div>
                           </div>
                         ))}
@@ -923,9 +939,10 @@ export default function BulkUpload() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="font-medium text-charcoal truncate">{product.name}</p>
-                                  <div className="flex items-center gap-2 mt-1">
+                                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                                     <Badge variant="outline" className="text-xs">{product.brand}</Badge>
                                     <Badge variant="secondary" className="text-xs">{product.category}</Badge>
+                                    {product.usage && <Badge variant="outline" className="text-xs border-blue-200 text-blue-600">{product.usage}</Badge>}
                                     <span className="text-sm text-gold font-medium">${product.price.toFixed(2)}</span>
                                   </div>
                                 </div>

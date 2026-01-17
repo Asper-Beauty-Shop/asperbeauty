@@ -45,6 +45,34 @@ const CATEGORY_KEYWORDS = {
   ]
 };
 
+// Usage mapping based on product keywords
+const USAGE_KEYWORDS = {
+  "Daily Care": [
+    "daily", "wash", "soap", "cleanser", "shampoo", "conditioner", "deodorant", "toothpaste", 
+    "shower", "hygiene", "yomi", "yawmi"
+  ],
+  "Treatment": [
+    "treatment", "repair", "serum", "acne", "anti-aging", "wrinkle", "medical", "solution", 
+    "therapy", "cure", "medicinal", "heal"
+  ],
+  "Night Care": [
+    "night", "overnight", "sleep", "mask", "pm", "bedtime"
+  ],
+  "Sun Protection": [
+    "sunscreen", "spf", "sun", "block", "protection", "uv", "uva", "uvb"
+  ],
+  "Professional": [
+    "pro", "professional", "salon", "clinic", "expert", "advanced"
+  ],
+  "Hydration": [
+    "moisturizer", "lotion", "cream", "hydrate", "dry skin", "wet", "aqua", "water"
+  ],
+  "Enhancement": [
+    "makeup", "mascara", "lipstick", "foundation", "blush", "eyeshadow", "liner", "color", 
+    "glow", "shine", "tint"
+  ]
+};
+
 // Categorize product based on name
 function categorizeProduct(productName: string): string {
   const nameLower = productName.toLowerCase();
@@ -58,6 +86,27 @@ function categorizeProduct(productName: string): string {
   }
   
   return "Uncategorized";
+}
+
+// Determine usage based on name and category
+function determineUsage(productName: string, category: string): string {
+  const nameLower = productName.toLowerCase();
+  
+  // Check specific usage keywords first
+  for (const [usage, keywords] of Object.entries(USAGE_KEYWORDS)) {
+    for (const keyword of keywords) {
+      if (nameLower.includes(keyword.toLowerCase())) {
+        return usage;
+      }
+    }
+  }
+  
+  // Fallback based on category
+  if (category === "Make Up") return "Enhancement";
+  if (category === "Medical Supplies") return "Treatment";
+  if (category === "Fragrances") return "Enhancement";
+  
+  return "General Care";
 }
 
 // Extract brand from product name
@@ -86,9 +135,9 @@ function extractBrand(productName: string): string {
   return "Generic";
 }
 
-// Generate image prompt based on product name and category
-function generateImagePrompt(productName: string, category: string): string {
-  const basePrompt = `Ultra high resolution product photography of ${productName}. `;
+// Generate image prompt based on product name, category, and usage
+function generateImagePrompt(productName: string, category: string, usage: string): string {
+  const basePrompt = `High-end commercial product photography of ${productName}, luxurious style. `;
   
   const categoryStyles: Record<string, string> = {
     "Skin Care": "Elegant skincare product bottle/jar on minimalist marble surface with soft natural lighting, premium cosmetic packaging, clean white background with subtle shadows. Professional beauty product photography.",
@@ -101,7 +150,20 @@ function generateImagePrompt(productName: string, category: string): string {
     "Personal Care": "Fresh personal care product with clean styling, bright natural lighting, everyday hygiene product photography."
   };
   
-  return basePrompt + (categoryStyles[category] || categoryStyles["Personal Care"]);
+  const usageStyles: Record<string, string> = {
+    "Daily Care": "Fresh and clean atmosphere, morning light.",
+    "Treatment": "Clinical and pure aesthetic, scientific precision.",
+    "Night Care": "Deep, calming colors, evening ambiance, soft shadows.",
+    "Sun Protection": "Bright, sunny atmosphere, outdoor feel.",
+    "Professional": "Sleek, salon-like environment, premium finish.",
+    "Hydration": "Water droplets, splashing water, refreshing feel.",
+    "Enhancement": "Vibrant colors, artistic composition."
+  };
+
+  const style = categoryStyles[category] || categoryStyles["Personal Care"];
+  const usageStyle = usageStyles[usage] || "Clean and professional look.";
+  
+  return `${basePrompt} ${style} ${usageStyle} High resolution, detailed texture, photorealistic, 8k.`;
 }
 
 interface ProductData {
@@ -115,6 +177,7 @@ interface ProcessedProduct {
   sku: string;
   name: string;
   category: string;
+  usage: string;
   brand: string;
   price: number;
   costPrice: number;
@@ -212,13 +275,15 @@ serve(async (req) => {
       const { products } = requestData;
       const processedProducts: ProcessedProduct[] = products.map((product: ProductData) => {
         const category = categorizeProduct(product.name);
+        const usage = determineUsage(product.name, category);
         const brand = extractBrand(product.name);
-        const imagePrompt = generateImagePrompt(product.name, category);
+        const imagePrompt = generateImagePrompt(product.name, category, usage);
         
         return {
           sku: product.sku,
           name: product.name,
           category,
+          usage,
           brand,
           price: product.sellingPrice,
           costPrice: product.costPrice,
@@ -229,10 +294,12 @@ serve(async (req) => {
 
       // Get category distribution for summary
       const categoryCount: Record<string, number> = {};
+      const usageCount: Record<string, number> = {};
       const brandCount: Record<string, number> = {};
       
       processedProducts.forEach(p => {
         categoryCount[p.category] = (categoryCount[p.category] || 0) + 1;
+        usageCount[p.usage] = (usageCount[p.usage] || 0) + 1;
         brandCount[p.brand] = (brandCount[p.brand] || 0) + 1;
       });
 
@@ -243,6 +310,7 @@ serve(async (req) => {
           summary: {
             total: processedProducts.length,
             categories: categoryCount,
+            usages: usageCount,
             brands: brandCount,
           },
         }),
@@ -340,10 +408,10 @@ serve(async (req) => {
       const shopifyProduct = {
         product: {
           title: product.title,
-          body_html: `<p>${product.body || ""}</p>`,
+          body_html: `<p>${product.body || ""}</p><p><strong>Usage:</strong> ${product.usage || "General"}</p>`,
           vendor: product.vendor || "Asper",
           product_type: product.product_type || "General",
-          tags: product.tags || "",
+          tags: product.tags ? `${product.tags}, ${product.usage || ""}` : `${product.usage || ""}`,
           status: "active",
           variants: [
             {
@@ -419,7 +487,8 @@ serve(async (req) => {
               role: "system",
               content: `You are a product categorization expert for a beauty and pharmacy store. 
                 Categories: Skin Care, Hair Care, Body Care, Make Up, Fragrances, Health & Supplements, Medical Supplies, Personal Care.
-                Return a JSON array with {name, category, brand} for each product.`,
+                Usages: Daily Care, Treatment, Night Care, Sun Protection, Professional, Hydration, Enhancement.
+                Return a JSON array with {name, category, usage, brand} for each product.`,
             },
             {
               role: "user",
@@ -445,9 +514,10 @@ serve(async (req) => {
                             type: "string",
                             enum: ["Skin Care", "Hair Care", "Body Care", "Make Up", "Fragrances", "Health & Supplements", "Medical Supplies", "Personal Care", "Uncategorized"]
                           },
+                          usage: { type: "string" },
                           brand: { type: "string" },
                         },
-                        required: ["name", "category", "brand"],
+                        required: ["name", "category", "usage", "brand"],
                       },
                     },
                   },
