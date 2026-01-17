@@ -1,16 +1,25 @@
 import React from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-// List of real brands - fetches logos automatically via Clearbit API
+// Premium brand logos with elegant styling
+import ceraveLogo from "@/assets/brands/cerave-logo.webp";
+import theOrdinaryLogo from "@/assets/brands/the-ordinary-logo.webp";
+import laRochePosayLogo from "@/assets/brands/la-roche-posay-logo.webp";
+import paulasChoiceLogo from "@/assets/brands/paulas-choice-logo.webp";
+import olaplexLogo from "@/assets/brands/olaplex-logo.webp";
+import diorLogo from "@/assets/brands/dior-logo.webp";
+import esteeLauderLogo from "@/assets/brands/estee-lauder-logo.webp";
+import kerastaseLogo from "@/assets/brands/kerastase-logo.webp";
+
 const BRANDS = [
-  { name: "CeraVe", domain: "cerave.com" },
-  { name: "The Ordinary", domain: "theordinary.com" },
-  { name: "La Roche-Posay", domain: "laroche-posay.us" },
-  { name: "Paula's Choice", domain: "paulaschoice.com" },
-  { name: "Olaplex", domain: "olaplex.com" },
-  { name: "Dior", domain: "dior.com" },
-  { name: "Estée Lauder", domain: "esteelauder.com" },
-  { name: "Kérastase", domain: "kerastase-usa.com" },
+  { name: "CeraVe", logo: ceraveLogo },
+  { name: "The Ordinary", logo: theOrdinaryLogo },
+  { name: "La Roche-Posay", logo: laRochePosayLogo },
+  { name: "Paula's Choice", logo: paulasChoiceLogo },
+  { name: "Olaplex", logo: olaplexLogo },
+  { name: "Dior", logo: diorLogo },
+  { name: "Estée Lauder", logo: esteeLauderLogo },
+  { name: "Kérastase", logo: kerastaseLogo },
 ];
 
 export const BrandMarquee = () => {
@@ -18,30 +27,71 @@ export const BrandMarquee = () => {
   const isAr = language === "ar";
 
   return (
-    <section className="w-full border-y border-muted bg-background py-12">
-      <div className="container mx-auto px-4 text-center">
-        <p className="mb-8 font-sans text-xs font-bold uppercase tracking-[0.3em] text-muted-foreground">
-          {isAr ? "موزع معتمد لـ" : "Authorized Retailer For"}
-        </p>
+    <section className="w-full bg-gradient-to-b from-cream-50 to-background py-16 md:py-24 overflow-hidden">
+      <div className="container mx-auto px-4">
+        {/* Elegant Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <div className="h-px w-16 bg-gradient-to-r from-transparent to-gold-500/50" />
+            <span className="text-gold-600 text-xs tracking-[0.4em] uppercase font-medium">
+              ✦
+            </span>
+            <div className="h-px w-16 bg-gradient-to-l from-transparent to-gold-500/50" />
+          </div>
+          <p className="font-serif text-xs md:text-sm uppercase tracking-[0.3em] text-muted-foreground">
+            {isAr ? "موزع معتمد للعلامات الفاخرة" : "Authorized Luxury Retailer"}
+          </p>
+        </div>
         
-        {/* Logo Grid */}
-        <div className="flex flex-wrap justify-center gap-12 md:gap-20 opacity-70 grayscale transition-all duration-500 hover:grayscale-0 hover:opacity-100">
-          {BRANDS.map((brand) => (
-            <div key={brand.name} className="group relative flex items-center justify-center">
+        {/* Luxury Brand Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-6 md:gap-8">
+          {BRANDS.map((brand, index) => (
+            <div
+              key={brand.name}
+              className="group relative flex items-center justify-center p-6 md:p-8 
+                         bg-white/80 backdrop-blur-sm rounded-xl
+                         border border-cream-200/50 
+                         shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)]
+                         hover:shadow-[0_8px_32px_-4px_rgba(212,175,55,0.15)]
+                         hover:border-gold-300/50
+                         transition-all duration-500 ease-out
+                         hover:-translate-y-1"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              {/* Subtle gold glow on hover */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gold-100/0 to-gold-200/0 
+                              group-hover:from-gold-100/20 group-hover:to-gold-200/10 
+                              transition-all duration-500" />
+              
               <img
-                src={`https://logo.clearbit.com/${brand.domain}?size=80`}
+                src={brand.logo}
                 alt={`${brand.name} Logo`}
-                className="h-8 md:h-10 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
+                className="relative h-8 md:h-10 w-auto max-w-full object-contain 
+                           filter grayscale opacity-70
+                           group-hover:grayscale-0 group-hover:opacity-100
+                           transition-all duration-500 ease-out"
                 onError={(e) => {
-                  // Fallback: show brand name if logo fails
+                  // Elegant text fallback with luxury styling
                   e.currentTarget.style.display = 'none';
                   if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.innerHTML = `<span class="font-serif text-lg text-foreground">${brand.name}</span>`;
+                    const fallback = document.createElement('span');
+                    fallback.className = 'relative font-serif text-sm md:text-base font-medium text-foreground/80 tracking-wider group-hover:text-burgundy-700 transition-colors duration-300';
+                    fallback.textContent = brand.name;
+                    e.currentTarget.parentElement.appendChild(fallback);
                   }
                 }}
               />
             </div>
           ))}
+        </div>
+
+        {/* Bottom decorative element */}
+        <div className="flex items-center justify-center gap-4 mt-12">
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
+          <span className="text-gold-500/60 text-[10px] tracking-[0.5em] uppercase">
+            {isAr ? "أصالة مضمونة" : "Authenticity Guaranteed"}
+          </span>
+          <div className="h-px w-24 bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
         </div>
       </div>
     </section>
