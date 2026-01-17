@@ -1,14 +1,11 @@
-import React from "react";
 import { ShoppingBag, Star } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 interface ProductProps {
   id: string;
   title: string;
-  category: string;
+  category?: string;
+  brand?: string;
   price: string | number;
   image_url: string;
   is_new?: boolean;
@@ -18,58 +15,65 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
   return (
     <Link
       to={`/product/${product.id}`}
-      className="group relative flex flex-col overflow-hidden bg-soft-ivory transition-all duration-500 hover:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)]"
+      className="group relative bg-background border border-border flex flex-col h-full overflow-hidden"
     >
-      {/* Image Area */}
-      <div className="relative aspect-[3/4] overflow-hidden bg-cream">
+      {/* 1. Image Area - Aspect Ratio is key for consistency */}
+      <div className="relative aspect-[4/5] overflow-hidden bg-muted/30">
         {product.is_new && (
-          <Badge className="absolute left-3 top-3 z-10 border-none bg-gold-300 font-sans text-[10px] font-medium uppercase tracking-widest text-luxury-black">
-            New Arrival
-          </Badge>
+          <span className="absolute top-2 left-2 z-10 bg-gold text-[8px] md:text-[10px] text-foreground px-2 py-0.5 font-bold uppercase tracking-widest">
+            New
+          </span>
         )}
-
-        <img
-          src={product.image_url}
+        <img 
+          src={product.image_url} 
+          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
           alt={product.title}
-          className="h-full w-full object-contain mix-blend-multiply transition-transform duration-700 ease-out group-hover:scale-105"
         />
-
-        {/* 'Quick Add' Overlay - Slides up slowly */}
-        <div className="absolute inset-x-0 bottom-0 flex translate-y-full items-center justify-center bg-luxury-black/80 p-4 backdrop-blur-sm transition-transform duration-500 ease-out group-hover:translate-y-0">
-          <Button
-            variant="ghost"
-            className="w-full font-sans text-xs font-medium uppercase tracking-widest text-soft-ivory hover:bg-gold-300 hover:text-luxury-black"
-            onClick={(e) => {
-              e.preventDefault();
-              // Add to cart logic here
-            }}
-          >
-            <ShoppingBag className="mr-2 h-4 w-4" />
-            Add to Bag
-          </Button>
-        </div>
+        
+        {/* Mobile Quick-Add: Only shows on mobile */}
+        <button 
+          className="absolute bottom-2 right-2 md:hidden bg-foreground text-background p-2 rounded-full shadow-lg"
+          onClick={(e) => {
+            e.preventDefault();
+            // Add to cart logic here
+          }}
+        >
+          <ShoppingBag className="h-4 w-4" />
+        </button>
       </div>
 
-      {/* Text Area */}
-      <div className="flex flex-grow flex-col p-4">
-        <span className="mb-1 font-sans text-[10px] font-medium uppercase tracking-widest text-gold-500">
-          {product.category}
-        </span>
-
-        <h3 className="font-serif text-base font-medium leading-snug text-luxury-black transition-colors group-hover:text-gold-500">
+      {/* 2. Content Area - Optimized Typography */}
+      <div className="p-3 md:p-6 flex flex-col flex-1 text-center md:text-left">
+        <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-gold mb-1">
+          {product.brand || product.category}
+        </p>
+        
+        <h3 className="font-serif text-sm md:text-lg text-foreground line-clamp-2 leading-tight mb-2 flex-1">
           {product.title}
         </h3>
 
-        {/* Price & Rating */}
-        <div className="mt-auto flex items-center justify-between pt-3">
-          <span className="font-sans text-sm font-semibold text-luxury-charcoal">
-            {product.price} JOD
+        <div className="mt-auto flex flex-col md:flex-row md:items-center justify-between gap-1">
+          <span className="font-sans font-bold text-xs md:text-base text-foreground">
+            {Number(product.price).toFixed(3)} <span className="text-[10px] md:text-xs">JOD</span>
           </span>
-          <span className="flex items-center gap-1 text-gold-300">
-            <Star className="h-3 w-3 fill-current" />
-            <span className="font-sans text-xs text-luxury-charcoal">4.9</span>
-          </span>
+          
+          {/* Rating - Hidden on very small screens to save space */}
+          <div className="hidden sm:flex items-center gap-1 text-gold">
+            <Star className="h-2 w-2 md:h-3 md:w-3 fill-current" />
+            <span className="text-[9px] md:text-xs text-muted-foreground">4.9</span>
+          </div>
         </div>
+      </div>
+
+      {/* Desktop Only: Add to Cart on Hover */}
+      <div 
+        className="hidden md:block absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-foreground text-background p-4 text-center cursor-pointer uppercase text-[10px] font-bold tracking-widest hover:bg-gold hover:text-foreground"
+        onClick={(e) => {
+          e.preventDefault();
+          // Add to cart logic here
+        }}
+      >
+        Add to Bag
       </div>
     </Link>
   );
