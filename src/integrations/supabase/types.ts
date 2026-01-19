@@ -16,19 +16,12 @@ export type Database = {
     Tables: {
       cod_orders: {
         Row: {
-          assigned_at: string | null
           city: string
-          confirmation_token: string | null
           created_at: string
           customer_email: string | null
-          customer_lat: number | null
-          customer_lng: number | null
           customer_name: string
           customer_phone: string
-          delivered_at: string | null
           delivery_address: string
-          delivery_notes: string | null
-          driver_id: string | null
           id: string
           items: Json
           notes: string | null
@@ -40,19 +33,12 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          assigned_at?: string | null
           city: string
-          confirmation_token?: string | null
           created_at?: string
           customer_email?: string | null
-          customer_lat?: number | null
-          customer_lng?: number | null
           customer_name: string
           customer_phone: string
-          delivered_at?: string | null
           delivery_address: string
-          delivery_notes?: string | null
-          driver_id?: string | null
           id?: string
           items: Json
           notes?: string | null
@@ -64,19 +50,12 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          assigned_at?: string | null
           city?: string
-          confirmation_token?: string | null
           created_at?: string
           customer_email?: string | null
-          customer_lat?: number | null
-          customer_lng?: number | null
           customer_name?: string
           customer_phone?: string
-          delivered_at?: string | null
           delivery_address?: string
-          delivery_notes?: string | null
-          driver_id?: string | null
           id?: string
           items?: Json
           notes?: string | null
@@ -86,72 +65,6 @@ export type Database = {
           subtotal?: number
           total?: number
           updated_at?: string
-        }
-        Relationships: []
-      }
-      products: {
-        Row: {
-          brand: string | null
-          category: string
-          created_at: string
-          description: string | null
-          discount_percent: number | null
-          id: string
-          image_url: string | null
-          is_on_sale: boolean | null
-          original_price: number | null
-          price: number
-          scent: string | null
-          skin_concerns: string[] | null
-          source_url: string | null
-          subcategory: string | null
-          tags: string[] | null
-          texture: string | null
-          title: string
-          updated_at: string
-          volume_ml: string | null
-        }
-        Insert: {
-          brand?: string | null
-          category?: string
-          created_at?: string
-          description?: string | null
-          discount_percent?: number | null
-          id?: string
-          image_url?: string | null
-          is_on_sale?: boolean | null
-          original_price?: number | null
-          price: number
-          scent?: string | null
-          skin_concerns?: string[] | null
-          source_url?: string | null
-          subcategory?: string | null
-          tags?: string[] | null
-          texture?: string | null
-          title: string
-          updated_at?: string
-          volume_ml?: string | null
-        }
-        Update: {
-          brand?: string | null
-          category?: string
-          created_at?: string
-          description?: string | null
-          discount_percent?: number | null
-          id?: string
-          image_url?: string | null
-          is_on_sale?: boolean | null
-          original_price?: number | null
-          price?: number
-          scent?: string | null
-          skin_concerns?: string[] | null
-          source_url?: string | null
-          subcategory?: string | null
-          tags?: string[] | null
-          texture?: string | null
-          title?: string
-          updated_at?: string
-          volume_ml?: string | null
         }
         Relationships: []
       }
@@ -220,7 +133,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "user" | "driver"
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -348,7 +261,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user", "driver"],
+      app_role: ["admin", "user"],
     },
   },
 } as const
