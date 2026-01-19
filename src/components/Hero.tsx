@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "react-router-dom";
-import { Volume2, VolumeX, Shield, Sparkles } from "lucide-react";
+import { Volume2, VolumeX, Sparkles } from "lucide-react";
+import { AnimatedTrustBadge } from "./AnimatedTrustBadge";
 
 // Hero assets
 import heroLifestyle from "@/assets/hero/hero-lifestyle.webp";
@@ -156,21 +157,12 @@ export const Hero = () => {
         style={{ transform: 'translateY(0)', opacity: 1 }}
       >
         <div className={`max-w-xl ${isArabic ? 'text-right mr-auto' : 'text-left'}`}>
-          {/* Trust Badge with Luxury Styling */}
+          {/* Animated Trust Badge Component */}
           <div 
-            className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full 
-              bg-gradient-to-r from-gold/20 via-gold/10 to-transparent 
-              border-2 border-gold/40 hover:border-gold/60 
-              backdrop-blur-sm shadow-[0_4px_20px_rgba(212,175,55,0.15)] hover:shadow-[0_6px_25px_rgba(212,175,55,0.25)]
-              transition-all duration-500 group animate-fade-in"
+            className="mb-6 animate-fade-in"
             style={{ animationDelay: '0.05s' }}
           >
-            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-gold/30 via-gold/20 to-transparent flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-              <Shield className="w-3.5 h-3.5 text-gold group-hover:drop-shadow-[0_0_6px_rgba(212,175,55,0.5)]" />
-            </div>
-            <span className="font-body text-xs text-cream/90 tracking-wider uppercase">
-              {isArabic ? '100% أصلي • موزع معتمد' : '100% Authentic • Authorized Retailer'}
-            </span>
+            <AnimatedTrustBadge />
           </div>
           
           {/* Script Sub-header with staggered animation */}
