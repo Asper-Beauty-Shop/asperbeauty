@@ -58,16 +58,47 @@ export const BrandMarquee = () => {
                          bg-white/80 backdrop-blur-sm rounded-xl
                          border border-cream-dark/50 
                          shadow-[0_4px_24px_-4px_rgba(0,0,0,0.05)]
-                         hover:shadow-[0_8px_32px_-4px_rgba(212,175,55,0.15)]
-                         hover:border-gold/50
+                         hover:shadow-[0_8px_32px_-4px_rgba(212,175,55,0.25)]
+                         hover:border-gold/60
                          transition-all duration-500 ease-out
-                         hover:-translate-y-1"
+                         hover:-translate-y-2"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               {/* Subtle gold glow on hover */}
               <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-gold-light/0 to-gold/0 
-                              group-hover:from-gold-light/20 group-hover:to-gold/10 
+                              group-hover:from-gold-light/25 group-hover:to-gold/15 
                               transition-all duration-500" />
+              
+              {/* Floating Gem Icon - appears on hover */}
+              <div className="absolute -top-3 -right-3 opacity-0 group-hover:opacity-100 
+                              transform translate-y-2 group-hover:translate-y-0
+                              transition-all duration-500 ease-out z-10">
+                <div className="relative">
+                  {/* Gem glow */}
+                  <div className="absolute inset-0 bg-gold/40 rounded-full blur-lg scale-150 animate-pulse" />
+                  <div className="relative w-8 h-8 rounded-full 
+                                  bg-gradient-to-br from-gold via-gold-light to-gold
+                                  flex items-center justify-center
+                                  shadow-[0_4px_15px_rgba(212,175,55,0.5)]
+                                  animate-bounce"
+                       style={{ animationDuration: '2s' }}>
+                    <Gem className="w-4 h-4 text-burgundy" strokeWidth={2} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Sparkle particles on hover */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-xl">
+                <Sparkles 
+                  className="absolute top-2 left-2 w-3 h-3 text-gold/0 group-hover:text-gold/60 
+                             transition-all duration-700 group-hover:animate-pulse" 
+                />
+                <Sparkles 
+                  className="absolute bottom-2 right-2 w-3 h-3 text-gold/0 group-hover:text-gold/60 
+                             transition-all duration-700 group-hover:animate-pulse"
+                  style={{ animationDelay: '0.3s' }}
+                />
+              </div>
               
               <img
                 src={brand.logo}
@@ -75,7 +106,8 @@ export const BrandMarquee = () => {
                 className="relative h-8 md:h-10 w-auto max-w-full object-contain 
                            filter grayscale opacity-70
                            group-hover:grayscale-0 group-hover:opacity-100
-                           transition-all duration-500 ease-out"
+                           transition-all duration-500 ease-out
+                           group-hover:scale-105"
                 onError={(e) => {
                   // Elegant text fallback with luxury styling
                   e.currentTarget.style.display = 'none';
