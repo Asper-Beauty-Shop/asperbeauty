@@ -1,27 +1,26 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Header } from "@/components/Header";
-import AnimatedShaderHero from "@/components/ui/animated-shader-hero";
-import { AmmanEdit } from "@/components/AmmanEdit";
-import { FeaturedBrands } from "@/components/FeaturedBrands";
-import { Testimonials } from "@/components/Testimonials";
-import { InstagramFeed } from "@/components/InstagramFeed";
+import { GlobalHeader } from "@/components/GlobalHeader";
+import { LuxuryHero } from "@/components/LuxuryHero";
+import { BrandMarquee } from "@/components/BrandMarquee";
+import { LuxuryCategories } from "@/components/LuxuryCategories";
+import { DealOfTheDay } from "@/components/DealOfTheDay";
+import { LuxuryPromoBanner } from "@/components/LuxuryPromoBanner";
+import { FeaturedCollection } from "@/components/FeaturedCollection";
+import { BestSellersSection } from "@/components/BestSellersSection";
 import { Newsletter } from "@/components/Newsletter";
-import { TrustBanner } from "@/components/TrustBanner";
 import { Footer } from "@/components/Footer";
 import { BeautyAssistant } from "@/components/BeautyAssistant";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingSocials } from "@/components/FloatingSocials";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
+import { MobileNav } from "@/components/MobileNav";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleLoad = () => setIsLoading(false);
     
-    // Hide skeleton once window loads or timeout finishes (whichever comes last for safety)
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1200);
@@ -39,41 +38,43 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-cream animate-fade-in">
-      <Header />
+    <div className="min-h-screen bg-background animate-fade-in">
+      <GlobalHeader />
       <main>
-        <AnimatedShaderHero
-          trustBadge={{
-            text: "Trusted by 50,000+ Beauty Enthusiasts",
-            icons: ["✨", "💎", "🌟"]
-          }}
-          headline={{
-            line1: "Discover Luxury",
-            line2: "Beauty & Skincare"
-          }}
-          subtitle="Curated collections of premium beauty products from the world's most prestigious brands. Experience the art of self-care."
-          buttons={{
-            primary: {
-              text: "Explore Collections",
-              onClick: () => navigate("/collections")
-            },
-            secondary: {
-              text: "Shop Best Sellers",
-              onClick: () => navigate("/best-sellers")
-            }
-          }}
-        />
-        <AmmanEdit />
-        <FeaturedBrands />
-        <Testimonials />
-        <InstagramFeed />
+        {/* 1. EMOTIONAL LAYER: The Cinematic Hero */}
+        <LuxuryHero />
+
+        {/* 2. TRUST LAYER: Brand Logos (Global Standards) */}
+        <BrandMarquee />
+
+        {/* 3. NAVIGATION LAYER: Luxury Category Bubbles */}
+        <LuxuryCategories />
+
+        {/* 4. URGENCY LAYER: iHerb-style "Deal of the Day" */}
+        <DealOfTheDay />
+
+        {/* 5. ADVERTISEMENT LAYER: The "High-End" Promo - Image Left */}
+        <LuxuryPromoBanner variant="primary" position="left" />
+
+        {/* 6. DISCOVERY LAYER: Featured Collection */}
+        <FeaturedCollection />
+
+        {/* 7. BEST SELLERS LAYER: Global Favorites */}
+        <BestSellersSection />
+
+        {/* 8. ADVERTISEMENT LAYER 2: Secondary Promo - Image Right */}
+        <LuxuryPromoBanner variant="secondary" position="right" />
+
+        {/* 9. NEWSLETTER LAYER: Email Capture */}
         <Newsletter />
-        <TrustBanner />
       </main>
       <Footer />
       <BeautyAssistant />
       <ScrollToTop />
       <FloatingSocials />
+      <MobileNav />
+      {/* Add bottom padding on mobile for the fixed nav */}
+      <div className="h-16 lg:hidden" />
     </div>
   );
 };
