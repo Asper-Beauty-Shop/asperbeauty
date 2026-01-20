@@ -86,7 +86,7 @@ export const GlobalHeader = () => {
   return <>
       <header className={cn("fixed top-0 left-0 right-0 z-50 transition-all duration-500", isScrolled ? "bg-background/95 backdrop-blur-lg shadow-sm border-b border-muted" : "bg-transparent")}>
         <div className="container mx-auto px-4 text-gold">
-          <div className="flex h-20 items-center justify-between text-gold">
+          <div className="flex h-20 items-center justify-between text-yellow-600">
             
             {/* LEFT: Mobile Menu & Search Trigger */}
             <div className="flex items-center gap-4 lg:hidden">
@@ -117,7 +117,7 @@ export const GlobalHeader = () => {
               
               {/* Desktop Search Trigger */}
               <div onClick={() => setSearchOpen(true)} className="hidden md:flex items-center cursor-pointer group">
-                <span className={cn("border-b px-2 py-1 text-xs transition-all w-32", isScrolled ? "text-muted-foreground border-border group-hover:border-primary" : "text-foreground/60 border-foreground/20 group-hover:border-primary")}>
+                <span className={cn("border-b px-2 py-1 text-xs transition-all w-32 text-rose-800", isScrolled ? "text-muted-foreground border-border group-hover:border-primary" : "text-foreground/60 border-foreground/20 group-hover:border-primary")}>
                   {isAr ? "بحث..." : "Search products..."}
                 </span>
                 <Search className={cn("h-4 w-4 ml-[-20px]", isScrolled ? "text-muted-foreground" : "text-foreground/50")} />
