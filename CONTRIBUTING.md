@@ -1,6 +1,7 @@
 # Contributing to Asper Beauty Shop
 
-Thank you for your interest in contributing to Asper Beauty Shop! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to Asper Beauty Shop! This document
+provides guidelines and instructions for contributing.
 
 ## 🚀 Getting Started
 
@@ -32,6 +33,7 @@ Thank you for your interest in contributing to Asper Beauty Shop! This document 
 ### Branch Naming
 
 Use descriptive branch names:
+
 - `feature/add-product-filters` - New features
 - `fix/cart-quantity-bug` - Bug fixes
 - `docs/update-readme` - Documentation updates
@@ -40,6 +42,7 @@ Use descriptive branch names:
 ### Commit Messages
 
 Follow conventional commit format:
+
 ```
 type(scope): description
 
@@ -47,6 +50,7 @@ type(scope): description
 ```
 
 Types:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -56,6 +60,7 @@ Types:
 - `chore`: Maintenance
 
 Examples:
+
 ```
 feat(cart): add quantity selector to cart items
 fix(search): resolve dropdown not closing on blur
@@ -145,6 +150,7 @@ For feature requests, please provide:
 ## 📧 Contact
 
 For questions or support:
+
 - Create an issue in this repository
 - Join our community on [Discord](https://discord.gg/lovable-dev)
 

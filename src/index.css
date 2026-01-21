@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -7,25 +7,25 @@
 @layer base {
   :root {
     /* Asper Beauty Quiet Luxury Palette */
-    
+
     /* Cream #F3E5DC = HSL 25 47% 91% - Global Background */
     --cream: 25 47% 91%;
     --cream-dark: 25 35% 85%;
-    
+
     /* Gold Foil #D4AF37 = HSL 46 66% 52% - Accents & Borders */
     --gold: 46 66% 52%;
     --gold-light: 46 66% 62%;
     --gold-glow: 46 66% 70%;
-    
+
     /* Deep Burgundy #4A0E19 = HSL 348 68% 17% - Header/Footer */
     --burgundy: 348 68% 17%;
     --burgundy-light: 348 58% 25%;
     --burgundy-dark: 348 68% 12%;
-    
+
     /* Dark Warm Brown #2C1A1D = HSL 350 25% 14% - Text */
     --warm-brown: 350 25% 14%;
     --warm-brown-light: 350 20% 35%;
-    
+
     /* Primary backgrounds - Cream base */
     --background: 25 47% 91%;
     --foreground: 350 25% 14%;
@@ -70,9 +70,9 @@
     --soft-ivory: 25 47% 91%;
     --dark-charcoal: 350 25% 14%;
 
-    --font-display: 'Playfair Display', serif;
-    --font-body: 'Inter', 'Lato', sans-serif;
-    --font-script: 'Great Vibes', cursive;
+    --font-display: "Playfair Display", serif;
+    --font-body: "Inter", "Lato", sans-serif;
+    --font-script: "Great Vibes", cursive;
 
     --sidebar-background: 348 68% 17%;
     --sidebar-foreground: 0 0% 100%;
@@ -146,7 +146,7 @@
 
   /* RTL Support */
   [dir="rtl"] {
-    font-family: 'Inter', 'Tajawal', sans-serif;
+    font-family: "Inter", "Tajawal", sans-serif;
   }
 
   [dir="rtl"] h1,
@@ -155,7 +155,7 @@
   [dir="rtl"] h4,
   [dir="rtl"] h5,
   [dir="rtl"] h6 {
-    font-family: 'Playfair Display', 'Tajawal', serif;
+    font-family: "Playfair Display", "Tajawal", serif;
   }
 }
 
@@ -182,7 +182,8 @@
 
   /* Product Cards - Quiet Luxury */
   .luxury-card {
-    @apply bg-card border border-gold/30 rounded-lg transition-all duration-400 ease-in-out;
+    @apply bg-card border border-gold/30 rounded-lg transition-all duration-400
+      ease-in-out;
     box-shadow: 0 4px 20px -4px hsl(var(--warm-brown) / 0.08);
   }
 
@@ -204,7 +205,8 @@
 
   /* Buttons - Quiet Luxury */
   .luxury-button {
-    @apply font-body tracking-widest uppercase text-xs py-4 px-8 transition-all duration-400 ease-in-out;
+    @apply font-body tracking-widest uppercase text-xs py-4 px-8 transition-all
+      duration-400 ease-in-out;
   }
 
   .luxury-button-primary {
@@ -216,12 +218,16 @@
   }
 
   .luxury-link {
-    @apply relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-accent after:origin-bottom-right after:transition-transform after:duration-400 hover:after:scale-x-100 hover:after:origin-bottom-left;
+    @apply relative after:content-[""] after:absolute after:w-full
+      after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-accent
+      after:origin-bottom-right after:transition-transform after:duration-400
+      hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
 
   /* Mega Menu */
   .mega-menu {
-    @apply absolute left-0 right-0 bg-cream border-t border-gold/30 shadow-xl opacity-0 invisible transition-all duration-400 ease-in-out;
+    @apply absolute left-0 right-0 bg-cream border-t border-gold/30 shadow-xl
+      opacity-0 invisible transition-all duration-400 ease-in-out;
   }
 
   .mega-menu.open {
@@ -250,11 +256,21 @@
     animation: scaleIn 0.5s ease-out forwards;
   }
 
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-400 { animation-delay: 400ms; }
-  .delay-500 { animation-delay: 500ms; }
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
 }
 
 @keyframes fadeUp {
@@ -269,8 +285,12 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
