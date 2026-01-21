@@ -9,7 +9,6 @@ import { FeaturedCollection } from "@/components/FeaturedCollection";
 import { BestSellersSection } from "@/components/BestSellersSection";
 import { Newsletter } from "@/components/Newsletter";
 import { Footer } from "@/components/Footer";
-import { BeautyAssistant } from "@/components/BeautyAssistant";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingSocials } from "@/components/FloatingSocials";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
@@ -69,7 +68,6 @@ const Index = () => {
         <Newsletter />
       </main>
       <Footer />
-      <BeautyAssistant />
       <ScrollToTop />
       <FloatingSocials />
       <MobileNav />

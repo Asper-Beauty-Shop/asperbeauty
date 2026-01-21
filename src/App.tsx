@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useCartSync } from "@/hooks/useCartSync";
+import { BeautyAssistant } from "@/components/BeautyAssistant";
 import Index from "./pages/Index";
 import ProductDetail from "./pages/ProductDetail";
 import Collections from "./pages/Collections";
@@ -68,6 +69,8 @@ const App = () => (
               <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            {/* Global Beauty Assistant available on all pages */}
+            <BeautyAssistant />
           </BrowserRouter>
         </TooltipProvider>
       </CartSyncProvider>
