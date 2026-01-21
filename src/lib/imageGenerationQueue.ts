@@ -43,15 +43,7 @@ const DEFAULT_CONFIG: QueueConfig = {
 
 type QueueEventType = "itemUpdate" | "statsUpdate" | "batchComplete" | "queueComplete" | "error" | "paused" | "resumed";
 
-interface QueueEventData {
-  itemUpdate?: QueueItem;
-  statsUpdate?: QueueStats;
-  batchComplete?: { count: number };
-  queueComplete?: { total: number };
-  error?: { message: string; item?: QueueItem };
-  paused?: boolean;
-  resumed?: boolean;
-}
+type QueueEventData = QueueItem | QueueStats | { count: number } | { total: number } | { message: string; item?: QueueItem } | { reason?: string } | Record<string, never>;
 
 type QueueEventCallback = (data: QueueEventData) => void;
 

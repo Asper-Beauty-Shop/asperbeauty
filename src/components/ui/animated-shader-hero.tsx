@@ -142,21 +142,7 @@ class WebGLRenderer {
   private mouseCoords = [0, 0];
   private pointerCoords = [0, 0];
   private nbrOfPointers = 0;
-  private uniforms: {
-    resolution: WebGLUniformLocation | null;
-    time: WebGLUniformLocation | null;
-    move: WebGLUniformLocation | null;
-    touch: WebGLUniformLocation | null;
-    pointerCount: WebGLUniformLocation | null;
-    pointers: WebGLUniformLocation | null;
-  } = {
-    resolution: null,
-    time: null,
-    move: null,
-    touch: null,
-    pointerCount: null,
-    pointers: null,
-  };
+  private uniforms: Record<string, WebGLUniformLocation | null> = {};
 
   private vertexSrc = `#version 300 es
 precision highp float;
