@@ -289,7 +289,7 @@ const ManageProducts = () => {
       
       setEnrichResults(data.results || []);
       
-      const successCount = data.results?.filter((r: any) => r.status === 'success').length || 0;
+      const successCount = data.results?.filter((r: { status: string }) => r.status === 'success').length || 0;
       
       if (successCount > 0) {
         toast.success(`Enriched ${successCount} products with images`);
@@ -325,7 +325,7 @@ const ManageProducts = () => {
       
       setEnrichResults(data.results || []);
       
-      const successCount = data.results?.filter((r: any) => r.status === 'success').length || 0;
+      const successCount = data.results?.filter((r: { status: string }) => r.status === 'success').length || 0;
       
       if (successCount > 0) {
         toast.success(`Generated ${successCount} AI product images`);
