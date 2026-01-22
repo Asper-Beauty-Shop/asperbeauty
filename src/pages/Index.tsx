@@ -7,6 +7,7 @@ import { DealOfTheDay } from "@/components/DealOfTheDay";
 import { LuxuryPromoBanner } from "@/components/LuxuryPromoBanner";
 import { FeaturedCollection } from "@/components/FeaturedCollection";
 import { BestSellersSection } from "@/components/BestSellersSection";
+import { AiRecommendations } from "@/components/AiRecommendations";
 import { Newsletter } from "@/components/Newsletter";
 import { Footer } from "@/components/Footer";
 import { BeautyAssistant } from "@/components/BeautyAssistant";
@@ -62,10 +63,19 @@ const Index = () => {
         {/* 7. BEST SELLERS LAYER: Global Favorites */}
         <BestSellersSection />
 
-        {/* 8. ADVERTISEMENT LAYER 2: Secondary Promo - Image Right */}
+        {/* 8. AI RECOMMENDATIONS LAYER: Personalized Picks */}
+        <AiRecommendations 
+          variant="featured"
+          title="Curated Just For You"
+          titleAr="مختار خصيصاً لك"
+          subtitle="Smart recommendations powered by locable.ai"
+          subtitleAr="توصيات ذكية مدعومة من locable.ai"
+        />
+
+        {/* 9. ADVERTISEMENT LAYER 2: Secondary Promo - Image Right */}
         <LuxuryPromoBanner variant="secondary" position="right" />
 
-        {/* 9. NEWSLETTER LAYER: Email Capture */}
+        {/* 10. NEWSLETTER LAYER: Email Capture */}
         <Newsletter />
       </main>
       <Footer />

@@ -10,37 +10,63 @@ import {
   CommandList,
   CommandSeparator
 } from "@/components/ui/command";
-import { Search, TrendingUp, History, Sparkles, ArrowRight } from "lucide-react";
+import { Search, TrendingUp, History, Sparkles, ArrowRight, Zap, Tag, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { detectBrandFromName, getFeaturedBrands, SKIN_CONCERNS } from "@/lib/categoryMapping";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface SearchResult {
   id: string;
   title: string;
   category: string;
+  brand: string | null;
   image_url: string | null;
   price: number;
+  is_on_sale: boolean | null;
+  discount_percent: number | null;
 }
 
 export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [recentSearches] = useState(["Olaplex", "CeraVe Cleanser", "Retinol"]);
+  const [suggestedBrand, setSuggestedBrand] = useState<string | null>(null);
+  const [recentSearches] = useState(["Olaplex", "CeraVe Cleanser", "Retinol", "Vitamin C Serum"]);
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const isAr = language === "ar";
 
-  // 1. Live Search Logic (Debounced)
+  // Featured brands from database
+  const featuredBrands = getFeaturedBrands().slice(0, 8);
+
+  // Popular search suggestions with AI
+  const popularSearches = [
+    { term: "anti-aging serum", icon: Star },
+    { term: "moisturizer", icon: Sparkles },
+    { term: "sunscreen SPF", icon: Zap },
+    { term: "hair treatment", icon: Tag },
+  ];
+
+  // 1. Live Search Logic with AI Brand Detection (Debounced)
   useEffect(() => {
     if (query.length < 2) {
       setResults([]);
+      setSuggestedBrand(null);
       return;
     }
 
+    // AI-powered brand detection
+    const detectedBrand = detectBrandFromName(query);
+    setSuggestedBrand(detectedBrand?.name || null);
+
     const timer = setTimeout(async () => {
+      // Smart search: search in title, brand, and description
       const { data } = await supabase
         .from('products')
-        .select('id, title, category, image_url, price')
-        .ilike('title', `%${query}%`)
-        .limit(5);
+        .select('id, title, category, brand, image_url, price, is_on_sale, discount_percent')
+        .or(`title.ilike.%${query}%,brand.ilike.%${query}%,description.ilike.%${query}%`)
+        .order('is_on_sale', { ascending: false })
+        .limit(6);
       
       if (data) setResults(data);
     }, 300);
@@ -75,12 +101,30 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
           <p className="text-gray-400 text-sm">No results found for "{query}"</p>
         </CommandEmpty>
 
+        {/* AI Brand Detection Suggestion */}
+        {suggestedBrand && query.length >= 2 && (
+          <CommandGroup>
+            <div className="px-4 py-3 bg-gradient-to-r from-gold/10 to-burgundy/5 border-b">
+              <button
+                onClick={() => handleSearchSubmit(suggestedBrand)}
+                className="flex items-center gap-2 text-sm"
+              >
+                <Zap className="h-4 w-4 text-gold" />
+                <span className="text-muted-foreground">{isAr ? "هل تبحث عن" : "Looking for"}</span>
+                <span className="font-medium text-foreground">{suggestedBrand}</span>
+                <span className="text-muted-foreground">{isAr ? "منتجات؟" : "products?"}</span>
+                <ArrowRight className="h-3 w-3 text-gold ml-auto" />
+              </button>
+            </div>
+          </CommandGroup>
+        )}
+
         {/* 2. RECENT SEARCHES (iHerb Style) */}
         {!query && (
           <CommandGroup heading={
             <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 font-bold px-2">
               <History className="h-3 w-3" />
-              Recent Searches
+              {isAr ? "عمليات البحث الأخيرة" : "Recent Searches"}
             </span>
           }>
             {recentSearches.map((search) => (
@@ -95,6 +139,32 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
           </CommandGroup>
         )}
 
+        {/* Popular AI-Powered Suggestions */}
+        {!query && (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={
+              <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 font-bold px-2">
+                <Sparkles className="h-3 w-3" />
+                {isAr ? "اقتراحات ذكية" : "Smart Suggestions"}
+              </span>
+            }>
+              <div className="grid grid-cols-2 gap-2 p-4">
+                {popularSearches.map(({ term, icon: Icon }) => (
+                  <button 
+                    key={term} 
+                    onClick={() => handleSearchSubmit(term)}
+                    className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-lg text-xs font-medium text-foreground hover:bg-gold/10 hover:text-gold transition-colors"
+                  >
+                    <Icon className="h-3 w-3" />
+                    {term}
+                  </button>
+                ))}
+              </div>
+            </CommandGroup>
+          </>
+        )}
+
         {/* 3. TRENDING BRANDS (Luxury Style) */}
         {!query && (
           <>
@@ -102,17 +172,17 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
             <CommandGroup heading={
               <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 font-bold px-2">
                 <TrendingUp className="h-3 w-3" />
-                Trending Luxury Brands
+                {isAr ? "العلامات التجارية الرائجة" : "Trending Luxury Brands"}
               </span>
             }>
               <div className="flex flex-wrap gap-2 p-4">
-                {['Dior', 'Olaplex', 'Estée Lauder', 'CeraVe', 'Kérastase'].map((brand) => (
+                {featuredBrands.map((brand) => (
                   <button 
-                    key={brand} 
-                    onClick={() => handleSearchSubmit(brand)}
+                    key={brand.id} 
+                    onClick={() => handleSearchSubmit(brand.name)}
                     className="px-4 py-2 bg-cream rounded-full text-xs font-bold uppercase tracking-wider text-luxury-black hover:bg-gold-300 transition-colors"
                   >
-                    {brand}
+                    {brand.name}
                   </button>
                 ))}
               </div>
@@ -125,7 +195,7 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
           <CommandGroup heading={
             <span className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400 font-bold px-2">
               <Sparkles className="h-3 w-3" />
-              Suggested Products
+              {isAr ? "المنتجات المقترحة" : "Suggested Products"}
             </span>
           }>
             {results.map((product) => (
@@ -134,19 +204,31 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
                 onSelect={() => handleProductClick(product.id)}
                 className="flex items-center gap-4 py-4 cursor-pointer hover:bg-gray-50 rounded-none border-b border-gray-50 last:border-0"
               >
-                <div className="w-12 h-12 bg-cream rounded-lg overflow-hidden flex-shrink-0">
+                <div className="relative w-14 h-14 bg-cream rounded-lg overflow-hidden flex-shrink-0">
                   {product.image_url && (
                     <img src={product.image_url} alt={product.title} className="w-full h-full object-cover" />
+                  )}
+                  {product.is_on_sale && product.discount_percent && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] px-1 py-0.5 rounded-full font-bold">
+                      -{product.discount_percent}%
+                    </span>
                   )}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-sm text-luxury-black truncate">{product.title}</p>
-                  <p className="text-[10px] uppercase tracking-widest text-gray-400">{product.category}</p>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    {product.brand && (
+                      <span className="text-[10px] font-medium text-gold uppercase tracking-wider">{product.brand}</span>
+                    )}
+                    <span className="text-[10px] uppercase tracking-widest text-gray-400">{product.category}</span>
+                  </div>
                 </div>
 
                 <div className="text-right flex-shrink-0">
-                  <p className="font-bold text-sm">{Number(product.price).toFixed(3)} JOD</p>
+                  <p className={`font-bold text-sm ${product.is_on_sale ? 'text-red-600' : ''}`}>
+                    {Number(product.price).toFixed(3)} JD
+                  </p>
                   <ArrowRight className="h-4 w-4 text-gold-500 ml-auto" />
                 </div>
               </CommandItem>
@@ -156,12 +238,17 @@ export const LuxurySearch = ({ open, setOpen }: { open: boolean; setOpen: (open:
       </CommandList>
       
       <div className="flex items-center justify-between border-t border-gray-100 p-4 bg-cream/50">
-        <p className="text-[10px] text-gray-400 uppercase tracking-widest">Press ESC to close</p>
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-3 w-3 text-gold" />
+          <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+            {isAr ? "بحث ذكي مدعوم من locable.ai" : "Smart Search powered by locable.ai"}
+          </p>
+        </div>
         <button 
           onClick={() => handleSearchSubmit(query || '')}
           className="text-[10px] uppercase tracking-widest font-bold text-gold-500 hover:text-luxury-black transition-colors flex items-center gap-1"
         >
-          View all search results
+          {isAr ? "عرض كل النتائج" : "View all results"}
           <ArrowRight className="h-3 w-3" />
         </button>
       </div>
