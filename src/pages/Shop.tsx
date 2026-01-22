@@ -169,6 +169,8 @@ export default function Shop() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [maxPrice, setMaxPrice] = useState<number>(200);
   const [filters, setFilters] = useState<FilterState>({
     searchQuery: '',
     categories: [],
@@ -189,7 +191,24 @@ export default function Shop() {
           .order('created_at', { ascending: false });
 
         if (error) throw error;
-        setProducts(data || []);
+        const nextProducts = (data || []) as Product[];
+        setProducts(nextProducts);
+
+        // Compute dynamic brand list + max price for filters
+        const brands = Array.from(
+          new Set(nextProducts.map(p => p.brand).filter((b): b is string => !!b && b.trim().length > 0))
+        ).sort((a, b) => a.localeCompare(b));
+        setAvailableBrands(brands);
+
+        const computedMax = nextProducts.length > 0
+          ? Math.ceil(Math.max(...nextProducts.map(p => Number(p.price) || 0)))
+          : 200;
+        const safeMax = Math.max(200, computedMax);
+        setMaxPrice(safeMax);
+        setFilters(prev => ({
+          ...prev,
+          priceRange: [prev.priceRange[0], Math.max(prev.priceRange[1], safeMax)],
+        }));
       } catch (err) {
         console.error('Error fetching products:', err);
       } finally {
@@ -210,6 +229,22 @@ export default function Shop() {
           product.brand?.toLowerCase().includes(query) ||
           product.description?.toLowerCase().includes(query);
         if (!matchesSearch) return false;
+      }
+
+      // Category / subcategory filters (stored in tags + subcategory)
+      if (filters.categories.length > 0) {
+        const tags = product.tags || [];
+        const matchesCategory = filters.categories.some(cat => tags.includes(cat));
+        if (!matchesCategory) return false;
+      }
+
+      if (filters.subcategories.length > 0) {
+        const tags = product.tags || [];
+        const sub = product.subcategory || "";
+        const matchesSubcategory =
+          (sub && filters.subcategories.includes(sub)) ||
+          filters.subcategories.some(s => tags.includes(s));
+        if (!matchesSubcategory) return false;
       }
 
       // Brand filter
@@ -263,6 +298,8 @@ export default function Shop() {
                 filters={filters} 
                 onFiltersChange={setFilters} 
                 productCount={filteredProducts.length}
+                availableBrands={availableBrands}
+                maxPrice={maxPrice}
               />
             </aside>
 
@@ -283,6 +320,8 @@ export default function Shop() {
                       filters={filters} 
                       onFiltersChange={setFilters} 
                       productCount={filteredProducts.length}
+                      availableBrands={availableBrands}
+                      maxPrice={maxPrice}
                     />
                   </div>
 
@@ -318,7 +357,7 @@ export default function Shop() {
                     {language === 'ar' ? 'لا توجد منتجات مطابقة للفلاتر' : 'No products match your filters'}
                   </p>
                   <Button variant="outline" onClick={() => setFilters({
-                    searchQuery: '', categories: [], subcategories: [], brands: [], skinConcerns: [], priceRange: [0, 200], onSaleOnly: false,
+                    searchQuery: '', categories: [], subcategories: [], brands: [], skinConcerns: [], priceRange: [0, maxPrice], onSaleOnly: false,
                   })}>
                     {language === 'ar' ? 'مسح الفلاتر' : 'Clear Filters'}
                   </Button>

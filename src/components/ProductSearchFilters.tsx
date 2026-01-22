@@ -36,15 +36,26 @@ interface ProductSearchFiltersProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
   productCount: number;
+  availableBrands?: string[];
+  maxPrice?: number;
 }
 
 export const ProductSearchFilters = ({
   filters,
   onFiltersChange,
   productCount,
+  availableBrands,
+  maxPrice = 200,
 }: ProductSearchFiltersProps) => {
   const { language } = useLanguage();
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const brandsToShow = (availableBrands && availableBrands.length > 0)
+    ? availableBrands
+        .map(b => b.trim())
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b))
+    : BRANDS.map(b => b.name);
 
   const activeFilterCount =
     filters.categories.length +
@@ -52,7 +63,7 @@ export const ProductSearchFilters = ({
     filters.brands.length +
     filters.skinConcerns.length +
     (filters.onSaleOnly ? 1 : 0) +
-    (filters.priceRange[0] > 0 || filters.priceRange[1] < 200 ? 1 : 0);
+    (filters.priceRange[0] > 0 || filters.priceRange[1] < maxPrice ? 1 : 0);
 
   const updateFilters = useCallback((updates: Partial<FilterState>) => {
     onFiltersChange({ ...filters, ...updates });
@@ -80,7 +91,7 @@ export const ProductSearchFilters = ({
       subcategories: [],
       brands: [],
       skinConcerns: [],
-      priceRange: [0, 200],
+      priceRange: [0, maxPrice],
       onSaleOnly: false,
     });
   };
@@ -136,14 +147,14 @@ export const ProductSearchFilters = ({
           </AccordionTrigger>
           <AccordionContent className="pb-4">
             <div className="grid grid-cols-2 gap-2">
-              {BRANDS.map((brand) => (
-                <label key={brand.id} className="flex items-center gap-2 cursor-pointer">
+              {brandsToShow.map((brand) => (
+                <label key={brand} className="flex items-center gap-2 cursor-pointer">
                   <Checkbox
-                    checked={filters.brands.includes(brand.name)}
-                    onCheckedChange={() => toggleArrayFilter("brands", brand.name)}
+                    checked={filters.brands.includes(brand)}
+                    onCheckedChange={() => toggleArrayFilter("brands", brand)}
                     className="border-gray-300 h-3.5 w-3.5"
                   />
-                  <span className="text-xs text-gray-600">{brand.name}</span>
+                  <span className="text-xs text-gray-600">{brand}</span>
                 </label>
               ))}
             </div>
@@ -184,7 +195,7 @@ export const ProductSearchFilters = ({
               <Slider
                 value={filters.priceRange}
                 onValueChange={(value) => updateFilters({ priceRange: value as [number, number] })}
-                max={200}
+                max={maxPrice}
                 min={0}
                 step={5}
                 className="w-full"
@@ -197,7 +208,7 @@ export const ProductSearchFilters = ({
                 {PRICE_RANGES.map((range) => (
                   <button
                     key={range.id}
-                    onClick={() => updateFilters({ priceRange: [range.min, Math.min(range.max, 200)] })}
+                    onClick={() => updateFilters({ priceRange: [range.min, Math.min(range.max, maxPrice)] })}
                     className="px-2 py-1 text-xs rounded border border-gray-200 hover:border-burgundy hover:text-burgundy transition-colors"
                   >
                     {language === "ar" ? range.labelAr : range.labelEn}
