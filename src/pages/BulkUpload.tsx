@@ -217,15 +217,15 @@ export default function BulkUpload() {
     }
   }, []);
 
-  // Load the bundled Excel file
-  const loadBundledFile = useCallback(async () => {
+  // Load a bundled Excel file from /public/data
+  const loadBundledFile = useCallback(async (filePath: string, displayName: string) => {
     setIsProcessing(true);
     setParseError("");
-    setFileName("products-data.xlsx");
-    toast.info("Loading product data...");
+    setFileName(displayName);
+    toast.info(`Loading ${displayName}...`);
 
     try {
-      const response = await fetch("/data/products-data.xlsx");
+      const response = await fetch(filePath);
       if (!response.ok) throw new Error("Failed to fetch file");
       
       const arrayBuffer = await response.arrayBuffer();
@@ -294,7 +294,7 @@ export default function BulkUpload() {
 
       setRawData(parsedProducts);
       setPreviewData(parsedProducts.slice(0, 10));
-      toast.success(`Successfully loaded ${parsedProducts.length} products`);
+      toast.success(`Successfully loaded ${parsedProducts.length} products from ${displayName}`);
       setStep("categorize");
     } catch (error: any) {
       console.error("Load error:", error);
@@ -501,6 +501,59 @@ export default function BulkUpload() {
     }
   }, [products]);
 
+  // Save products into Supabase `products` table (website catalog)
+  const [isSavingToCatalog, setIsSavingToCatalog] = useState(false);
+  const [catalogSaveStats, setCatalogSaveStats] = useState<{ total: number; upserted: number } | null>(null);
+
+  const saveToCatalog = useCallback(async () => {
+    // Get current session for authentication
+    const { data: { session } } = await supabase.auth.getSession();
+
+    if (!session?.access_token) {
+      toast.error("Please log in as an admin to publish products to the website");
+      return;
+    }
+
+    setIsSavingToCatalog(true);
+    setCatalogSaveStats(null);
+
+    try {
+      // Send a minimal payload (avoid large prompts/errors)
+      const payload = products.map(p => ({
+        sku: p.sku,
+        name: p.name,
+        category: p.category,
+        brand: p.brand,
+        price: p.price,
+        costPrice: p.costPrice,
+        imageUrl: p.imageUrl,
+        status: p.status,
+      }));
+
+      const { data, error } = await supabase.functions.invoke("bulk-product-upload", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: { action: "upsert-supabase-products", products: payload },
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      setCatalogSaveStats({ total: data.total || payload.length, upserted: data.upserted || payload.length });
+      toast.success("Published products to website catalog", {
+        description: `${data.upserted || payload.length} upserted`,
+      });
+    } catch (error: any) {
+      console.error("Catalog save error:", error);
+      toast.error("Failed to publish products to the website", {
+        description: error.message || "Unknown error",
+      });
+    } finally {
+      setIsSavingToCatalog(false);
+    }
+  }, [products]);
+
   const getStatusIcon = (status: ProcessedProduct["status"]) => {
     switch (status) {
       case "completed": return <CheckCircle2 className="w-4 h-4 text-green-500" />;
@@ -613,17 +666,29 @@ export default function BulkUpload() {
                     </div>
                     
                     {/* Quick Load Options */}
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-3 gap-4">
                       <Button 
                         variant="outline" 
                         size="lg"
-                        onClick={loadBundledFile}
+                        onClick={() => loadBundledFile("/data/inventory-1526.xlsx", "inventory-1526.xlsx")}
                         disabled={isProcessing}
                         className="h-auto py-6 flex-col gap-2"
                       >
                         <Download className="w-6 h-6" />
-                        <span className="font-medium">Load Your Product Data</span>
-                        <span className="text-xs text-taupe">1,526 products from كشف المواد</span>
+                        <span className="font-medium">Load Inventory (Arabic)</span>
+                        <span className="text-xs text-taupe">~1,526 rows (كشف المواد)</span>
+                      </Button>
+
+                      <Button 
+                        variant="outline" 
+                        size="lg"
+                        onClick={() => loadBundledFile("/data/products-data.xlsx", "products-data.xlsx")}
+                        disabled={isProcessing}
+                        className="h-auto py-6 flex-col gap-2"
+                      >
+                        <Download className="w-6 h-6" />
+                        <span className="font-medium">Load Products (English)</span>
+                        <span className="text-xs text-taupe">From bundled `products-data.xlsx`</span>
                       </Button>
                       
                       <Button 
@@ -932,6 +997,34 @@ export default function BulkUpload() {
                 {/* Review Step */}
                 {step === "review" && (
                   <div className="space-y-6">
+                    {/* Publish to Website Catalog */}
+                    <div className="bg-taupe/5 border border-taupe/20 rounded-lg p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                      <div>
+                        <p className="font-medium text-charcoal">Publish to website catalog (Supabase)</p>
+                        <p className="text-xs text-taupe">
+                          Inserts/updates products by SKU so they appear across the site (Shop, Offers, etc.).
+                        </p>
+                        {catalogSaveStats && (
+                          <p className="text-xs text-green-700 mt-1">
+                            Published {catalogSaveStats.upserted} / {catalogSaveStats.total}
+                          </p>
+                        )}
+                      </div>
+                      <Button onClick={saveToCatalog} disabled={isSavingToCatalog || products.length === 0}>
+                        {isSavingToCatalog ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Publishing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Publish to Website
+                          </>
+                        )}
+                      </Button>
+                    </div>
+
                     <Tabs defaultValue="all">
                       <TabsList>
                         <TabsTrigger value="all">All ({products.length})</TabsTrigger>

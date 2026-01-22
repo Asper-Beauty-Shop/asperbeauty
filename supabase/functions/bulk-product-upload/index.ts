@@ -204,8 +204,8 @@ serve(async (req) => {
 
     // Shopify Admin API configuration
     const SHOPIFY_ACCESS_TOKEN = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
-    const SHOPIFY_STORE_DOMAIN = "lovable-project-milns.myshopify.com";
-    const SHOPIFY_API_VERSION = "2025-01";
+    const SHOPIFY_STORE_DOMAIN = Deno.env.get("SHOPIFY_STORE_DOMAIN");
+    const SHOPIFY_API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
 
     if (action === "categorize") {
       // Categorize and prepare products from Excel data
@@ -326,12 +326,71 @@ serve(async (req) => {
       );
     }
 
+    if (action === "upsert-supabase-products") {
+      const { products, onlyCompleted = false } = requestData;
+      if (!Array.isArray(products) || products.length === 0) {
+        return new Response(
+          JSON.stringify({ success: true, inserted: 0, updated: 0, total: 0 }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const filtered: ProcessedProduct[] = onlyCompleted
+        ? products.filter((p: ProcessedProduct) => p?.status === "completed")
+        : products;
+
+      // Map to Supabase table shape
+      const records = filtered.map((p) => ({
+        sku: p.sku,
+        title: p.name,
+        price: p.price,
+        category: p.category || "Uncategorized",
+        brand: p.brand || null,
+        cost_price: Number.isFinite(p.costPrice) ? p.costPrice : null,
+        image_url: p.imageUrl || null,
+        tags: ["bulk-upload", `sku:${p.sku}`],
+        is_on_sale: false,
+        original_price: null,
+        discount_percent: null,
+      }));
+
+      // Upsert in chunks to avoid payload limits/timeouts
+      const CHUNK_SIZE = 200;
+      let totalUpserted = 0;
+
+      for (let i = 0; i < records.length; i += CHUNK_SIZE) {
+        const chunk = records.slice(i, i + CHUNK_SIZE);
+        const { error: upsertError, count } = await supabase
+          .from("products")
+          .upsert(chunk, { onConflict: "sku", count: "exact" });
+
+        if (upsertError) {
+          console.error("Upsert chunk failed:", upsertError);
+          throw new Error(`Failed to upsert products: ${upsertError.message}`);
+        }
+
+        totalUpserted += count || chunk.length;
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          total: records.length,
+          upserted: totalUpserted,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     if (action === "create-shopify-product") {
       // Create a product in Shopify using Admin API
       const { product } = requestData;
       
       if (!SHOPIFY_ACCESS_TOKEN) {
         throw new Error("SHOPIFY_ACCESS_TOKEN is not configured.");
+      }
+      if (!SHOPIFY_STORE_DOMAIN) {
+        throw new Error("SHOPIFY_STORE_DOMAIN is not configured.");
       }
 
       console.log(`Creating Shopify product: ${product.title}`);
