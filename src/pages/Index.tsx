@@ -14,6 +14,8 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingSocials } from "@/components/FloatingSocials";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
 import { MobileNav } from "@/components/MobileNav";
+import { StoreLocator } from "@/components/StoreLocator";
+import { StructuredData } from "@/components/StructuredData";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +41,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      {/* Structured Data for SEO */}
+      <StructuredData type="all" />
+      
       <GlobalHeader />
       <main>
         {/* 1. EMOTIONAL LAYER: The Cinematic Hero */}
@@ -65,7 +70,10 @@ const Index = () => {
         {/* 8. ADVERTISEMENT LAYER 2: Secondary Promo - Image Right */}
         <LuxuryPromoBanner variant="secondary" position="right" />
 
-        {/* 9. NEWSLETTER LAYER: Email Capture */}
+        {/* 9. LOCAL BUSINESS LAYER: Store Locator & Services */}
+        <StoreLocator />
+
+        {/* 10. NEWSLETTER LAYER: Email Capture */}
         <Newsletter />
       </main>
       <Footer />
