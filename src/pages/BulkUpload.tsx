@@ -66,6 +66,8 @@ function findColumn(headers: string[], possibleNames: string[]): string | null {
 }
 
 export default function BulkUpload() {
+  const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : String(err));
+
   const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "publish" | "shopify">("upload");
   const [products, setProducts] = useState<ProcessedProduct[]>([]);
   const [summary, setSummary] = useState<UploadSummary | null>(null);
@@ -100,11 +102,16 @@ export default function BulkUpload() {
         prev.map(p => {
           const queueItem = queueItems.find(q => q.sku === p.sku);
           if (queueItem) {
+            const mappedStatus: ProcessedProduct["status"] =
+              queueItem.status === "queued" ? "pending"
+              : queueItem.status === "retrying" ? "processing"
+              : queueItem.status === "processing" ? "processing"
+              : queueItem.status === "completed" ? "completed"
+              : "failed";
+
             return {
               ...p,
-              status: queueItem.status === "queued" ? "pending" : 
-                     queueItem.status === "retrying" ? "processing" :
-                     queueItem.status as any,
+              status: mappedStatus,
               imageUrl: queueItem.imageUrl,
               error: queueItem.error,
             };
@@ -208,10 +215,11 @@ export default function BulkUpload() {
       setPreviewData(parsedProducts.slice(0, 10));
       toast.success(`Successfully loaded ${parsedProducts.length} products from ${file.name}`);
       setStep("categorize");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Parse error:", error);
-      setParseError(error.message || "Failed to parse file");
-      toast.error(`Failed to parse file: ${error.message}`);
+      const message = getErrorMessage(error) || "Failed to parse file";
+      setParseError(message);
+      toast.error(`Failed to parse file: ${message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -296,10 +304,11 @@ export default function BulkUpload() {
       setPreviewData(parsedProducts.slice(0, 10));
       toast.success(`Successfully loaded ${parsedProducts.length} products`);
       setStep("categorize");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Load error:", error);
-      setParseError(error.message || "Failed to load file");
-      toast.error(`Failed to load file: ${error.message}`);
+      const message = getErrorMessage(error) || "Failed to load file";
+      setParseError(message);
+      toast.error(`Failed to load file: ${message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -334,11 +343,12 @@ export default function BulkUpload() {
       setSummary(data.summary);
       toast.success(`Categorized ${data.products.length} products into ${Object.keys(data.summary.categories).length} categories`);
       setStep("images");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
+      const message = getErrorMessage(error);
+      if (message.includes("401") || message.includes("Unauthorized")) {
         toast.error("Authentication required. Please log in.");
-      } else if (error.message?.includes("403") || error.message?.includes("Forbidden")) {
+      } else if (message.includes("403") || message.includes("Forbidden")) {
         toast.error("Admin access required for bulk operations.");
       } else {
         toast.error("Failed to categorize products");
@@ -467,11 +477,12 @@ export default function BulkUpload() {
           // Add small delay between requests to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 300));
           
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`Failed to create ${product.name}:`, error);
+          const message = getErrorMessage(error);
           
           // Check for auth errors and stop if unauthorized
-          if (error.message?.includes("401") || error.message?.includes("403") || error.message?.includes("Unauthorized") || error.message?.includes("Forbidden")) {
+          if (message.includes("401") || message.includes("403") || message.includes("Unauthorized") || message.includes("Forbidden")) {
             toast.error("Authorization failed. Please log in as an admin.");
             setIsShopifyUploading(false);
             return;
@@ -480,7 +491,7 @@ export default function BulkUpload() {
           errors.push({
             sku: product.sku,
             name: product.name,
-            error: error.message || "Unknown error",
+            error: message || "Unknown error",
           });
           setShopifyProgress(prev => ({
             ...prev,
@@ -552,9 +563,9 @@ export default function BulkUpload() {
       toast.success("Published to website catalog", {
         description: `${data.totalWritten ?? 0} products written`,
       });
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e);
-      toast.error("Failed to publish to website", { description: e?.message || "Unknown error" });
+      toast.error("Failed to publish to website", { description: getErrorMessage(e) || "Unknown error" });
     } finally {
       setIsPublishing(false);
       setPublishProgress((prev) => ({ ...prev, stage: "Done" }));
