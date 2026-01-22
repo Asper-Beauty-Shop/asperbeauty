@@ -80,6 +80,28 @@ npm install
 npm run dev
 ```
 
+## 🔐 Environment Variables
+
+This project uses Supabase for the site catalog/admin flows and Shopify for optional storefront/cart integration.
+
+Create a `.env` file (for local dev) with:
+
+- **Supabase (required for most admin/catalog features)**
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+- **Shopify Storefront API (optional, enables Shopify-backed browsing/search/cart)**
+  - `VITE_SHOPIFY_STORE_DOMAIN` (example: `asperbeautyshop.myshopify.com`)
+  - `VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN`
+  - `VITE_SHOPIFY_API_VERSION` (optional; default is `2025-07`)
+
+For Supabase Edge Functions used by bulk import/image generation, configure these in your Supabase project:
+
+- `LOVABLE_API_KEY`
+- `SHOPIFY_ACCESS_TOKEN` (Shopify Admin API token)
+- `SHOPIFY_STORE_DOMAIN`
+- `SHOPIFY_API_VERSION` (optional)
+
 ### Build for Production
 
 ```bash
