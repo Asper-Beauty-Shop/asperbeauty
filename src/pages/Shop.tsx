@@ -11,6 +11,7 @@ import { ProductSearchFilters, FilterState } from "@/components/ProductSearchFil
 import { useCartStore } from "@/stores/cartStore";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 
 // Extended Product type with new columns
 interface Product {
@@ -82,14 +83,26 @@ const ShopProductCard = ({
     setCartOpen(true);
   };
 
+  // SEO-optimized alt text
+  const seoAlt = `${product.title} - ${product.brand || product.category} | Buy at Asper Beauty`;
+
   if (viewMode === 'list') {
     return (
       <article 
         className="group bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex"
         onClick={() => onQuickView(product)}
+        itemScope
+        itemType="https://schema.org/Product"
       >
         <div className="relative w-40 md:w-48 flex-shrink-0 bg-gray-50">
-          <img src={imageUrl} alt={product.title} className="w-full h-full object-cover" loading="lazy" />
+          <img 
+            src={imageUrl} 
+            alt={seoAlt} 
+            title={product.title}
+            className="w-full h-full object-cover" 
+            loading="lazy"
+            itemProp="image"
+          />
           {isOnSale && discountPercent > 0 && (
             <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#E53E3E] text-white px-2 py-1 rounded-sm text-xs font-semibold">
               <Percent className="w-3 h-3" />-{discountPercent}%
@@ -97,16 +110,18 @@ const ShopProductCard = ({
           )}
         </div>
         <div className="flex-1 p-4 flex flex-col">
-          {product.brand && <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1">{product.brand}</p>}
-          <h3 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-burgundy transition-colors">{product.title}</h3>
+          {product.brand && <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1" itemProp="brand">{product.brand}</p>}
+          <h3 className="text-sm font-medium text-gray-900 mb-1 group-hover:text-burgundy transition-colors" itemProp="name">{product.title}</h3>
           {product.volume_ml && <p className="text-xs text-gray-500 mb-2">{product.volume_ml}</p>}
-          <p className="text-xs text-gray-600 line-clamp-2 mb-3 flex-grow">{product.description}</p>
-          <div className="flex items-center justify-between mt-auto">
+          <p className="text-xs text-gray-600 line-clamp-2 mb-3 flex-grow" itemProp="description">{product.description}</p>
+          <div className="flex items-center justify-between mt-auto" itemProp="offers" itemScope itemType="https://schema.org/Offer">
             <div className="flex items-baseline gap-2">
               {isOnSale && product.original_price && (
                 <span className="text-sm text-gray-400 line-through">{formatJOD(product.original_price)}</span>
               )}
-              <span className={`text-base font-bold ${isOnSale ? 'text-[#E53E3E]' : 'text-gray-900'}`}>{formatJOD(product.price)}</span>
+              <span className={`text-base font-bold ${isOnSale ? 'text-[#E53E3E]' : 'text-gray-900'}`} itemProp="price" content={product.price.toString()}>{formatJOD(product.price)}</span>
+              <meta itemProp="priceCurrency" content="JOD" />
+              <link itemProp="availability" href="https://schema.org/InStock" />
             </div>
             <Button onClick={handleAddToCart} size="sm" className="bg-burgundy hover:bg-burgundy-light text-white text-xs">
               <ShoppingBag className="w-4 h-4 me-1" />
@@ -122,9 +137,18 @@ const ShopProductCard = ({
     <article 
       className="group relative bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col animate-fade-in"
       onClick={() => onQuickView(product)}
+      itemScope
+      itemType="https://schema.org/Product"
     >
       <div className="relative aspect-square overflow-hidden bg-gray-50">
-        <img src={imageUrl} alt={product.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+        <img 
+          src={imageUrl} 
+          alt={seoAlt} 
+          title={product.title}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" 
+          loading="lazy"
+          itemProp="image"
+        />
         {isOnSale && discountPercent > 0 && (
           <div className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#E53E3E] text-white px-2 py-1 rounded-sm text-xs font-semibold shadow-md">
             <Percent className="w-3 h-3" />-{discountPercent}%
@@ -144,13 +168,16 @@ const ShopProductCard = ({
         </div>
       </div>
       <div className="p-4 flex flex-col flex-grow">
-        {product.brand && <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-medium">{product.brand}</p>}
-        <h3 className="text-sm font-medium text-gray-900 leading-tight line-clamp-2 mb-1 group-hover:text-burgundy transition-colors flex-grow">{product.title}</h3>
+        {product.brand && <p className="text-[10px] text-gray-500 uppercase tracking-widest mb-1 font-medium" itemProp="brand">{product.brand}</p>}
+        <h3 className="text-sm font-medium text-gray-900 leading-tight line-clamp-2 mb-1 group-hover:text-burgundy transition-colors flex-grow" itemProp="name">{product.title}</h3>
         {product.volume_ml && <p className="text-xs text-gray-500 mb-2">{product.volume_ml}</p>}
-        <div className="mt-auto">
+        <meta itemProp="description" content={product.description || `${product.title} from ${product.brand || 'Asper Beauty'}`} />
+        <div className="mt-auto" itemProp="offers" itemScope itemType="https://schema.org/Offer">
           <div className="flex items-baseline gap-2 mb-3">
             {isOnSale && product.original_price && <span className="text-sm text-gray-400 line-through">{formatJOD(product.original_price)}</span>}
-            <span className={`text-base font-bold ${isOnSale ? 'text-[#E53E3E]' : 'text-gray-900'}`}>{formatJOD(product.price)}</span>
+            <span className={`text-base font-bold ${isOnSale ? 'text-[#E53E3E]' : 'text-gray-900'}`} itemProp="price" content={product.price.toString()}>{formatJOD(product.price)}</span>
+            <meta itemProp="priceCurrency" content="JOD" />
+            <link itemProp="availability" href="https://schema.org/InStock" />
           </div>
           <Button onClick={handleAddToCart} size="sm" className="w-full bg-burgundy hover:bg-burgundy-light text-white text-xs uppercase tracking-wide py-2.5">
             <ShoppingBag className="w-4 h-4 me-2" />{language === 'ar' ? 'أضف للسلة' : 'Add to Cart'}
@@ -240,6 +267,15 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <SEO
+        title={language === 'ar' ? 'تسوق جميع المنتجات' : 'Shop All Products'}
+        description={language === 'ar' 
+          ? 'اكتشف أفضل منتجات العناية بالبشرة والجمال من آسبر بيوتي. مجموعة فاخرة من مستحضرات التجميل والعناية بالبشرة في الأردن.'
+          : 'Shop premium skincare and beauty products at Asper Beauty. Discover luxury cosmetics, skincare, and beauty essentials in Jordan.'}
+        url="/shop"
+        type="website"
+        keywords={['shop', 'skincare', 'beauty products', 'cosmetics', 'Jordan', 'Amman', 'luxury beauty']}
+      />
       <Header />
       
       <main className="pt-20 pb-16">

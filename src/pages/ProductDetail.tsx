@@ -5,10 +5,13 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
+import { ProductGalleryImage } from "@/components/ProductImage";
 import { Loader2, Minus, Plus, Heart, Star, ShieldCheck, Droplets, Sparkles, ShoppingBag } from "lucide-react";
 import { ShareButtons } from "@/components/ShareButtons";
 import { toast } from "sonner";
 import { getLocalizedDescription, getLocalizedCategory, translateTitle } from "@/lib/productUtils";
+import { getProductImage } from "@/lib/productImageUtils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   Accordion,
@@ -147,6 +150,14 @@ const ProductDetail = () => {
   const isOnSale = product?.is_on_sale && originalPrice && originalPrice > currentPrice;
   const discountPercent = product?.discount_percent || 0;
 
+  // Generate SEO-friendly image URL
+  const productImageUrl = product ? getProductImage(product.image_url, product.category, product.title) : '';
+  
+  // Generate SEO description
+  const seoDescription = product 
+    ? `${product.title} by ${product.brand || 'Asper Beauty'}. ${product.description?.slice(0, 150) || 'Premium skincare product'}... Shop now at Asper Beauty.`
+    : 'Premium skincare products at Asper Beauty Shop';
+
   // 💎 LUXURY LOADING STATE
   if (loading) {
     return (
@@ -199,30 +210,57 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* SEO Meta Tags for Search Engines */}
+      <SEO
+        title={product.title}
+        description={seoDescription}
+        image={productImageUrl}
+        url={`/product/${product.id}`}
+        type="product"
+        product={{
+          price: currentPrice,
+          currency: 'JOD',
+          availability: 'in stock',
+          brand: product.brand || undefined,
+          category: product.category,
+          sku: product.id,
+        }}
+        keywords={[
+          product.brand || 'skincare',
+          product.category,
+          product.subcategory || 'beauty',
+          ...(product.tags || []),
+          ...(product.skin_concerns || []),
+          'Jordan',
+          'Amman',
+        ].filter(Boolean) as string[]}
+      />
+      
       <Header />
       
       {/* Split Screen Layout */}
       <div className="grid lg:grid-cols-2 min-h-screen pt-20">
         
-        {/* LEFT: The Gallery (Cinematic Scroll) */}
-        <div className="bg-muted/30 lg:overflow-y-auto">
+        {/* LEFT: The Gallery (Cinematic Scroll) - SEO Optimized */}
+        <div className="bg-muted/30 lg:overflow-y-auto" itemScope itemType="https://schema.org/ImageGallery">
           <div className="space-y-1">
             {galleryImages.map((img, idx) => (
-              <div key={idx} className="relative aspect-[4/5] overflow-hidden">
-                <img 
-                  src={img} 
-                  alt={`${product.title} - View ${idx + 1}`}
-                  className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+              <figure key={idx} className="relative" itemProp="associatedMedia" itemScope itemType="https://schema.org/ImageObject">
+                <ProductGalleryImage
+                  src={img}
+                  alt={product.title}
+                  title={product.title}
+                  category={product.category}
+                  index={idx}
                 />
                 {idx === 0 && isOnSale && (
-                  <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-4 py-2 text-sm font-medium rounded">
+                  <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-4 py-2 text-sm font-medium rounded z-10">
                     -{discountPercent}% OFF
                   </div>
                 )}
-                <div className="absolute bottom-6 left-6 text-xs font-light tracking-widest text-white/70 uppercase">
-                  Figure 0{idx + 1} — {idx === 0 ? "The Vessel" : "The Texture"}
-                </div>
-              </div>
+                <meta itemProp="contentUrl" content={img} />
+                <meta itemProp="description" content={`${product.title} - ${product.brand || product.category}`} />
+              </figure>
             ))}
           </div>
         </div>

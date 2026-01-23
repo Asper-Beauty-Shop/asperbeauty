@@ -1,8 +1,25 @@
+# Asper Beauty Shop - Robots.txt
+# https://asperbeauty.com
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin/
+Disallow: /driver/
+Disallow: /auth
+
+User-agent: Googlebot-Image
+Allow: /
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.gif$
 
 User-agent: Bingbot
 Allow: /
+Disallow: /admin/
+Disallow: /driver/
+Disallow: /auth
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +27,21 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: Pinterest
+Allow: /
+
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /driver/
+Disallow: /auth
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://asperbeauty.com/sitemap.xml
+
+# Crawl-delay for bots (optional, in seconds)
+# Crawl-delay: 1

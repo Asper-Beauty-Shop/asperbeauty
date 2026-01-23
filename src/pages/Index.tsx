@@ -14,6 +14,7 @@ import { ScrollToTop } from "@/components/ScrollToTop";
 import { FloatingSocials } from "@/components/FloatingSocials";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
 import { MobileNav } from "@/components/MobileNav";
+import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +40,13 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
+      <SEO
+        title="Luxury Skincare & Beauty Products"
+        description="Discover premium skincare and beauty products at Asper Beauty Shop. Curated luxury essentials for your daily beauty ritual. Shop the best brands in Jordan."
+        url="/"
+        type="website"
+        keywords={['skincare', 'beauty', 'cosmetics', 'luxury', 'Jordan', 'Amman', 'La Roche-Posay', 'Vichy', 'CeraVe', 'premium beauty']}
+      />
       <GlobalHeader />
       <main>
         {/* 1. EMOTIONAL LAYER: The Cinematic Hero */}
