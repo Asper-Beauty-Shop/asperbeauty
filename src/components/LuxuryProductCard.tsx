@@ -2,6 +2,7 @@ import { useState } from "react";
 import { ShoppingBag, Star, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ProductQuickViewModal } from "./ProductQuickViewModal";
+import { ProductImage } from "./ProductImage";
 import { useCartStore } from "@/stores/cartStore";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -99,9 +100,11 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
       <Link
         to={`/product/${product.id}`}
         className="group relative bg-background border border-border flex flex-col h-full overflow-hidden"
+        itemScope
+        itemType="https://schema.org/Product"
       >
-        {/* 1. Image Area - Aspect Ratio is key for consistency */}
-        <div className="relative aspect-[4/5] overflow-hidden bg-muted/30">
+        {/* 1. Image Area - SEO Optimized with proper alt text */}
+        <div className="relative aspect-[4/5] overflow-hidden bg-muted/30" itemProp="image" itemScope itemType="https://schema.org/ImageObject">
           {product.is_new && (
             <span className="absolute top-2 left-2 z-10 bg-gold text-[8px] md:text-[10px] text-foreground px-2 py-0.5 font-bold uppercase tracking-widest">
               New
@@ -115,11 +118,15 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
             </span>
           )}
           
-          <img 
+          <ProductImage 
             src={product.image_url} 
-            className="h-full w-full object-contain mix-blend-multiply transition-transform duration-700 group-hover:scale-105"
-            alt={product.title}
+            alt={`${product.title} - ${product.brand || product.category} | Asper Beauty`}
+            title={product.title}
+            category={product.category}
+            aspectRatio="portrait"
+            className="h-full w-full transition-transform duration-700 group-hover:scale-105 mix-blend-multiply"
           />
+          <meta itemProp="url" content={product.image_url} />
           
           {/* Hover Actions - Quick View & Add to Cart */}
           <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/5 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
@@ -153,17 +160,18 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
           </button>
         </div>
 
-        {/* 2. Content Area - Optimized Typography */}
+        {/* 2. Content Area - SEO Optimized with Schema.org markup */}
         <div className="p-3 md:p-6 flex flex-col flex-1 text-center md:text-left">
-          <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-gold mb-1">
+          <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] text-gold mb-1" itemProp="brand">
             {product.brand || product.category}
           </p>
           
-          <h3 className="font-serif text-sm md:text-lg text-foreground line-clamp-2 leading-tight mb-2 flex-1">
+          <h3 className="font-serif text-sm md:text-lg text-foreground line-clamp-2 leading-tight mb-2 flex-1" itemProp="name">
             {product.title}
           </h3>
+          <meta itemProp="description" content={product.description || `${product.title} from ${product.brand || 'Asper Beauty'}`} />
 
-          <div className="mt-auto flex flex-col md:flex-row md:items-center justify-between gap-1">
+          <div className="mt-auto flex flex-col md:flex-row md:items-center justify-between gap-1" itemProp="offers" itemScope itemType="https://schema.org/Offer">
             <div className="flex items-center gap-2">
               {product.is_on_sale && product.original_price && (
                 <span className="font-sans text-xs text-muted-foreground line-through">
@@ -171,8 +179,9 @@ export const LuxuryProductCard = ({ product }: { product: ProductProps }) => {
                 </span>
               )}
               <span className={`font-sans font-bold text-xs md:text-base ${product.is_on_sale ? 'text-red-600' : 'text-foreground'}`}>
-                {price.toFixed(3)} <span className="text-[10px] md:text-xs">JOD</span>
+                <span itemProp="price" content={price.toFixed(3)}>{price.toFixed(3)}</span> <span className="text-[10px] md:text-xs" itemProp="priceCurrency" content="JOD">JOD</span>
               </span>
+              <link itemProp="availability" href="https://schema.org/InStock" />
             </div>
             
             {/* Rating - Hidden on very small screens to save space */}
