@@ -12,14 +12,14 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/beauty-assis
 
 const quickPrompts = {
   en: [
-    { label: 'Routine for Acne', message: 'What is the best skincare routine for acne-prone skin?' },
-    { label: 'Safe for Pregnancy?', message: 'Which skincare ingredients are safe to use during pregnancy?' },
-    { label: 'Compare Serums', message: 'Can you compare vitamin C serums vs retinol serums for anti-aging?' },
+    { label: 'Clinical Anti-Aging', message: 'I need a clinical anti-aging routine. What do you recommend from official brands?' },
+    { label: 'Inside-Out Beauty', message: 'What supplements pair with my retinol serum for optimal results?' },
+    { label: 'JFDA-Approved Routine', message: 'Create a complete routine for acne with JFDA-approved products from Asper.' },
   ],
   ar: [
-    { label: 'روتين حب الشباب', message: 'ما هو أفضل روتين للعناية بالبشرة المعرضة لحب الشباب؟' },
-    { label: 'آمن للحمل؟', message: 'ما هي مكونات العناية بالبشرة الآمنة للاستخدام أثناء الحمل؟' },
-    { label: 'مقارنة السيروم', message: 'هل يمكنك مقارنة سيروم فيتامين سي مع سيروم الريتينول لمكافحة الشيخوخة؟' },
+    { label: 'روتين سريري لمكافحة الشيخوخة', message: 'أحتاج روتيناً سريرياً لمكافحة الشيخوخة. ما الذي توصي به من العلامات الرسمية؟' },
+    { label: 'الجمال من الداخل والخارج', message: 'ما المكملات التي تتناسب مع سيروم الريتينول للحصول على أفضل النتائج؟' },
+    { label: 'روتين معتمد من JFDA', message: 'اصنع روتيناً كاملاً لحب الشباب بمنتجات معتمدة من JFDA من آسبر.' },
   ],
 };
 
@@ -33,18 +33,18 @@ export const BeautyAssistant = () => {
 
   const translations = {
     en: {
-      title: 'Asper Digital Consult',
-      subtitle: 'Clinical Skincare Expert',
-      placeholder: 'Describe your skin concern...',
-      welcome: "Hello. I am trained on clinical skincare data. Tell me your skin concern (e.g., Acne, Dryness) or ask about a specific ingredient.",
-      buttonText: 'Ask the Pharmacist',
+      title: 'Asper Digital Concierge',
+      subtitle: 'Your Personal Clinical Pharmacist',
+      placeholder: 'Describe your skin concern or goal...',
+      welcome: "Welcome to Asper's Luxury Digital Concierge. I'm your senior clinical pharmacist, here to curate a personalized skincare experience with 100% original, JFDA-approved products. How may I assist you today?",
+      buttonText: 'Consult Your Pharmacist',
     },
     ar: {
-      title: 'استشارة آسبر الرقمية',
-      subtitle: 'خبير العناية بالبشرة السريرية',
-      placeholder: 'صف مشكلة بشرتك...',
-      welcome: "مرحباً. أنا مدرب على بيانات العناية بالبشرة السريرية. أخبرني عن مشكلة بشرتك (مثل حب الشباب، الجفاف) أو اسأل عن مكون معين.",
-      buttonText: 'اسأل الصيدلي',
+      title: 'كونسيرج آسبر الرقمي',
+      subtitle: 'صيدليك السريري الشخصي',
+      placeholder: 'صف مشكلة بشرتك أو هدفك...',
+      welcome: "مرحباً بك في كونسيرج آسبر الفاخر. أنا الصيدلاني السريري الكبير، هنا لتنظيم تجربة عناية بالبشرة شخصية بمنتجات أصلية 100% ومعتمدة من JFDA. كيف يمكنني مساعدتك اليوم؟",
+      buttonText: 'استشر صيدليك',
     },
   };
 
