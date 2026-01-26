@@ -275,9 +275,9 @@
   .luxury-button-primary:hover {
     background: linear-gradient(135deg, hsl(var(--burgundy-light)) 0%, hsl(var(--burgundy)) 100%);
     box-shadow: 
-      0 8px 30px -4px hsl(var(--burgundy) / 0.5),
-      0 0 20px -4px hsl(var(--gold) / 0.3);
-    transform: translateY(-2px);
+      0 12px 40px -4px hsl(var(--burgundy) / 0.5),
+      0 0 25px -2px hsl(var(--gold) / 0.4);
+    transform: translateY(-3px) scale(1.02);
   }
 
   .luxury-button-secondary {
