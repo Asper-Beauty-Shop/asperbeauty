@@ -402,6 +402,43 @@ serve(async (req) => {
       );
     }
 
+    if (action === "save-to-database") {
+      // Save products to Supabase database
+      const { products } = requestData;
+      
+      if (!products || !Array.isArray(products)) {
+        throw new Error("Invalid products data");
+      }
+
+      console.log(`Saving ${products.length} products to database`);
+
+      const { data, error } = await supabase
+        .from("products")
+        .upsert(
+          products.map((p: any) => ({
+            title: p.name,
+            price: p.price,
+            category: p.category,
+            brand: p.brand,
+            description: p.description || "Imported from bulk upload",
+            image_url: p.imageUrl,
+            updated_at: new Date().toISOString(),
+          })),
+          { onConflict: "title" } // Assuming title is unique enough for now, or use SKU if added to DB
+        )
+        .select();
+
+      if (error) {
+        console.error("Database save error:", error);
+        throw error;
+      }
+
+      return new Response(
+        JSON.stringify({ success: true, count: data.length }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     if (action === "ai-categorize") {
       // Use AI for smarter categorization
       const { productNames } = requestData;
