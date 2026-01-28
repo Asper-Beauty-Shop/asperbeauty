@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button";
 
 interface SupabaseProduct {
   id: string;
+  sku: string | null;
   title: string;
   description: string | null;
   price: number;
@@ -54,11 +55,15 @@ const ProductDetail = () => {
     const loadProduct = async () => {
       if (!handle) return;
       try {
-        const { data, error } = await supabase
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(handle);
+        const query = supabase
           .from('products')
           .select('*')
-          .eq('id', handle)
           .maybeSingle();
+
+        const { data, error } = isUuid
+          ? await query.eq('id', handle)
+          : await query.eq('sku', handle);
 
         if (error) throw error;
         setProduct(data);
@@ -68,7 +73,7 @@ const ProductDetail = () => {
             .from('products')
             .select('*')
             .eq('category', data.category)
-            .neq('id', handle)
+            .neq('id', data.id)
             .limit(4);
           
           setRelatedProducts(related || []);

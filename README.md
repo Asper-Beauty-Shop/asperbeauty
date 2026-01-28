@@ -14,6 +14,7 @@ A luxury e-commerce storefront for premium skincare and beauty products, built w
 - **Responsive Design** - Optimized for desktop, tablet, and mobile
 - **RTL Support** - Full Arabic language support with right-to-left layout
 - **Shopify Integration** - Connected to Shopify for product management and checkout
+- **Bulk Import** - Import Excel product lists, publish to website, and upload to Shopify
 
 ## 🛠️ Tech Stack
 
@@ -92,20 +93,41 @@ npm run build
 npm run preview
 ```
 
+## 🔐 Environment Variables
+
+Create a `.env` file (or set environment variables in your hosting):
+
+- **Supabase (required)**:
+  - `VITE_SUPABASE_URL`
+  - `VITE_SUPABASE_PUBLISHABLE_KEY`
+
+- **Shopify Storefront API (optional, for Shopify-powered browsing/checkout)**:
+  - `VITE_SHOPIFY_STORE_DOMAIN` (example: `your-store.myshopify.com`)
+  - `VITE_SHOPIFY_STOREFRONT_TOKEN`
+  - `VITE_SHOPIFY_API_VERSION` (optional; defaults in code)
+
+For the Supabase Edge Function that creates products in Shopify (Admin API), set these secrets in Supabase:
+
+- `SHOPIFY_ACCESS_TOKEN`
+- `SHOPIFY_STORE_DOMAIN`
+- `SHOPIFY_API_VERSION` (optional)
+
 ## 📱 Pages
 
 | Route | Description |
 |-------|-------------|
 | `/` | Home page with hero, featured products, and categories |
+| `/shop` | Full product listing with filters |
 | `/brands` | Browse all available brands |
 | `/brands/vichy` | Vichy brand showcase page |
 | `/collections` | Product collections |
 | `/collections/:handle` | Individual collection page |
-| `/products/:handle` | Product detail page |
+| `/product/:handle` | Product detail page |
 | `/skin-concerns` | Shop by skin concern |
 | `/offers` | Special offers and promotions |
 | `/best-sellers` | Best selling products |
 | `/contact` | Contact information |
+| `/admin/bulk-upload` | Bulk import (Excel), categorize, generate images, publish to website, and upload to Shopify |
 
 ## 🌐 Internationalization
 
