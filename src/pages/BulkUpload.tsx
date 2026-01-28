@@ -8,10 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { 
   Upload, FileSpreadsheet, Sparkles, Image, ShoppingBag, 
   CheckCircle2, AlertCircle, Loader2, Play, Pause, RefreshCw,
-  Download, Table, Clock, Zap, Settings, RotateCcw, Square
+  Download, Table, Clock, Zap, Settings, RotateCcw, Square, Globe
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -66,7 +67,7 @@ function findColumn(headers: string[], possibleNames: string[]): string | null {
 }
 
 export default function BulkUpload() {
-  const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "shopify">("upload");
+  const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "website" | "shopify">("upload");
   const [products, setProducts] = useState<ProcessedProduct[]>([]);
   const [summary, setSummary] = useState<UploadSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -380,6 +381,18 @@ export default function BulkUpload() {
     }
   }, [queueStats, queueStatus.isProcessing]);
 
+  // Website publish state
+  const [websiteProgress, setWebsiteProgress] = useState({
+    current: 0,
+    total: 0,
+    succeeded: 0,
+    failed: 0,
+    stage: "",
+  });
+  const [websiteErrors, setWebsiteErrors] = useState<Array<{sku: string; name: string; error: string}>>([]);
+  const [isWebsiteUploading, setIsWebsiteUploading] = useState(false);
+  const [replaceExisting, setReplaceExisting] = useState(false);
+
   // Shopify upload state
   const [shopifyProgress, setShopifyProgress] = useState({
     current: 0,
@@ -391,6 +404,111 @@ export default function BulkUpload() {
   });
   const [shopifyErrors, setShopifyErrors] = useState<Array<{sku: string; name: string; error: string}>>([]);
   const [isShopifyUploading, setIsShopifyUploading] = useState(false);
+
+  // Publish to website using the edge function
+  const uploadToWebsite = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      toast.error("Please log in as an admin to publish to the website");
+      return;
+    }
+
+    if (products.length === 0) {
+      toast.error("No products available to publish");
+      return;
+    }
+
+    setIsWebsiteUploading(true);
+    setWebsiteErrors([]);
+    setWebsiteProgress({ 
+      current: 0, 
+      total: products.length, 
+      succeeded: 0, 
+      failed: 0, 
+      stage: "Preparing catalog sync...",
+    });
+
+    const BATCH_SIZE = 100;
+    const errors: Array<{sku: string; name: string; error: string}> = [];
+    let succeeded = 0;
+    const totalBatches = Math.ceil(products.length / BATCH_SIZE);
+
+    for (let i = 0; i < products.length; i += BATCH_SIZE) {
+      const batch = products.slice(i, i + BATCH_SIZE);
+      const batchIndex = Math.floor(i / BATCH_SIZE);
+
+      setWebsiteProgress(prev => ({
+        ...prev,
+        stage: `Publishing batch ${batchIndex + 1} of ${totalBatches}`,
+        current: Math.min(i + batch.length, products.length),
+      }));
+
+      try {
+        const { data, error } = await supabase.functions.invoke("bulk-product-upload", {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: { 
+            action: "upsert-supabase-products", 
+            products: batch,
+            replaceExisting,
+            batchIndex,
+          },
+        });
+
+        if (error) throw new Error(error.message);
+        if (data?.error) throw new Error(data.error);
+
+        const processedCount = data?.processed ?? batch.length;
+        const skippedCount = data?.skipped ?? 0;
+        succeeded += processedCount;
+
+        const invalidProducts = data?.invalidProducts || [];
+        invalidProducts.forEach((item: any) => {
+          errors.push({
+            sku: item.sku || "",
+            name: item.name || "Unknown product",
+            error: item.reason || "Invalid product",
+          });
+        });
+
+        setWebsiteProgress(prev => ({
+          ...prev,
+          succeeded,
+          failed: prev.failed + skippedCount,
+        }));
+      } catch (error: any) {
+        batch.forEach((product) => {
+          errors.push({
+            sku: product.sku,
+            name: product.name,
+            error: error.message || "Upload failed",
+          });
+        });
+
+        setWebsiteProgress(prev => ({
+          ...prev,
+          failed: prev.failed + batch.length,
+        }));
+
+        if (error.message?.includes("401") || error.message?.includes("403") || error.message?.includes("Unauthorized") || error.message?.includes("Forbidden")) {
+          toast.error("Authorization failed. Please log in as an admin.");
+          break;
+        }
+      }
+    }
+
+    setWebsiteErrors(errors);
+    setIsWebsiteUploading(false);
+
+    if (succeeded > 0) {
+      toast.success(`Published ${succeeded} products to the website`);
+    }
+    if (errors.length > 0) {
+      toast.error(`${errors.length} products could not be published`);
+    }
+  }, [products, replaceExisting]);
 
   // Upload to Shopify using the edge function
   const uploadToShopify = useCallback(async () => {
@@ -529,6 +647,7 @@ export default function BulkUpload() {
                 { id: "categorize", icon: Sparkles, label: "Categorize" },
                 { id: "images", icon: Image, label: "Generate Images" },
                 { id: "review", icon: FileSpreadsheet, label: "Review" },
+                { id: "website", icon: Globe, label: "Publish to Site" },
                 { id: "shopify", icon: ShoppingBag, label: "Upload to Shopify" },
               ].map((s, i) => (
                 <div key={s.id} className="flex items-center">
@@ -544,7 +663,7 @@ export default function BulkUpload() {
                     <s.icon className="w-4 h-4" />
                     <span className="text-sm font-medium">{s.label}</span>
                   </div>
-                  {i < 4 && <div className="w-8 h-px bg-taupe/20 mx-2" />}
+                  {i < 5 && <div className="w-8 h-px bg-taupe/20 mx-2" />}
                 </div>
               ))}
             </div>
@@ -557,6 +676,7 @@ export default function BulkUpload() {
                   {step === "categorize" && "Auto-Categorize Products"}
                   {step === "images" && "Generate Product Images"}
                   {step === "review" && "Review Products"}
+                  {step === "website" && "Publish to Website"}
                   {step === "shopify" && "Upload to Shopify"}
                 </CardTitle>
                 <CardDescription>
@@ -564,6 +684,7 @@ export default function BulkUpload() {
                   {step === "categorize" && "AI will automatically categorize products and extract brands"}
                   {step === "images" && "Generate professional product images using AI"}
                   {step === "review" && "Review categorized products before uploading"}
+                  {step === "website" && "Sync products to your website catalog in Supabase"}
                   {step === "shopify" && "Final upload to your Shopify store"}
                 </CardDescription>
               </CardHeader>
@@ -975,14 +1096,154 @@ export default function BulkUpload() {
                       </TabsContent>
                     </Tabs>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-wrap gap-4">
                       <Button variant="outline" onClick={() => setStep("images")}>
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Regenerate Failed Images
                       </Button>
-                      <Button onClick={() => setStep("shopify")} className="flex-1">
+                      <Button onClick={() => setStep("website")} className="flex-1">
+                        <Globe className="w-4 h-4 mr-2" />
+                        Continue to Website Publish
+                      </Button>
+                      <Button variant="outline" onClick={() => setStep("shopify")}>
                         <ShoppingBag className="w-4 h-4 mr-2" />
-                        Continue to Shopify Upload
+                        Skip to Shopify
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Website Publish Step */}
+                {step === "website" && (
+                  <div className="space-y-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                      <h3 className="font-medium text-blue-800 mb-2 flex items-center gap-2">
+                        <Globe className="w-5 h-5" />
+                        Ready to publish {products.length} products
+                      </h3>
+                      <p className="text-sm text-blue-700">
+                        Products will be saved to your website catalog and appear across the storefront.
+                      </p>
+                    </div>
+
+                    <Card className="border-blue-100">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-medium text-charcoal">Replace existing catalog</p>
+                            <p className="text-xs text-taupe">Clears current products before publishing.</p>
+                          </div>
+                          <Switch
+                            checked={replaceExisting}
+                            onCheckedChange={setReplaceExisting}
+                            disabled={isWebsiteUploading}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Publish Progress */}
+                    {isWebsiteUploading && (
+                      <Card className="border-blue-200">
+                        <CardContent className="pt-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                              <span className="text-sm font-medium">{websiteProgress.stage}</span>
+                            </div>
+                            <span className="text-sm text-taupe">
+                              {websiteProgress.current} / {websiteProgress.total}
+                            </span>
+                          </div>
+
+                          <Progress 
+                            value={websiteProgress.total ? (websiteProgress.current / websiteProgress.total) * 100 : 0} 
+                            className="h-2"
+                          />
+
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                            <div className="text-center p-3 bg-blue-50 rounded-lg">
+                              <p className="text-2xl font-serif text-blue-600">{websiteProgress.succeeded}</p>
+                              <p className="text-xs text-blue-700">Published</p>
+                            </div>
+                            <div className="text-center p-3 bg-red-50 rounded-lg">
+                              <p className="text-2xl font-serif text-red-600">{websiteProgress.failed}</p>
+                              <p className="text-xs text-red-700">Skipped</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Completion Summary */}
+                    {!isWebsiteUploading && websiteProgress.total > 0 && (
+                      <Card className="border-blue-200 bg-blue-50/50">
+                        <CardContent className="pt-6">
+                          <div className="text-center space-y-2">
+                            <CheckCircle2 className="w-12 h-12 mx-auto text-blue-600" />
+                            <h3 className="text-lg font-medium text-blue-800">Publish Complete!</h3>
+                            <p className="text-sm text-blue-700">
+                              {websiteProgress.succeeded} products published successfully
+                              {websiteProgress.failed > 0 && `, ${websiteProgress.failed} skipped`}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Error List */}
+                    {websiteErrors.length > 0 && (
+                      <Card className="border-red-200">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm text-red-700 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            Skipped Products ({websiteErrors.length})
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ScrollArea className="h-[200px]">
+                            <div className="space-y-2">
+                              {websiteErrors.map((err, i) => (
+                                <div key={i} className="text-sm p-2 bg-red-50 rounded">
+                                  <p className="font-medium text-red-800">{err.name}</p>
+                                  <p className="text-xs text-red-600">{err.error}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    <div className="flex flex-wrap gap-4">
+                      <Button variant="outline" onClick={() => setStep("review")}>
+                        ← Back
+                      </Button>
+                      <Button
+                        onClick={uploadToWebsite}
+                        disabled={isWebsiteUploading}
+                        size="lg"
+                        className="flex-1"
+                      >
+                        {isWebsiteUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Publishing to Website...
+                          </>
+                        ) : websiteProgress.succeeded > 0 ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Re-sync to Website
+                          </>
+                        ) : (
+                          <>
+                            <Globe className="w-4 h-4 mr-2" />
+                            Publish All Products to Website
+                          </>
+                        )}
+                      </Button>
+                      <Button variant="outline" onClick={() => setStep("shopify")}>
+                        Continue to Shopify →
                       </Button>
                     </div>
                   </div>

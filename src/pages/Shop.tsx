@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { ShoppingBag, Star, Sparkles, Loader2, Eye, Percent, Grid3X3, LayoutList } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { ProductSearchFilters, FilterState } from "@/components/ProductSearchFil
 import { useCartStore } from "@/stores/cartStore";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { CATEGORIES, getCategoryById } from "@/lib/categoryHierarchy";
 
 // Extended Product type with new columns
 interface Product {
@@ -31,6 +33,13 @@ interface Product {
   created_at: string;
   updated_at: string;
 }
+
+const normalizeCategoryValue = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "make up") return "makeup";
+  if (normalized === "fragrances") return "fragrance";
+  return normalized;
+};
 
 // Product Card Component
 const ShopProductCard = ({ 
@@ -164,6 +173,7 @@ const ShopProductCard = ({
 // Main Shop Page
 export default function Shop() {
   const { language } = useLanguage();
+  const location = useLocation();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -178,6 +188,26 @@ export default function Shop() {
     priceRange: [0, 200],
     onSaleOnly: false,
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const categoryParam = params.get("category");
+
+    if (!categoryParam) return;
+
+    const normalizedParam = normalizeCategoryValue(categoryParam);
+    const matched = CATEGORIES.find((category) =>
+      normalizeCategoryValue(category.labelEn) === normalizedParam ||
+      normalizeCategoryValue(category.id) === normalizedParam
+    );
+
+    if (matched) {
+      setFilters((prev) => ({
+        ...prev,
+        categories: [matched.id],
+      }));
+    }
+  }, [location.search]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -210,6 +240,24 @@ export default function Shop() {
           product.brand?.toLowerCase().includes(query) ||
           product.description?.toLowerCase().includes(query);
         if (!matchesSearch) return false;
+      }
+
+      // Category filter
+      if (filters.categories.length > 0) {
+        const productCategory = product.category ? normalizeCategoryValue(product.category) : "";
+        const matchesCategory = filters.categories.some((categoryId) => {
+          const category = getCategoryById(categoryId);
+          const categoryLabel = category ? normalizeCategoryValue(category.labelEn) : normalizeCategoryValue(categoryId);
+          return productCategory === categoryLabel || productCategory === normalizeCategoryValue(categoryId);
+        });
+        if (!matchesCategory) return false;
+      }
+
+      // Subcategory filter
+      if (filters.subcategories.length > 0) {
+        if (!product.subcategory || !filters.subcategories.includes(product.subcategory)) {
+          return false;
+        }
       }
 
       // Brand filter
