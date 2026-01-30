@@ -5,36 +5,29 @@ import { AnimatedTrustBadge } from './AnimatedTrustBadge';
 
 // Generate random gold particles
 const generateParticles = (count: number) => {
-  return Array.from({ length: count }, (_, i) => ({
+  return Array.from({
+    length: count
+  }, (_, i) => ({
     id: i,
     left: Math.random() * 100,
     delay: Math.random() * 5,
     duration: 3 + Math.random() * 4,
     size: 2 + Math.random() * 4,
-    opacity: 0.3 + Math.random() * 0.5,
+    opacity: 0.3 + Math.random() * 0.5
   }));
 };
-
 const GoldParticles = () => {
   const [particles] = useState(() => generateParticles(25));
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((particle) => (
-        <div
-          key={particle.id}
-          className="absolute rounded-full bg-gradient-to-br from-[#FFC300] to-[#D4AF37]"
-          style={{
-            left: `${particle.left}%`,
-            width: `${particle.size}px`,
-            height: `${particle.size}px`,
-            opacity: particle.opacity,
-            animation: `floatUp ${particle.duration}s ease-in-out infinite`,
-            animationDelay: `${particle.delay}s`,
-            boxShadow: `0 0 ${particle.size * 2}px rgba(255, 195, 0, 0.6)`,
-          }}
-        />
-      ))}
+  return <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map(particle => <div key={particle.id} className="absolute rounded-full bg-gradient-to-br from-[#FFC300] to-[#D4AF37]" style={{
+      left: `${particle.left}%`,
+      width: `${particle.size}px`,
+      height: `${particle.size}px`,
+      opacity: particle.opacity,
+      animation: `floatUp ${particle.duration}s ease-in-out infinite`,
+      animationDelay: `${particle.delay}s`,
+      boxShadow: `0 0 ${particle.size * 2}px rgba(255, 195, 0, 0.6)`
+    }} />)}
       
       {/* Keyframe styles */}
       <style>{`
@@ -55,36 +48,17 @@ const GoldParticles = () => {
           }
         }
       `}</style>
-    </div>
-  );
+    </div>;
 };
-
 const HeroSection = () => {
   const [videoLoaded, setVideoLoaded] = useState(false);
-
-  return (
-    <section className="relative h-screen w-full overflow-hidden">
+  return <section className="relative h-screen w-full overflow-hidden">
       
       {/* --- 1. VIDEO BACKGROUND --- */}
       <div className="absolute inset-0">
         {/* Fallback image while video loads */}
-        <img 
-          src="/hero-banner.png"
-          alt="Asper Beauty"
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${
-            videoLoaded ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          onLoadedData={() => setVideoLoaded(true)}
-          className={`h-full w-full object-cover transition-opacity duration-1000 ${
-            videoLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
-        >
+        <img src="/hero-banner.png" alt="Asper Beauty" className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`} />
+        <video autoPlay muted loop playsInline onLoadedData={() => setVideoLoaded(true)} className={`h-full w-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}>
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
       </div>
@@ -106,48 +80,25 @@ const HeroSection = () => {
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
         
         {/* Rotating Trust Badge */}
-        <div className="mb-8">
-          <AnimatedTrustBadge />
-        </div>
+        
 
         {/* Gold divider above headline */}
         <div className="mb-6 h-px w-24 bg-gradient-to-r from-transparent via-[#FFC300] to-transparent" />
 
         {/* Headline */}
-        <h1 className="mb-4 font-serif text-5xl font-bold leading-tight text-asper-charcoal md:text-7xl lg:text-8xl drop-shadow-sm">
-          Unveil Your{' '}
-          <span className="bg-gradient-to-r from-[#D4AF37] via-[#FFC300] to-[#D4AF37] bg-clip-text text-transparent">
-            Golden Glow
-          </span>
-        </h1>
+        
 
         {/* Gold divider below headline */}
         <div className="mb-8 h-px w-24 bg-gradient-to-r from-transparent via-[#FFC300] to-transparent" />
 
         {/* Sub-Headline */}
-        <p className="mb-10 max-w-2xl font-sans text-lg text-asper-charcoal/80 md:text-xl">
-          The perfect union of nature's purity and regal luxury.{' '}
-          <br className="hidden md:block" />
-          Organic skincare crafted to restore your eternal radiance.
-        </p>
+        
 
         {/* Call to Action Buttons */}
         <div className="flex flex-col gap-4 sm:flex-row">
-          <Button
-            size="lg"
-            className="bg-[#FFC300] px-10 py-6 font-sans text-sm font-semibold uppercase tracking-widest text-asper-charcoal shadow-lg shadow-[#FFC300]/30 transition-all duration-300 hover:bg-[#D4AF37] hover:shadow-xl hover:shadow-[#FFC300]/40"
-          >
-            Shop Collection
-          </Button>
           
-          <Button
-            size="lg"
-            variant="outline"
-            className="group border-2 border-[#D4AF37] bg-white/80 px-10 py-6 font-sans text-sm font-semibold uppercase tracking-widest text-asper-charcoal backdrop-blur-sm transition-all duration-300 hover:bg-[#FFC300]/10"
-          >
-            Discover Rituals
-            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Button>
+          
+          
         </div>
 
         {/* Tagline */}
@@ -163,8 +114,6 @@ const HeroSection = () => {
         </div>
       </div>
 
-    </section>
-  );
+    </section>;
 };
-
 export default HeroSection;
