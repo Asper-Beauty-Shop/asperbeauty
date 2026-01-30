@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import AnimatedShaderHero from "@/components/ui/animated-shader-hero";
+import HeroSection from "@/components/HeroSection";
 import { Footer } from "@/components/Footer";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -58,27 +58,7 @@ const Index = () => {
     <div className="min-h-screen bg-background animate-fade-in">
       <Header />
       <main>
-        <AnimatedShaderHero
-          trustBadge={{
-            text: "Trusted by 50,000+ Beauty Enthusiasts",
-            icons: ["✨", "💎", "🌟"]
-          }}
-          headline={{
-            line1: "Discover Luxury",
-            line2: "Beauty & Skincare"
-          }}
-          subtitle="Curated collections of premium beauty products from the world's most prestigious brands. Experience the art of self-care."
-          buttons={{
-            primary: {
-              text: "Explore Collections",
-              onClick: () => navigate("/collections")
-            },
-            secondary: {
-              text: "Shop Best Sellers",
-              onClick: () => navigate("/best-sellers")
-            }
-          }}
-        />
+        <HeroSection />
         
         {/* Lazy-loaded below-the-fold sections */}
         <Suspense fallback={<SectionSkeleton height="h-96" />}>
