@@ -53,7 +53,7 @@ const ACTION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
 
 export default function AdminAuditLogs() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [startDate, setStartDate] = useState('');
@@ -62,31 +62,12 @@ export default function AdminAuditLogs() {
   const [searchQuery, setSearchQuery] = useState('');
   const [drivers, setDrivers] = useState<{ id: string; email: string }[]>([]);
   const [driverFilter, setDriverFilter] = useState<string>('all');
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  // Check admin status
-  useEffect(() => {
-    const checkAdmin = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        return;
-      }
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'admin')
-        .maybeSingle();
-      setIsAdmin(!!data);
-    };
-    checkAdmin();
-  }, [user]);
 
   useEffect(() => {
-    if (!authLoading && !user) {
+    if (!authLoading && (!user || !isAdmin)) {
       navigate('/auth');
     }
-  }, [user, authLoading, navigate]);
+  }, [user, isAdmin, authLoading, navigate]);
 
   useEffect(() => {
     if (isAdmin) {
