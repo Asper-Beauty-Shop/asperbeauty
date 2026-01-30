@@ -96,7 +96,7 @@ const HeroSection = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-[#D4AF37]/20 via-transparent to-[#D4AF37]/20 blur-2xl -z-10 scale-105" />
           
           {/* Video Container with Gold Border */}
-          <div className="relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-[0_20px_60px_-15px_rgba(212,175,55,0.3),0_10px_30px_-10px_rgba(0,0,0,0.15)]">
+          <div className="group relative rounded-2xl overflow-hidden border-2 border-[#D4AF37]/40 shadow-[0_20px_60px_-15px_rgba(212,175,55,0.3),0_10px_30px_-10px_rgba(0,0,0,0.15)] hover:border-[#D4AF37]/70 hover:shadow-[0_25px_70px_-15px_rgba(212,175,55,0.4),0_15px_40px_-10px_rgba(0,0,0,0.2)] transition-all duration-500 cursor-pointer">
             
             {/* Shimmer Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer pointer-events-none z-10" />
@@ -105,7 +105,7 @@ const HeroSection = () => {
             <img 
               src="/hero-banner.png" 
               alt="Asper Beauty" 
-              className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`} 
+              className={`absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-out group-hover:scale-105 ${videoLoaded ? 'opacity-0' : 'opacity-100'}`} 
             />
             
             {/* Main Video */}
@@ -115,7 +115,7 @@ const HeroSection = () => {
               loop 
               playsInline 
               onLoadedData={() => setVideoLoaded(true)} 
-              className={`w-full aspect-video object-cover transition-opacity duration-1000 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+              className={`w-full aspect-video object-cover transition-all duration-700 ease-out group-hover:scale-105 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
             >
               <source src="/hero-video.mp4" type="video/mp4" />
             </video>
