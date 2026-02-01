@@ -648,7 +648,7 @@ serve(async (req) => {
     console.log('Order created successfully:', order.order_number);
 
     // ========== SEND CONFIRMATION EMAIL ==========
-    const siteUrl = 'https://asperbeautyshop.lovable.app';
+    const siteUrl = 'https://asperbeauty.com';
     
     if (data.customerEmail) {
       await sendOrderConfirmationEmail(
