@@ -1,16 +1,16 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
-import AnimatedShaderHero from "@/components/ui/animated-shader-hero";
+import HeroSection from "@/components/HeroSection";
+import BrandStory from "@/components/BrandStory";
+import CelestialFeaturedCollection from "@/components/CelestialFeaturedCollection";
 import { Footer } from "@/components/Footer";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // Lazy load below-the-fold components for better initial load performance
-const AmmanEdit = lazy(() => import("@/components/AmmanEdit").then(m => ({ default: m.AmmanEdit })));
 const FeaturedBrands = lazy(() => import("@/components/FeaturedBrands").then(m => ({ default: m.FeaturedBrands })));
 const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({ default: m.Testimonials })));
-const InstagramFeed = lazy(() => import("@/components/InstagramFeed").then(m => ({ default: m.InstagramFeed })));
 const Newsletter = lazy(() => import("@/components/Newsletter").then(m => ({ default: m.Newsletter })));
 const TrustBanner = lazy(() => import("@/components/TrustBanner").then(m => ({ default: m.TrustBanner })));
 const BeautyAssistant = lazy(() => import("@/components/BeautyAssistant").then(m => ({ default: m.BeautyAssistant })));
@@ -58,43 +58,21 @@ const Index = () => {
     <div className="min-h-screen bg-background animate-fade-in">
       <Header />
       <main>
-        <AnimatedShaderHero
-          trustBadge={{
-            text: "Trusted by 50,000+ Beauty Enthusiasts",
-            icons: ["✨", "💎", "🌟"]
-          }}
-          headline={{
-            line1: "Discover Luxury",
-            line2: "Beauty & Skincare"
-          }}
-          subtitle="Curated collections of premium beauty products from the world's most prestigious brands. Experience the art of self-care."
-          buttons={{
-            primary: {
-              text: "Explore Collections",
-              onClick: () => navigate("/collections")
-            },
-            secondary: {
-              text: "Shop Best Sellers",
-              onClick: () => navigate("/best-sellers")
-            }
-          }}
-        />
+        <HeroSection />
+        
+        {/* Featured Collection with Glass & Gold Cards */}
+        <CelestialFeaturedCollection />
+        
+        {/* Brand Story Section */}
+        <BrandStory />
         
         {/* Lazy-loaded below-the-fold sections */}
-        <Suspense fallback={<SectionSkeleton height="h-96" />}>
-          <AmmanEdit />
-        </Suspense>
-        
         <Suspense fallback={<SectionSkeleton height="h-32" />}>
           <FeaturedBrands />
         </Suspense>
         
         <Suspense fallback={<SectionSkeleton height="h-96" />}>
           <Testimonials />
-        </Suspense>
-        
-        <Suspense fallback={<SectionSkeleton height="h-64" />}>
-          <InstagramFeed />
         </Suspense>
         
         <Suspense fallback={<SectionSkeleton height="h-48" />}>

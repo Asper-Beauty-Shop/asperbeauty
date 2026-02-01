@@ -89,6 +89,27 @@ export type Database = {
         }
         Relationships: []
       }
+      documents: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          metadata: Json | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          metadata?: Json | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
       driver_access_logs: {
         Row: {
           accessed_fields: string[] | null
@@ -261,6 +282,19 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      match_documents: {
+        Args: {
+          match_count: number
+          match_threshold: number
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: number
+          metadata: Json
+          similarity: number
+        }[]
       }
     }
     Enums: {
