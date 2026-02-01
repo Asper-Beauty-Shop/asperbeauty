@@ -44,6 +44,24 @@ interface RawProduct {
   sellingPrice: number;
 }
 
+const getProductSignature = (product: ProcessedProduct) => {
+  const name = product.name?.trim().toLowerCase() || "";
+  const brand =
+    product.brand && product.brand !== "Generic"
+      ? product.brand.trim().toLowerCase()
+      : "";
+  return `${name}|${brand}`;
+};
+
+const buildProductDescription = (product: ProcessedProduct, brandLabel: string | null) => {
+  const category = product.category?.trim();
+  const descriptor = [brandLabel, category].filter(Boolean).join(" / ");
+  if (descriptor) {
+    return `${product.name} - ${descriptor}.`;
+  }
+  return `${product.name}.`;
+};
+
 // Column name mappings for Arabic Excel files
 const COLUMN_MAPPINGS = {
   sku: ["الرمز", "رمز", "SKU", "Code", "Barcode", "الباركود"],
@@ -392,6 +410,19 @@ export default function BulkUpload() {
   const [shopifyErrors, setShopifyErrors] = useState<Array<{sku: string; name: string; error: string}>>([]);
   const [isShopifyUploading, setIsShopifyUploading] = useState(false);
 
+  // Website publish state
+  const [siteProgress, setSiteProgress] = useState({
+    current: 0,
+    total: 0,
+    succeeded: 0,
+    failed: 0,
+    skipped: 0,
+    stage: "",
+    currentProduct: "",
+  });
+  const [siteErrors, setSiteErrors] = useState<Array<{sku: string; name: string; error: string}>>([]);
+  const [isSiteUploading, setIsSiteUploading] = useState(false);
+
   // Upload to Shopify using the edge function
   const uploadToShopify = useCallback(async () => {
     // Get current session for authentication
@@ -498,6 +529,165 @@ export default function BulkUpload() {
     }
     if (errors.length > 0) {
       toast.error(`${errors.length} products failed to upload`);
+    }
+  }, [products]);
+
+  const uploadToWebsite = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      toast.error("Please log in as an admin to publish products");
+      return;
+    }
+
+    if (products.length === 0) {
+      toast.error("No products available to publish");
+      return;
+    }
+
+    setIsSiteUploading(true);
+    setSiteErrors([]);
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Authentication required. Please log in.");
+        return;
+      }
+
+      const { data: adminRole } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (!adminRole) {
+        toast.error("Admin access required to publish products.");
+        return;
+      }
+
+      const publishableProducts = products.filter((product) => product.name && product.price > 0);
+      const invalidProducts = products.filter((product) => !product.name || product.price <= 0);
+
+      if (publishableProducts.length === 0) {
+        toast.error("No valid products found to publish");
+        return;
+      }
+
+      const { data: existingProducts, error: existingError } = await supabase
+        .from("products")
+        .select("title, brand");
+
+      if (existingError) throw existingError;
+
+      const existingSignatures = new Set(
+        (existingProducts || []).map((item) => {
+          const title = item.title?.trim().toLowerCase() || "";
+          const brand =
+            item.brand && item.brand !== "Generic"
+              ? item.brand.trim().toLowerCase()
+              : "";
+          return `${title}|${brand}`;
+        })
+      );
+
+      const dedupedProducts = publishableProducts.filter(
+        (product) => !existingSignatures.has(getProductSignature(product))
+      );
+
+      const skippedCount = publishableProducts.length - dedupedProducts.length;
+      const BATCH_SIZE = 100;
+      const totalBatches = Math.ceil(dedupedProducts.length / BATCH_SIZE);
+      const errors: Array<{ sku: string; name: string; error: string }> = [];
+      let succeeded = 0;
+      let failed = 0;
+
+      setSiteProgress({
+        current: 0,
+        total: dedupedProducts.length,
+        succeeded: 0,
+        failed: 0,
+        skipped: skippedCount,
+        stage: "Preparing product catalog...",
+        currentProduct: "",
+      });
+
+      for (let i = 0; i < dedupedProducts.length; i += BATCH_SIZE) {
+        const batch = dedupedProducts.slice(i, i + BATCH_SIZE);
+        const batchIndex = Math.floor(i / BATCH_SIZE) + 1;
+
+        setSiteProgress((prev) => ({
+          ...prev,
+          stage: `Publishing batch ${batchIndex} of ${totalBatches}`,
+          currentProduct: batch[0]?.name || "",
+        }));
+
+        const payload = batch.map((product) => {
+          const brandLabel = product.brand && product.brand !== "Generic" ? product.brand : null;
+          const tags = [product.category, brandLabel].filter(Boolean) as string[];
+          const imageUrl = product.imageUrl?.startsWith("data:image") ? null : product.imageUrl;
+
+          return {
+            title: product.name.trim(),
+            price: product.price,
+            description: buildProductDescription(product, brandLabel),
+            category: product.category || "Featured",
+            brand: brandLabel,
+            image_url: imageUrl || null,
+            tags: tags.length > 0 ? tags : null,
+          };
+        });
+
+        const { error } = await supabase.from("products").insert(payload);
+
+        if (error) {
+          failed += batch.length;
+          errors.push(
+            ...batch.map((product) => ({
+              sku: product.sku,
+              name: product.name,
+              error: error.message || "Failed to publish product",
+            }))
+          );
+        } else {
+          succeeded += batch.length;
+        }
+
+        setSiteProgress((prev) => ({
+          ...prev,
+          current: Math.min(i + batch.length, dedupedProducts.length),
+          succeeded,
+          failed,
+        }));
+      }
+
+      if (invalidProducts.length > 0) {
+        errors.push(
+          ...invalidProducts.map((product) => ({
+            sku: product.sku,
+            name: product.name || "Unknown",
+            error: "Missing name or invalid price",
+          }))
+        );
+      }
+
+      setSiteErrors(errors);
+
+      if (succeeded > 0) {
+        toast.success(`Published ${succeeded} products to your website!`);
+      }
+      if (skippedCount > 0) {
+        toast.info(`Skipped ${skippedCount} products already on site.`);
+      }
+      if (failed > 0 || invalidProducts.length > 0) {
+        toast.error(`${failed + invalidProducts.length} products failed to publish`);
+      }
+    } catch (error: any) {
+      console.error("Website publish error:", error);
+      toast.error(error.message || "Failed to publish products to website");
+    } finally {
+      setIsSiteUploading(false);
     }
   }, [products]);
 
@@ -975,12 +1165,124 @@ export default function BulkUpload() {
                       </TabsContent>
                     </Tabs>
 
-                    <div className="flex gap-4">
+                    <div className="bg-burgundy/5 border border-burgundy/10 rounded-lg p-6">
+                      <h3 className="font-medium text-charcoal mb-2 flex items-center gap-2">
+                        <Upload className="w-5 h-5 text-burgundy" />
+                        Publish to Website Catalog
+                      </h3>
+                      <p className="text-sm text-taupe">
+                        Insert all categorized products into your Asper Beauty catalog so they appear on the website.
+                      </p>
+                    </div>
+
+                    {/* Website Publish Progress */}
+                    {isSiteUploading && (
+                      <Card className="border-burgundy/20">
+                        <CardContent className="pt-6 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Loader2 className="w-4 h-4 animate-spin text-burgundy" />
+                              <span className="text-sm font-medium">{siteProgress.stage}</span>
+                            </div>
+                            <span className="text-sm text-taupe">
+                              {siteProgress.current} / {siteProgress.total}
+                            </span>
+                          </div>
+                          
+                          <Progress 
+                            value={siteProgress.total > 0 ? (siteProgress.current / siteProgress.total) * 100 : 0} 
+                            className="h-2"
+                          />
+                          
+                          {siteProgress.currentProduct && (
+                            <p className="text-xs text-taupe truncate">
+                              Publishing: {siteProgress.currentProduct}
+                            </p>
+                          )}
+
+                          <div className="grid grid-cols-3 gap-4 pt-2">
+                            <div className="text-center p-3 bg-green-50 rounded-lg">
+                              <p className="text-2xl font-serif text-green-600">{siteProgress.succeeded}</p>
+                              <p className="text-xs text-green-700">Published</p>
+                            </div>
+                            <div className="text-center p-3 bg-red-50 rounded-lg">
+                              <p className="text-2xl font-serif text-red-600">{siteProgress.failed}</p>
+                              <p className="text-xs text-red-700">Failed</p>
+                            </div>
+                            <div className="text-center p-3 bg-amber-50 rounded-lg">
+                              <p className="text-2xl font-serif text-amber-600">{siteProgress.skipped}</p>
+                              <p className="text-xs text-amber-700">Skipped</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Website Publish Summary */}
+                    {!isSiteUploading && (siteProgress.total > 0 || siteProgress.skipped > 0 || siteProgress.failed > 0) && (
+                      <Card className="border-green-200 bg-green-50/50">
+                        <CardContent className="pt-6">
+                          <div className="text-center space-y-2">
+                            <CheckCircle2 className="w-12 h-12 mx-auto text-green-600" />
+                            <h3 className="text-lg font-medium text-green-800">Website Catalog Updated</h3>
+                            <p className="text-sm text-green-700">
+                              {siteProgress.succeeded} products published
+                              {siteProgress.skipped > 0 && `, ${siteProgress.skipped} skipped`}
+                              {siteProgress.failed > 0 && `, ${siteProgress.failed} failed`}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Website Publish Errors */}
+                    {siteErrors.length > 0 && (
+                      <Card className="border-red-200">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm text-red-700 flex items-center gap-2">
+                            <AlertCircle className="w-4 h-4" />
+                            Failed Products ({siteErrors.length})
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ScrollArea className="h-[200px]">
+                            <div className="space-y-2">
+                              {siteErrors.map((err, i) => (
+                                <div key={i} className="text-sm p-2 bg-red-50 rounded">
+                                  <p className="font-medium text-red-800">{err.name}</p>
+                                  <p className="text-xs text-red-600">{err.error}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    <div className="flex flex-wrap gap-4">
                       <Button variant="outline" onClick={() => setStep("images")}>
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Regenerate Failed Images
                       </Button>
-                      <Button onClick={() => setStep("shopify")} className="flex-1">
+                      <Button 
+                        onClick={uploadToWebsite} 
+                        disabled={isSiteUploading} 
+                        size="lg"
+                        className="flex-1 bg-burgundy hover:bg-burgundy-light text-white"
+                      >
+                        {isSiteUploading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Publishing to Website...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Publish to Website
+                          </>
+                        )}
+                      </Button>
+                      <Button onClick={() => setStep("shopify")} size="lg" className="flex-1">
                         <ShoppingBag className="w-4 h-4 mr-2" />
                         Continue to Shopify Upload
                       </Button>
