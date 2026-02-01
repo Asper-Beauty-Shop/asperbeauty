@@ -104,6 +104,137 @@ function generateImagePrompt(productName: string, category: string): string {
   return basePrompt + (categoryStyles[category] || categoryStyles["Personal Care"]);
 }
 
+// Normalize category labels to match storefront filters
+const CATEGORY_LABEL_MAP: Record<string, string> = {
+  "Skin Care": "Skin Care",
+  "Hair Care": "Hair Care",
+  "Body Care": "Body Care",
+  "Make Up": "Makeup",
+  "Makeup": "Makeup",
+  "Fragrances": "Fragrance",
+  "Fragrance": "Fragrance",
+  "Health & Supplements": "Health & Supplements",
+  "Medical Supplies": "Medical Supplies",
+  "Personal Care": "Personal Care",
+  "Uncategorized": "Personal Care",
+};
+
+const SUBCATEGORY_KEYWORDS: Record<string, Array<{ id: string; keywords: string[] }>> = {
+  "Skin Care": [
+    { id: "cleansers", keywords: ["cleanser", "micellar", "wash", "foam", "gel"] },
+    { id: "serums", keywords: ["serum", "ampoule"] },
+    { id: "moisturizers", keywords: ["moisturizer", "cream", "lotion"] },
+    { id: "sun-protection", keywords: ["spf", "sunscreen", "sun"] },
+    { id: "eye-care", keywords: ["eye"] },
+    { id: "lip-care", keywords: ["lip", "balm"] },
+  ],
+  "Hair Care": [
+    { id: "shampoo", keywords: ["shampoo"] },
+    { id: "conditioner", keywords: ["conditioner"] },
+    { id: "treatments", keywords: ["treatment", "mask", "oil", "serum"] },
+    { id: "styling", keywords: ["spray", "gel", "mousse", "wax"] },
+    { id: "hair-color", keywords: ["color", "dye"] },
+  ],
+  "Body Care": [
+    { id: "body-lotion", keywords: ["lotion", "cream", "butter"] },
+    { id: "body-wash", keywords: ["wash", "shower", "soap", "gel"] },
+    { id: "hand-care", keywords: ["hand"] },
+    { id: "foot-care", keywords: ["foot"] },
+    { id: "deodorant", keywords: ["deodorant", "antiperspirant"] },
+  ],
+  "Makeup": [
+    { id: "eye-makeup", keywords: ["mascara", "eyeliner", "eyeshadow", "brow", "lash"] },
+    { id: "lip-makeup", keywords: ["lipstick", "lip", "gloss", "tint"] },
+    { id: "face-makeup", keywords: ["foundation", "concealer", "powder", "blush", "primer", "bronzer", "highlighter"] },
+    { id: "nails", keywords: ["nail", "polish"] },
+    { id: "brushes-tools", keywords: ["brush", "sponge", "applicator"] },
+  ],
+  "Fragrance": [
+    { id: "women", keywords: ["women", "lady", "femme"] },
+    { id: "men", keywords: ["men", "man", "homme"] },
+    { id: "unisex", keywords: ["unisex"] },
+    { id: "body-mist", keywords: ["mist", "spray"] },
+  ],
+  "Health & Supplements": [
+    { id: "vitamins", keywords: ["vitamin", "multi", "complex"] },
+    { id: "minerals", keywords: ["mineral", "zinc", "magnesium", "calcium", "iron"] },
+    { id: "omega", keywords: ["omega", "fish oil"] },
+    { id: "probiotics", keywords: ["probiotic"] },
+    { id: "herbal", keywords: ["herb", "extract", "ginseng"] },
+  ],
+  "Medical Supplies": [
+    { id: "first-aid", keywords: ["bandage", "gauze", "plaster", "wound"] },
+    { id: "devices", keywords: ["monitor", "oximeter", "thermometer"] },
+    { id: "mobility", keywords: ["crutch", "walker", "cane", "wheel"] },
+    { id: "diagnostic", keywords: ["test", "diagnostic", "strip"] },
+    { id: "masks-gloves", keywords: ["mask", "glove", "syringe", "cannula"] },
+  ],
+  "Personal Care": [
+    { id: "oral-care", keywords: ["tooth", "oral", "mouth", "brush", "paste"] },
+    { id: "shaving", keywords: ["razor", "shave"] },
+    { id: "hygiene", keywords: ["cotton", "wipes", "tissue"] },
+    { id: "deodorant", keywords: ["deodorant", "antiperspirant"] },
+  ],
+};
+
+function normalizeCategoryLabel(category: string): string {
+  const trimmed = (category || "").trim();
+  if (!trimmed) return "Personal Care";
+  const direct = CATEGORY_LABEL_MAP[trimmed];
+  if (direct) return direct;
+  const match = Object.entries(CATEGORY_LABEL_MAP).find(([key]) =>
+    key.toLowerCase() === trimmed.toLowerCase()
+  );
+  return match?.[1] || trimmed;
+}
+
+function extractVolume(productName: string): string | null {
+  const match = productName.match(/(\d+(?:\.\d+)?)\s*(ml|g|gm|kg|oz|l)\b/i);
+  if (!match) return null;
+  const value = match[1];
+  let unit = match[2].toLowerCase();
+  if (unit === "gm") unit = "g";
+  if (unit === "l") unit = "L";
+  return `${value} ${unit}`;
+}
+
+function inferSubcategory(categoryLabel: string, productName: string): string | null {
+  const rules = SUBCATEGORY_KEYWORDS[categoryLabel];
+  if (!rules) return null;
+  const name = productName.toLowerCase();
+  for (const rule of rules) {
+    if (rule.keywords.some(keyword => name.includes(keyword))) {
+      return rule.id;
+    }
+  }
+  return null;
+}
+
+function normalizeTag(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 40);
+}
+
+function buildTags(category: string, brand: string | null, sku: string | null): string[] {
+  const tags = [
+    category,
+    brand || "",
+    sku ? `sku-${sku}` : "",
+    "bulk-import",
+  ].filter(Boolean);
+  return Array.from(new Set(tags.map(normalizeTag).filter(Boolean)));
+}
+
+function generateProductDescription(productName: string, brand: string | null, category: string, volume: string | null): string {
+  const brandPrefix = brand && brand !== "Generic" ? `${brand} ` : "";
+  const volumeText = volume ? ` in ${volume}` : "";
+  return `${brandPrefix}${productName}${volumeText}. Premium ${category.toLowerCase()} product curated for daily care.`;
+}
+
 interface ProductData {
   sku: string;
   name: string;
@@ -194,8 +325,9 @@ serve(async (req) => {
     const requestData = await req.json();
     const { action } = requestData;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const requiresLovableKey = action === "generate-image" || action === "ai-categorize";
     
-    if (!LOVABLE_API_KEY) {
+    if (requiresLovableKey && !LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
@@ -204,7 +336,7 @@ serve(async (req) => {
 
     // Shopify Admin API configuration
     const SHOPIFY_ACCESS_TOKEN = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
-    const SHOPIFY_STORE_DOMAIN = "lovable-project-milns.myshopify.com";
+    const SHOPIFY_STORE_DOMAIN = Deno.env.get("SHOPIFY_STORE_DOMAIN") || "lovable-project-milns.myshopify.com";
     const SHOPIFY_API_VERSION = "2025-01";
 
     if (action === "categorize") {
@@ -322,6 +454,82 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ success: true, imageUrl: publicUrl.publicUrl }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "upsert-supabase-products") {
+      const { products, replaceExisting, batchIndex = 0 } = requestData;
+
+      if (!Array.isArray(products)) {
+        return new Response(
+          JSON.stringify({ error: "Invalid products payload" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      if (replaceExisting && batchIndex === 0) {
+        const { error: deleteError } = await supabase
+          .from("products")
+          .delete()
+          .neq("id", "00000000-0000-0000-0000-000000000000");
+        if (deleteError) {
+          throw new Error(`Failed to clear products: ${deleteError.message}`);
+        }
+      }
+
+      const invalidProducts: Array<{ sku: string; name: string; reason: string }> = [];
+      const preparedProducts = products.flatMap((product: ProcessedProduct) => {
+        const name = (product?.name || "").trim();
+        if (!name) {
+          invalidProducts.push({ sku: product?.sku || "", name, reason: "Missing name" });
+          return [];
+        }
+
+        const resolvedCategory = normalizeCategoryLabel(product.category || categorizeProduct(name));
+        const volume = extractVolume(name);
+        const subcategory = inferSubcategory(resolvedCategory, name);
+        const priceValue = Number(product.price);
+        const price = Number.isFinite(priceValue) ? priceValue : 0;
+        const rawBrand = product.brand && product.brand !== "Generic" ? product.brand : extractBrand(name);
+        const brand = rawBrand && rawBrand !== "Generic" ? rawBrand : null;
+        const description = generateProductDescription(name, brand, resolvedCategory, volume);
+        const tags = buildTags(resolvedCategory, brand, product.sku || null);
+
+        return [{
+          sku: product.sku || null,
+          title: name,
+          price,
+          description,
+          category: resolvedCategory,
+          subcategory,
+          brand,
+          image_url: product.imageUrl || null,
+          tags,
+          volume_ml: volume,
+          is_on_sale: false,
+          original_price: null,
+          discount_percent: 0,
+        }];
+      });
+
+      if (preparedProducts.length > 0) {
+        const { error: upsertError } = await supabase
+          .from("products")
+          .upsert(preparedProducts, { onConflict: "sku" });
+
+        if (upsertError) {
+          throw new Error(`Failed to upsert products: ${upsertError.message}`);
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          processed: preparedProducts.length,
+          skipped: invalidProducts.length,
+          invalidProducts,
+        }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

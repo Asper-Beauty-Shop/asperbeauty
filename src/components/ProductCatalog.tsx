@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { ShoppingBag, Star, Sparkles, Loader2, TrendingUp, Award, Eye, Percent } from "lucide-react";
+import { ShoppingBag, Loader2, Eye, Percent } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getProductImage, formatJOD } from "@/lib/productImageUtils";
 import { ProductQuickView } from "./ProductQuickView";
 import { useCartStore } from "@/stores/cartStore";
+import { CATEGORIES } from "@/lib/categoryHierarchy";
 
 // Product type from Supabase with new columns
 interface Product {
@@ -26,6 +27,14 @@ interface Product {
   created_at: string;
   updated_at: string;
 }
+
+const normalizeCategoryValue = (value: string | null) => {
+  if (!value) return "";
+  const normalized = value.trim().toLowerCase();
+  if (normalized === "make up") return "makeup";
+  if (normalized === "fragrances") return "fragrance";
+  return normalized;
+};
 
 // Professional ProductCard Component - BeautyBox/iHerb Style
 const ProductCard = ({ 
@@ -127,17 +136,11 @@ const ProductCard = ({
           </div>
         )}
 
-        {/* Category Badge (below sale badge if exists) */}
-        {(product.category === 'Best Seller' || product.category === 'New Arrival') && (
+        {/* Category Badge */}
+        {product.category && (
           <Badge 
-            className={`absolute ${isOnSale ? 'top-10' : 'top-2'} left-2 z-10 font-medium text-[10px] uppercase tracking-wide px-2 py-1 flex items-center gap-1 shadow-sm border-0 ${
-              product.category === 'Best Seller' 
-                ? 'bg-amber-500 text-white' 
-                : 'bg-emerald-500 text-white'
-            }`}
+            className={`absolute ${isOnSale ? 'top-10' : 'top-2'} left-2 z-10 font-medium text-[10px] uppercase tracking-wide px-2 py-1 shadow-sm border-0 bg-burgundy/90 text-white`}
           >
-            {product.category === 'Best Seller' && <Star className="w-3 h-3 fill-current" />}
-            {product.category === 'New Arrival' && <Sparkles className="w-3 h-3" />}
             {product.category}
           </Badge>
         )}
@@ -208,10 +211,12 @@ const ProductCard = ({
 // Category filter options with icons
 const CATEGORY_FILTERS = [
   { value: "all", labelEn: "All Products", labelAr: "جميع المنتجات", icon: null },
-  { value: "Best Seller", labelEn: "Best Sellers", labelAr: "الأكثر مبيعاً", icon: Star },
-  { value: "New Arrival", labelEn: "New Arrivals", labelAr: "وصل حديثاً", icon: Sparkles },
-  { value: "Trending", labelEn: "Trending", labelAr: "رائج", icon: TrendingUp },
-  { value: "Featured", labelEn: "Featured", labelAr: "مميز", icon: Award },
+  ...CATEGORIES.map((category) => ({
+    value: category.labelEn,
+    labelEn: category.labelEn,
+    labelAr: category.labelAr,
+    icon: null,
+  })),
 ];
 
 // ProductCatalog Section Component
@@ -260,7 +265,10 @@ export const ProductCatalog = () => {
   // Filter products based on active category
   const filteredProducts = useMemo(() => {
     if (activeFilter === "all") return products;
-    return products.filter((product) => product.category === activeFilter);
+    const normalizedFilter = normalizeCategoryValue(activeFilter);
+    return products.filter((product) => 
+      normalizeCategoryValue(product.category) === normalizedFilter
+    );
   }, [products, activeFilter]);
 
   return (
