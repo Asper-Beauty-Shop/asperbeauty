@@ -1,0 +1,44 @@
+name: Datadog Synthetics CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run tests every hour
+    - cron: '0 * * * *'
+
+jobs:
+  synthetics:
+    runs-on: ubuntu-latest
+    name: Run Datadog Synthetic Tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Datadog Synthetic tests
+        uses: DataDog/synthetics-ci-github-action@v1
+        with:
+          api_key: ${{ secrets.DATADOG_API_KEY }}
+          app_key: ${{ secrets.DATADOG_APP_KEY }}
+          # Optional: specify test IDs to run
+          # public_ids: 'abc-def-ghi, 123-456-789'
+          # Optional: configure test locations
+          # locations: 'aws:us-east-1, aws:eu-west-1'
+          # Optional: set test configuration override
+          # config_path: datadog-ci.json
+          # Optional: fail CI if tests fail
+          fail_on_critical_errors: true
+          # Optional: poll results
+          poll_results: true
+          # Optional: subdomain (default: app)
+          subdomain: app
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datadog-synthetics-results
+          path: .datadog-ci/
