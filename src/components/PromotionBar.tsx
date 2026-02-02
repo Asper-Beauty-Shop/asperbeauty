@@ -34,10 +34,10 @@ export const PromotionBar = () => {
   }, [messages.length]);
 
   return (
-    <div className="bg-burgundy border-b border-gold/20">
+    <div className="bg-asper-merlot border-b border-asper-gold/20">
       <div className="luxury-container py-2">
         <p 
-          className={`text-center text-white font-body text-xs tracking-wide transition-opacity duration-500 ${
+          className={`text-center text-asper-ivory font-body text-xs tracking-wide transition-opacity duration-500 ${
             isVisible ? 'opacity-100' : 'opacity-0'
           }`}
         >
