@@ -391,6 +391,50 @@ export default function BulkUpload() {
   });
   const [shopifyErrors, setShopifyErrors] = useState<Array<{sku: string; name: string; error: string}>>([]);
   const [isShopifyUploading, setIsShopifyUploading] = useState(false);
+  const [isDatabaseSaving, setIsDatabaseSaving] = useState(false);
+
+  // Save products to Supabase database
+  const saveToDatabase = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      toast.error("Please log in as an admin to save to database");
+      return;
+    }
+
+    setIsDatabaseSaving(true);
+    const readyProducts = products.filter(p => p.status === "completed" && p.imageUrl);
+    
+    if (readyProducts.length === 0) {
+      toast.error("No ready products to save");
+      setIsDatabaseSaving(false);
+      return;
+    }
+
+    toast.info(`Saving ${readyProducts.length} products to database...`);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("bulk-product-upload", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: { 
+          action: "save-to-database", 
+          products: readyProducts
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      toast.success(`Successfully saved ${data.count} products to database`);
+    } catch (error: any) {
+      console.error("Database save error:", error);
+      toast.error(`Failed to save to database: ${error.message}`);
+    } finally {
+      setIsDatabaseSaving(false);
+    }
+  }, [products]);
 
   // Upload to Shopify using the edge function
   const uploadToShopify = useCallback(async () => {
@@ -979,6 +1023,19 @@ export default function BulkUpload() {
                       <Button variant="outline" onClick={() => setStep("images")}>
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Regenerate Failed Images
+                      </Button>
+                      <Button 
+                        variant="secondary" 
+                        onClick={saveToDatabase} 
+                        disabled={isDatabaseSaving}
+                        className="bg-burgundy/10 text-burgundy hover:bg-burgundy/20"
+                      >
+                        {isDatabaseSaving ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Table className="w-4 h-4 mr-2" />
+                        )}
+                        Save to Website DB
                       </Button>
                       <Button onClick={() => setStep("shopify")} className="flex-1">
                         <ShoppingBag className="w-4 h-4 mr-2" />
