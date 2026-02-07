@@ -1,10 +1,30 @@
 import { toast } from "sonner";
 
-const SHOPIFY_API_VERSION = '2025-07';
-const SHOPIFY_STORE_PERMANENT_DOMAIN = 'lovable-project-milns.myshopify.com';
-const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
-// Note: Shopify Storefront tokens are designed for client-side use with read-only access to public data
-const SHOPIFY_STOREFRONT_TOKEN = '9daedc472c5910e742ec88bdaad108e2';
+/**
+ * Shopify storefront configuration.
+ *
+ * IMPORTANT:
+ * - Do NOT hardcode tokens/domains in the repo.
+ * - Configure via env vars (Vite):
+ *   - VITE_SHOPIFY_STORE_DOMAIN (e.g. "asperbeautyshop.myshopify.com")
+ *   - VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN
+ *   - VITE_SHOPIFY_API_VERSION (optional; defaults below)
+ */
+const SHOPIFY_API_VERSION = import.meta.env.VITE_SHOPIFY_API_VERSION || "2025-07";
+const SHOPIFY_STORE_DOMAIN = import.meta.env.VITE_SHOPIFY_STORE_DOMAIN;
+// Note: Storefront tokens are designed for client-side use (public, read-only).
+const SHOPIFY_STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
+
+export function isShopifyStorefrontConfigured(): boolean {
+  return Boolean(SHOPIFY_STORE_DOMAIN && SHOPIFY_STOREFRONT_TOKEN);
+}
+
+function getStorefrontUrl(): string | null {
+  if (!SHOPIFY_STORE_DOMAIN) return null;
+  return `https://${SHOPIFY_STORE_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
+}
+
+let hasShownMissingConfigToast = false;
 
 // Sanitize search input to prevent GraphQL injection
 function sanitizeSearchTerm(term: string): string {
@@ -63,7 +83,22 @@ export interface ShopifyProduct {
 }
 
 export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}) {
-  const response = await fetch(SHOPIFY_STOREFRONT_URL, {
+  const url = getStorefrontUrl();
+  if (!url || !SHOPIFY_STOREFRONT_TOKEN) {
+    // Soft-fail: allow the app to run (e.g. COD-only mode) without Shopify configured.
+    if (import.meta.env.DEV) {
+      console.warn("Shopify is not configured (missing env vars).");
+    }
+    if (!hasShownMissingConfigToast) {
+      hasShownMissingConfigToast = true;
+      toast.error("Shopify is not configured", {
+        description: "Set VITE_SHOPIFY_STORE_DOMAIN and VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN.",
+      });
+    }
+    return null;
+  }
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
