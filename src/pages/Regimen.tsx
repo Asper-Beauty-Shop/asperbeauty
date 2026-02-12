@@ -27,8 +27,10 @@ export default function Regimen() {
   }, [items.length, navigate]);
 
   const handleCheckout = () => {
-    // In a real implementation, this would initiate Shopify checkout
-    // For now, we'll just open the cart drawer or redirect
+    // TODO: Replace with Shopify checkout API call using checkout.webUrl
+    // This should create a checkout session and redirect to Shopify's hosted checkout page
+    // Example: const checkoutUrl = await createCheckout(items);
+    // window.location.href = checkoutUrl;
     window.location.href = '/'; // Placeholder
   };
 

@@ -38,7 +38,12 @@ export default function Recommend() {
     setAnalysis(JSON.parse(storedAnalysis));
   }, [navigate]);
 
-  // Filter products based on skin concern (simplified for demo)
+  // Filter products based on skin concern
+  // TODO: Implement real filtering logic based on:
+  // - analysis.skinType (normal, dry, oily, combination, sensitive)
+  // - analysis.concern (aging, acne, hydration, brightening, sensitivity, dark-spots)
+  // - analysis.age (18-25, 26-35, 36-45, 46-55, 56+)
+  // For now, showing first 6 products as demo
   const recommendedProducts = productsData?.slice(0, 6) || [];
 
   const handleProceedToRegimen = () => {
