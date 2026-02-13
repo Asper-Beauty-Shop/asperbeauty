@@ -25,7 +25,7 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         
-        // --- YOUR CUSTOM ASPER BRAND COLORS ---
+        // --- MEDICAL LUXURY BRAND COLORS ---
         asper: {
           merlot: '#4A0404',       // Deepest Burgundy (Main Backgrounds)
           merlotLight: '#800020',  // Lighter Maroon (Secondary/Gradients)
@@ -33,6 +33,14 @@ export default {
           goldLight: '#F3E5AB',    // Champagne (Highlights/Hover states)
           charcoal: '#1A1A1A',     // Dark Text for light areas
           ivory: '#F9F7F2',        // Off-white for text on dark backgrounds
+        },
+        // Medical Luxury Design Tokens
+        luxury: {
+          ivory: '#F8F8FF',        // Soft Ivory - Primary Background
+          maroon: '#800020',       // Maroon - Brand Primary
+          gold: '#C5A028',         // Gold - Accent & Borders
+          charcoal: '#333333',     // Dark Charcoal - Text
+          white: '#FFFFFF',        // Pure White - Cards & Surfaces
         },
         // --------------------------------------
         primary: {
@@ -90,12 +98,13 @@ export default {
         },
       },
       fontFamily: {
-        // Defines your luxury font stack
+        // Medical Luxury font stack
         serif: ['Playfair Display', 'serif'],
         sans: ['Montserrat', 'sans-serif'],
         display: ['Playfair Display', 'serif'],
-        body: ['Inter', 'Lato', 'sans-serif'],
+        body: ['Montserrat', 'Inter', 'Lato', 'sans-serif'],
         script: ['Great Vibes', 'cursive'],
+        arabic: ['Tajawal', 'sans-serif'],
       },
       backgroundImage: {
         'celestial-gradient': 'linear-gradient(to bottom, #4A0404, #2b0202)',
@@ -135,6 +144,10 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "border-pulse": {
+          "0%, 100%": { borderColor: "rgba(197, 160, 40, 0.2)" },
+          "50%": { borderColor: "rgba(197, 160, 40, 0.6)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -144,6 +157,15 @@ export default {
         "fade-up": "fadeUp 0.8s ease-out forwards",
         "fade-in": "fadeIn 0.6s ease-out forwards",
         shimmer: "shimmer 2s linear infinite",
+        "border-pulse": "border-pulse 2s ease-in-out infinite",
+      },
+      transitionDuration: {
+        '400': '400ms',
+        '600': '600ms',
+        '800': '800ms',
+      },
+      transitionTimingFunction: {
+        'luxury': 'cubic-bezier(0.4, 0, 0.2, 1)',
       },
     },
   },

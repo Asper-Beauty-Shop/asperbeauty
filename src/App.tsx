@@ -27,6 +27,9 @@ import ManageProducts from "./pages/ManageProducts";
 import Shop from "./pages/Shop";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminAuditLogs from "./pages/AdminAuditLogs";
+import Analyze from "./pages/Analyze";
+import Recommend from "./pages/Recommend";
+import Regimen from "./pages/Regimen";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +69,9 @@ const App = () => (
               <Route path="/track-order" element={<TrackOrder />} />
               <Route path="/driver" element={<DriverDashboard />} />
               <Route path="/admin/audit-logs" element={<AdminAuditLogs />} />
+              <Route path="/analyze" element={<Analyze />} />
+              <Route path="/recommend" element={<Recommend />} />
+              <Route path="/regimen" element={<Regimen />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
