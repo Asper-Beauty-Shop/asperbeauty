@@ -168,6 +168,7 @@ export type Database = {
           price: number
           scent: string | null
           skin_concerns: string[] | null
+          sku: string | null
           source_url: string | null
           subcategory: string | null
           tags: string[] | null
@@ -189,6 +190,7 @@ export type Database = {
           price: number
           scent?: string | null
           skin_concerns?: string[] | null
+          sku?: string | null
           source_url?: string | null
           subcategory?: string | null
           tags?: string[] | null
@@ -210,6 +212,7 @@ export type Database = {
           price?: number
           scent?: string | null
           skin_concerns?: string[] | null
+          sku?: string | null
           source_url?: string | null
           subcategory?: string | null
           tags?: string[] | null

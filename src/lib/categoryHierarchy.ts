@@ -97,6 +97,44 @@ export const CATEGORIES: Category[] = [
       { id: 'deodorant', labelEn: 'Deodorant', labelAr: 'مزيل العرق' },
     ]
   },
+  {
+    id: 'health-supplements',
+    labelEn: 'Health & Supplements',
+    labelAr: 'الصحة والمكملات',
+    icon: 'HeartPulse',
+    subcategories: [
+      { id: 'vitamins', labelEn: 'Vitamins', labelAr: 'الفيتامينات' },
+      { id: 'minerals', labelEn: 'Minerals', labelAr: 'المعادن' },
+      { id: 'herbal', labelEn: 'Herbal', labelAr: 'أعشاب' },
+      { id: 'omega', labelEn: 'Omega', labelAr: 'أوميغا' },
+      { id: 'probiotics', labelEn: 'Probiotics', labelAr: 'البروبيوتيك' },
+    ]
+  },
+  {
+    id: 'medical-supplies',
+    labelEn: 'Medical Supplies',
+    labelAr: 'المستلزمات الطبية',
+    icon: 'Stethoscope',
+    subcategories: [
+      { id: 'first-aid', labelEn: 'First Aid', labelAr: 'الإسعافات الأولية' },
+      { id: 'devices', labelEn: 'Devices', labelAr: 'الأجهزة' },
+      { id: 'mobility', labelEn: 'Mobility', labelAr: 'المساعدة على الحركة' },
+      { id: 'diagnostic', labelEn: 'Diagnostic', labelAr: 'الفحوصات' },
+      { id: 'masks-gloves', labelEn: 'Masks & Gloves', labelAr: 'الكمامات والقفازات' },
+    ]
+  },
+  {
+    id: 'personal-care',
+    labelEn: 'Personal Care',
+    labelAr: 'العناية الشخصية',
+    icon: 'User',
+    subcategories: [
+      { id: 'oral-care', labelEn: 'Oral Care', labelAr: 'العناية بالفم' },
+      { id: 'shaving', labelEn: 'Shaving', labelAr: 'الحلاقة' },
+      { id: 'hygiene', labelEn: 'Hygiene', labelAr: 'النظافة' },
+      { id: 'deodorant', labelEn: 'Deodorant', labelAr: 'مزيل العرق' },
+    ]
+  },
 ];
 
 // Skin concerns for filtering (iHerb-style)
