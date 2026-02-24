@@ -1,10 +1,14 @@
 import { toast } from "sonner";
 
-const SHOPIFY_API_VERSION = '2025-07';
-const SHOPIFY_STORE_PERMANENT_DOMAIN = 'lovable-project-milns.myshopify.com';
-const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
+const SHOPIFY_API_VERSION = (import.meta.env.VITE_SHOPIFY_API_VERSION as string | undefined) ?? "2025-07";
 // Note: Shopify Storefront tokens are designed for client-side use with read-only access to public data
-const SHOPIFY_STOREFRONT_TOKEN = '9daedc472c5910e742ec88bdaad108e2';
+const SHOPIFY_STORE_PERMANENT_DOMAIN = import.meta.env.VITE_SHOPIFY_STORE_DOMAIN as string | undefined;
+const SHOPIFY_STOREFRONT_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_TOKEN as string | undefined;
+
+function getStorefrontUrl(): string | null {
+  if (!SHOPIFY_STORE_PERMANENT_DOMAIN || !SHOPIFY_STOREFRONT_TOKEN) return null;
+  return `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
+}
 
 // Sanitize search input to prevent GraphQL injection
 function sanitizeSearchTerm(term: string): string {
@@ -63,7 +67,15 @@ export interface ShopifyProduct {
 }
 
 export async function storefrontApiRequest(query: string, variables: Record<string, unknown> = {}) {
-  const response = await fetch(SHOPIFY_STOREFRONT_URL, {
+  const url = getStorefrontUrl();
+  if (!url) {
+    toast.error("Shopify Storefront is not configured", {
+      description: "Missing VITE_SHOPIFY_STORE_DOMAIN or VITE_SHOPIFY_STOREFRONT_TOKEN",
+    });
+    return null;
+  }
+
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

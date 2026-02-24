@@ -97,6 +97,40 @@ export const CATEGORIES: Category[] = [
       { id: 'deodorant', labelEn: 'Deodorant', labelAr: 'مزيل العرق' },
     ]
   },
+  {
+    id: 'health-supplements',
+    labelEn: 'Health & Supplements',
+    labelAr: 'الصحة والمكملات',
+    icon: 'Pill',
+    subcategories: [
+      { id: 'vitamins', labelEn: 'Vitamins', labelAr: 'الفيتامينات' },
+      { id: 'minerals', labelEn: 'Minerals', labelAr: 'المعادن' },
+      { id: 'omega', labelEn: 'Omega', labelAr: 'أوميغا' },
+      { id: 'probiotics', labelEn: 'Probiotics', labelAr: 'البروبيوتيك' },
+    ]
+  },
+  {
+    id: 'medical-supplies',
+    labelEn: 'Medical Supplies',
+    labelAr: 'المستلزمات الطبية',
+    icon: 'Stethoscope',
+    subcategories: [
+      { id: 'first-aid', labelEn: 'First Aid', labelAr: 'الإسعافات الأولية' },
+      { id: 'diagnostics', labelEn: 'Diagnostics', labelAr: 'أجهزة القياس' },
+      { id: 'mobility', labelEn: 'Mobility', labelAr: 'مستلزمات الحركة' },
+    ]
+  },
+  {
+    id: 'personal-care',
+    labelEn: 'Personal Care',
+    labelAr: 'العناية الشخصية',
+    icon: 'Smile',
+    subcategories: [
+      { id: 'oral-care', labelEn: 'Oral Care', labelAr: 'العناية بالفم' },
+      { id: 'shaving', labelEn: 'Shaving', labelAr: 'الحلاقة' },
+      { id: 'accessories', labelEn: 'Accessories', labelAr: 'اكسسوارات' },
+    ]
+  },
 ];
 
 // Skin concerns for filtering (iHerb-style)

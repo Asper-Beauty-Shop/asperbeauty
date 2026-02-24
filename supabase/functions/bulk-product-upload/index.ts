@@ -124,6 +124,30 @@ interface ProcessedProduct {
   error?: string;
 }
 
+// Map edge-function categories into storefront category IDs
+function mapCategoryToStorefrontId(category: string): string {
+  switch (category) {
+    case "Skin Care":
+      return "skin-care";
+    case "Hair Care":
+      return "hair-care";
+    case "Body Care":
+      return "body-care";
+    case "Make Up":
+      return "makeup";
+    case "Fragrances":
+      return "fragrance";
+    case "Health & Supplements":
+      return "health-supplements";
+    case "Medical Supplies":
+      return "medical-supplies";
+    case "Personal Care":
+      return "personal-care";
+    default:
+      return "personal-care";
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -204,8 +228,8 @@ serve(async (req) => {
 
     // Shopify Admin API configuration
     const SHOPIFY_ACCESS_TOKEN = Deno.env.get("SHOPIFY_ACCESS_TOKEN");
-    const SHOPIFY_STORE_DOMAIN = "lovable-project-milns.myshopify.com";
-    const SHOPIFY_API_VERSION = "2025-01";
+    const SHOPIFY_STORE_DOMAIN = Deno.env.get("SHOPIFY_STORE_DOMAIN") || "lovable-project-milns.myshopify.com";
+    const SHOPIFY_API_VERSION = Deno.env.get("SHOPIFY_API_VERSION") || "2025-01";
 
     if (action === "categorize") {
       // Categorize and prepare products from Excel data
@@ -397,6 +421,75 @@ serve(async (req) => {
           success: true, 
           productId: shopifyData.product?.id,
           handle: shopifyData.product?.handle,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    if (action === "upsert-supabase-products") {
+      const { products } = requestData as { products: ProcessedProduct[] };
+
+      if (!Array.isArray(products) || products.length === 0) {
+        return new Response(
+          JSON.stringify({ error: "Missing products array" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Validate and normalize rows
+      const rows = products
+        .filter((p) => typeof p?.name === "string" && typeof p?.price === "number")
+        .map((p) => ({
+          sku: String(p.sku || "").trim() || null,
+          title: String(p.name).trim(),
+          price: Number(p.price),
+          cost_price: Number.isFinite(p.costPrice) ? Number(p.costPrice) : null,
+          brand: p.brand ? String(p.brand).trim() : null,
+          // Keep legacy "category" semantics (Best Seller/New Arrival/etc) used across the site
+          // and store the storefront category id inside tags for filtering.
+          category: "Featured",
+          subcategory: null,
+          description: p.brand ? `${p.brand} — ${p.category}` : p.category,
+          image_url: p.imageUrl || null,
+          tags: [
+            "bulk-upload",
+            "excel-import",
+            mapCategoryToStorefrontId(p.category),
+            `source-category:${p.category}`,
+          ],
+          is_on_sale: false,
+          original_price: null,
+          discount_percent: 0,
+        }));
+
+      // Chunk to avoid payload/timeout issues
+      const CHUNK_SIZE = 200;
+      let insertedOrUpdated = 0;
+      let chunks = 0;
+
+      for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+        const chunk = rows.slice(i, i + CHUNK_SIZE);
+        chunks++;
+
+        const { error: upsertError, data } = await supabase
+          .from("products")
+          .upsert(chunk, { onConflict: "sku" })
+          .select("id");
+
+        if (upsertError) {
+          console.error("Upsert chunk failed:", upsertError);
+          throw new Error(`Supabase upsert failed: ${upsertError.message}`);
+        }
+
+        insertedOrUpdated += data?.length || 0;
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          totalReceived: products.length,
+          totalWritten: insertedOrUpdated,
+          chunks,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );

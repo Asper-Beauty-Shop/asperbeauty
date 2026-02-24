@@ -66,7 +66,9 @@ function findColumn(headers: string[], possibleNames: string[]): string | null {
 }
 
 export default function BulkUpload() {
-  const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "shopify">("upload");
+  const getErrorMessage = (err: unknown) => (err instanceof Error ? err.message : String(err));
+
+  const [step, setStep] = useState<"upload" | "categorize" | "images" | "review" | "publish" | "shopify">("upload");
   const [products, setProducts] = useState<ProcessedProduct[]>([]);
   const [summary, setSummary] = useState<UploadSummary | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -100,11 +102,16 @@ export default function BulkUpload() {
         prev.map(p => {
           const queueItem = queueItems.find(q => q.sku === p.sku);
           if (queueItem) {
+            const mappedStatus: ProcessedProduct["status"] =
+              queueItem.status === "queued" ? "pending"
+              : queueItem.status === "retrying" ? "processing"
+              : queueItem.status === "processing" ? "processing"
+              : queueItem.status === "completed" ? "completed"
+              : "failed";
+
             return {
               ...p,
-              status: queueItem.status === "queued" ? "pending" : 
-                     queueItem.status === "retrying" ? "processing" :
-                     queueItem.status as any,
+              status: mappedStatus,
               imageUrl: queueItem.imageUrl,
               error: queueItem.error,
             };
@@ -208,10 +215,11 @@ export default function BulkUpload() {
       setPreviewData(parsedProducts.slice(0, 10));
       toast.success(`Successfully loaded ${parsedProducts.length} products from ${file.name}`);
       setStep("categorize");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Parse error:", error);
-      setParseError(error.message || "Failed to parse file");
-      toast.error(`Failed to parse file: ${error.message}`);
+      const message = getErrorMessage(error) || "Failed to parse file";
+      setParseError(message);
+      toast.error(`Failed to parse file: ${message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -296,10 +304,11 @@ export default function BulkUpload() {
       setPreviewData(parsedProducts.slice(0, 10));
       toast.success(`Successfully loaded ${parsedProducts.length} products`);
       setStep("categorize");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Load error:", error);
-      setParseError(error.message || "Failed to load file");
-      toast.error(`Failed to load file: ${error.message}`);
+      const message = getErrorMessage(error) || "Failed to load file";
+      setParseError(message);
+      toast.error(`Failed to load file: ${message}`);
     } finally {
       setIsProcessing(false);
     }
@@ -334,11 +343,12 @@ export default function BulkUpload() {
       setSummary(data.summary);
       toast.success(`Categorized ${data.products.length} products into ${Object.keys(data.summary.categories).length} categories`);
       setStep("images");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      if (error.message?.includes("401") || error.message?.includes("Unauthorized")) {
+      const message = getErrorMessage(error);
+      if (message.includes("401") || message.includes("Unauthorized")) {
         toast.error("Authentication required. Please log in.");
-      } else if (error.message?.includes("403") || error.message?.includes("Forbidden")) {
+      } else if (message.includes("403") || message.includes("Forbidden")) {
         toast.error("Admin access required for bulk operations.");
       } else {
         toast.error("Failed to categorize products");
@@ -467,11 +477,12 @@ export default function BulkUpload() {
           // Add small delay between requests to avoid rate limiting
           await new Promise(resolve => setTimeout(resolve, 300));
           
-        } catch (error: any) {
+        } catch (error: unknown) {
           console.error(`Failed to create ${product.name}:`, error);
+          const message = getErrorMessage(error);
           
           // Check for auth errors and stop if unauthorized
-          if (error.message?.includes("401") || error.message?.includes("403") || error.message?.includes("Unauthorized") || error.message?.includes("Forbidden")) {
+          if (message.includes("401") || message.includes("403") || message.includes("Unauthorized") || message.includes("Forbidden")) {
             toast.error("Authorization failed. Please log in as an admin.");
             setIsShopifyUploading(false);
             return;
@@ -480,7 +491,7 @@ export default function BulkUpload() {
           errors.push({
             sku: product.sku,
             name: product.name,
-            error: error.message || "Unknown error",
+            error: message || "Unknown error",
           });
           setShopifyProgress(prev => ({
             ...prev,
@@ -498,6 +509,66 @@ export default function BulkUpload() {
     }
     if (errors.length > 0) {
       toast.error(`${errors.length} products failed to upload`);
+    }
+  }, [products]);
+
+  // Publish products to Supabase (Website catalog)
+  const [isPublishing, setIsPublishing] = useState(false);
+  const [publishProgress, setPublishProgress] = useState({
+    current: 0,
+    total: 0,
+    stage: "",
+  });
+
+  const publishToWebsite = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      toast.error("Please log in as an admin to publish products");
+      return;
+    }
+
+    const readyProducts = products.filter(p => (p.status === "completed" || p.status === "pending") && p.name && p.price);
+    if (readyProducts.length === 0) {
+      toast.error("No products ready to publish");
+      return;
+    }
+
+    setIsPublishing(true);
+    setPublishProgress({ current: 0, total: readyProducts.length, stage: "Publishing to website..." });
+
+    try {
+      const { data, error } = await supabase.functions.invoke("bulk-product-upload", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: {
+          action: "upsert-supabase-products",
+          products: readyProducts.map(p => ({
+            sku: p.sku,
+            name: p.name,
+            category: p.category,
+            brand: p.brand,
+            price: p.price,
+            costPrice: p.costPrice,
+            imagePrompt: p.imagePrompt,
+            imageUrl: p.imageUrl,
+            status: p.status,
+          })),
+        },
+      });
+
+      if (error) throw new Error(error.message);
+      if (data?.error) throw new Error(data.error);
+
+      toast.success("Published to website catalog", {
+        description: `${data.totalWritten ?? 0} products written`,
+      });
+    } catch (e: unknown) {
+      console.error(e);
+      toast.error("Failed to publish to website", { description: getErrorMessage(e) || "Unknown error" });
+    } finally {
+      setIsPublishing(false);
+      setPublishProgress((prev) => ({ ...prev, stage: "Done" }));
     }
   }, [products]);
 
@@ -529,6 +600,7 @@ export default function BulkUpload() {
                 { id: "categorize", icon: Sparkles, label: "Categorize" },
                 { id: "images", icon: Image, label: "Generate Images" },
                 { id: "review", icon: FileSpreadsheet, label: "Review" },
+                { id: "publish", icon: Upload, label: "Publish to Website" },
                 { id: "shopify", icon: ShoppingBag, label: "Upload to Shopify" },
               ].map((s, i) => (
                 <div key={s.id} className="flex items-center">
@@ -544,7 +616,7 @@ export default function BulkUpload() {
                     <s.icon className="w-4 h-4" />
                     <span className="text-sm font-medium">{s.label}</span>
                   </div>
-                  {i < 4 && <div className="w-8 h-px bg-taupe/20 mx-2" />}
+                  {i < 5 && <div className="w-8 h-px bg-taupe/20 mx-2" />}
                 </div>
               ))}
             </div>
@@ -557,6 +629,7 @@ export default function BulkUpload() {
                   {step === "categorize" && "Auto-Categorize Products"}
                   {step === "images" && "Generate Product Images"}
                   {step === "review" && "Review Products"}
+                  {step === "publish" && "Publish to Website"}
                   {step === "shopify" && "Upload to Shopify"}
                 </CardTitle>
                 <CardDescription>
@@ -564,6 +637,7 @@ export default function BulkUpload() {
                   {step === "categorize" && "AI will automatically categorize products and extract brands"}
                   {step === "images" && "Generate professional product images using AI"}
                   {step === "review" && "Review categorized products before uploading"}
+                  {step === "publish" && "Write products into your website catalog (Supabase) so they show on /shop"}
                   {step === "shopify" && "Final upload to your Shopify store"}
                 </CardDescription>
               </CardHeader>
@@ -980,9 +1054,62 @@ export default function BulkUpload() {
                         <RefreshCw className="w-4 h-4 mr-2" />
                         Regenerate Failed Images
                       </Button>
-                      <Button onClick={() => setStep("shopify")} className="flex-1">
+                      <Button onClick={() => setStep("publish")} className="flex-1">
+                        <Upload className="w-4 h-4 mr-2" />
+                        Publish to Website
+                      </Button>
+                      <Button onClick={() => setStep("shopify")} className="flex-1" variant="outline">
                         <ShoppingBag className="w-4 h-4 mr-2" />
                         Continue to Shopify Upload
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Publish Step */}
+                {step === "publish" && (
+                  <div className="space-y-6">
+                    <div className="bg-burgundy/5 border border-burgundy/20 rounded-lg p-6">
+                      <h3 className="font-medium text-charcoal mb-2 flex items-center gap-2">
+                        <Upload className="w-5 h-5 text-burgundy" />
+                        Publish {products.length} products to the website catalog
+                      </h3>
+                      <p className="text-sm text-taupe">
+                        This will upsert by SKU and make products visible on the Shop page.
+                      </p>
+                    </div>
+
+                    {isPublishing && (
+                      <Card className="border-burgundy/20">
+                        <CardContent className="pt-6 space-y-3">
+                          <div className="flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin text-burgundy" />
+                            <span className="text-sm font-medium">{publishProgress.stage}</span>
+                          </div>
+                          <Progress value={publishProgress.total ? (publishProgress.current / publishProgress.total) * 100 : 0} className="h-2" />
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    <div className="flex gap-4">
+                      <Button variant="outline" onClick={() => setStep("review")} disabled={isPublishing}>
+                        ← Back
+                      </Button>
+                      <Button onClick={publishToWebsite} disabled={isPublishing} size="lg" className="flex-1">
+                        {isPublishing ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Publishing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-4 h-4 mr-2" />
+                            Publish to Website
+                          </>
+                        )}
+                      </Button>
+                      <Button onClick={() => setStep("shopify")} variant="outline" disabled={isPublishing}>
+                        Skip →
                       </Button>
                     </div>
                   </div>
