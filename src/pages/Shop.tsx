@@ -9,6 +9,7 @@ import { getProductImage, formatJOD } from "@/lib/productImageUtils";
 import { ProductQuickView } from "@/components/ProductQuickView";
 import { ProductSearchFilters, FilterState } from "@/components/ProductSearchFilters";
 import { useCartStore } from "@/stores/cartStore";
+import { ShopifyProduct } from "@/lib/shopify";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
@@ -67,7 +68,7 @@ const ShopProductCard = ({
     };
 
     addItem({
-      product: cartProduct as any,
+      product: cartProduct as ShopifyProduct,
       variantId: product.id,
       variantTitle: 'Default',
       price: { amount: product.price.toString(), currencyCode: 'JOD' },

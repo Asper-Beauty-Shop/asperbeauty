@@ -50,11 +50,15 @@ serve(async (req) => {
     }
 
     // Extract the latest user message to find relevant products
-    const lastUserMessage = messages.filter((m: any) => m.role === "user").pop()?.content || "";
+    const userMessages = messages.filter((m: unknown) => {
+      const msg = m as Record<string, unknown>;
+      return msg?.role === "user";
+    });
+    const lastUserMessage = (userMessages.pop() as Record<string, unknown> | undefined)?.content as string || "";
     
     // Search for relevant products based on user query
     let productContext = "";
-    let matchedProducts: any[] = [];
+    let matchedProducts: Array<Record<string, unknown>> = [];
     
     if (lastUserMessage) {
       // Extract keywords from user message
@@ -93,11 +97,11 @@ serve(async (req) => {
 
           if (relevantDocs.length > 0) {
             // Convert document metadata to product format for cards
-            matchedProducts = relevantDocs.map(doc => doc.metadata);
+            matchedProducts = relevantDocs.map(doc => doc.metadata as Record<string, unknown>);
             
             productContext = `\n\n**Recommended Products:**\n${relevantDocs.map(doc => {
-              const m = doc.metadata as any;
-              return `- **${m.title}** (${m.brand || 'Asper'}) - ${m.price} JOD${m.is_on_sale ? ` (${m.discount_percent}% OFF!)` : ''} - ${m.category}`;
+              const m = doc.metadata as Record<string, unknown>;
+              return `- **${m.title || 'Product'}** (${m.brand || 'Asper'}) - ${m.price || 'N/A'} JOD${m.is_on_sale ? ` (${m.discount_percent || '0'}% OFF!)` : ''} - ${m.category || 'N/A'}`;
             }).join('\n')}`;
           }
         }
