@@ -1,20 +1,38 @@
-import { useState, useEffect } from "react";
-import { GlobalHeader } from "@/components/GlobalHeader";
-import { LuxuryHero } from "@/components/LuxuryHero";
-import { BrandMarquee } from "@/components/BrandMarquee";
-import { LuxuryCategories } from "@/components/LuxuryCategories";
-import { DealOfTheDay } from "@/components/DealOfTheDay";
-import { LuxuryPromoBanner } from "@/components/LuxuryPromoBanner";
-import { FeaturedCollection } from "@/components/FeaturedCollection";
-import { BestSellersSection } from "@/components/BestSellersSection";
-import { Newsletter } from "@/components/Newsletter";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { useNavigate } from "react-router-dom";
+import { Header } from "@/components/Header";
+import HeroSection from "@/components/HeroSection";
+import BrandStory from "@/components/BrandStory";
+import CelestialFeaturedCollection from "@/components/CelestialFeaturedCollection";
 import { Footer } from "@/components/Footer";
-import { ScrollToTop } from "@/components/ScrollToTop";
-import { FloatingSocials } from "@/components/FloatingSocials";
 import { PageLoadingSkeleton } from "@/components/PageLoadingSkeleton";
-import { MobileNav } from "@/components/MobileNav";
+import { Skeleton } from "@/components/ui/skeleton";
+
+// Lazy load below-the-fold components for better initial load performance
+const FeaturedBrands = lazy(() => import("@/components/FeaturedBrands").then(m => ({ default: m.FeaturedBrands })));
+const Testimonials = lazy(() => import("@/components/Testimonials").then(m => ({ default: m.Testimonials })));
+const Newsletter = lazy(() => import("@/components/Newsletter").then(m => ({ default: m.Newsletter })));
+const TrustBanner = lazy(() => import("@/components/TrustBanner").then(m => ({ default: m.TrustBanner })));
+const BeautyAssistant = lazy(() => import("@/components/BeautyAssistant").then(m => ({ default: m.BeautyAssistant })));
+const ScrollToTop = lazy(() => import("@/components/ScrollToTop").then(m => ({ default: m.ScrollToTop })));
+const FloatingSocials = lazy(() => import("@/components/FloatingSocials").then(m => ({ default: m.FloatingSocials })));
+
+// Lightweight skeleton for lazy sections
+const SectionSkeleton = ({ height = "h-64" }: { height?: string }) => (
+  <div className={`${height} bg-cream animate-pulse`}>
+    <div className="luxury-container py-12">
+      <Skeleton className="h-8 w-48 mx-auto mb-8" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} className="aspect-[3/4] rounded-lg" />
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
 const Index = () => {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -38,41 +56,45 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <GlobalHeader />
+      <Header />
       <main>
-        {/* 1. EMOTIONAL LAYER: The Cinematic Hero */}
-        <LuxuryHero />
-
-        {/* 2. TRUST LAYER: Brand Logos (Global Standards) */}
-        <BrandMarquee />
-
-        {/* 3. NAVIGATION LAYER: Luxury Category Bubbles */}
-        <LuxuryCategories />
-
-        {/* 4. URGENCY LAYER: iHerb-style "Deal of the Day" */}
-        <DealOfTheDay />
-
-        {/* 5. ADVERTISEMENT LAYER: The "High-End" Promo - Image Left */}
-        <LuxuryPromoBanner variant="primary" position="left" />
-
-        {/* 6. DISCOVERY LAYER: Featured Collection */}
-        <FeaturedCollection />
-
-        {/* 7. BEST SELLERS LAYER: Global Favorites */}
-        <BestSellersSection />
-
-        {/* 8. ADVERTISEMENT LAYER 2: Secondary Promo - Image Right */}
-        <LuxuryPromoBanner variant="secondary" position="right" />
-
-        {/* 9. NEWSLETTER LAYER: Email Capture */}
-        <Newsletter />
+        <HeroSection />
+        
+        {/* Featured Collection with Glass & Gold Cards */}
+        <CelestialFeaturedCollection />
+        
+        {/* Brand Story Section */}
+        <BrandStory />
+        
+        {/* Lazy-loaded below-the-fold sections */}
+        <Suspense fallback={<SectionSkeleton height="h-32" />}>
+          <FeaturedBrands />
+        </Suspense>
+        
+        <Suspense fallback={<SectionSkeleton height="h-96" />}>
+          <Testimonials />
+        </Suspense>
+        
+        <Suspense fallback={<SectionSkeleton height="h-48" />}>
+          <Newsletter />
+        </Suspense>
+        
+        <Suspense fallback={<SectionSkeleton height="h-24" />}>
+          <TrustBanner />
+        </Suspense>
       </main>
       <Footer />
-      <ScrollToTop />
-      <FloatingSocials />
-      <MobileNav />
-      {/* Add bottom padding on mobile for the fixed nav */}
-      <div className="h-16 lg:hidden" />
+      
+      {/* Lazy-loaded floating components */}
+      <Suspense fallback={null}>
+        <BeautyAssistant />
+      </Suspense>
+      <Suspense fallback={null}>
+        <ScrollToTop />
+      </Suspense>
+      <Suspense fallback={null}>
+        <FloatingSocials />
+      </Suspense>
     </div>
   );
 };

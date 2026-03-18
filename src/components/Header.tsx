@@ -1,4 +1,4 @@
-import { ShoppingBag, Menu, X, Search, User, Heart, ChevronDown, Instagram, Facebook, MessageCircle, Settings, Upload, ClipboardList } from "lucide-react";
+import { ShoppingBag, Menu, X, Search, User, Heart, ChevronDown, Instagram, Facebook, MessageCircle } from "lucide-react";
 
 // TikTok Icon Component
 const TikTokIcon = ({ className }: { className?: string }) => (
@@ -15,7 +15,8 @@ import { WishlistDrawer } from "./WishlistDrawer";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { SearchDropdown } from "./SearchDropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { User as UserType } from "@supabase/supabase-js";
 import asperLogoHorizontal from "@/assets/asper-logo-horizontal.jpg";
 import { PromotionBar } from "./PromotionBar";
 
@@ -25,27 +26,28 @@ export const Header = () => {
   const [searchFocused, setSearchFocused] = useState(false);
   const [mobileSearchFocused, setMobileSearchFocused] = useState(false);
   const [activeMenu, setActiveMenu] = useState<string | null>(null);
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [user, setUser] = useState<UserType | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
-  const adminMenuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { user, isAdmin } = useAuth();
   const totalItems = useCartStore(state => state.getTotalItems());
   const wishlistItems = useWishlistStore(state => state.items);
   const setCartOpen = useCartStore(state => state.setOpen);
   const setWishlistOpen = useWishlistStore(state => state.setOpen);
   const { language, isRTL } = useLanguage();
 
-  // Close admin menu when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (adminMenuRef.current && !adminMenuRef.current.contains(event.target as Node)) {
-        setAdminMenuOpen(false);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
       }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const navItems = [
@@ -109,8 +111,8 @@ export const Header = () => {
       {/* Promotion Bar - Top */}
       <PromotionBar />
       
-      {/* Main Header Row - Deep Burgundy */}
-      <div className="bg-burgundy h-16 md:h-20">
+      {/* Main Header Row - Deep Merlot */}
+      <div className="bg-asper-merlot h-16 md:h-20">
         <div className="luxury-container h-full">
           {/* Desktop Header */}
           <div className="hidden md:flex items-center justify-between h-full gap-6">
@@ -135,17 +137,17 @@ export const Header = () => {
                   onChange={e => setSearchQuery(e.target.value)}
                   onFocus={() => setSearchFocused(true)}
                   placeholder={language === 'ar' ? 'ابحثي عن سيروم، مكونات، أو علامات تجارية...' : 'Search for serums, ingredients, or brands...'}
-                  className="w-full px-6 py-3 pl-12 rounded-full bg-white text-foreground placeholder:text-muted-foreground font-body text-sm focus:outline-none focus:ring-2 focus:ring-gold transition-all duration-400"
+                  className="w-full px-6 py-3 pl-12 rounded-full bg-asper-ivory text-asper-charcoal placeholder:text-asper-charcoal/50 font-body text-sm focus:outline-none focus:ring-2 focus:ring-asper-gold transition-all duration-400"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 />
-                <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-gold`} />
+                <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-asper-gold`} />
                 {searchQuery && (
                   <button
                     onClick={() => {
                       setSearchQuery("");
                       searchInputRef.current?.focus();
                     }}
-                    className={`absolute ${isRTL ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-muted-foreground hover:text-gold transition-colors duration-400`}
+                    className={`absolute ${isRTL ? 'left-4' : 'right-4'} top-1/2 -translate-y-1/2 text-asper-charcoal/50 hover:text-asper-gold transition-colors duration-400`}
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -161,12 +163,12 @@ export const Header = () => {
             </div>
 
             {/* Social Media Icons */}
-            <div className="flex items-center gap-1 border-r border-gold/30 pr-3 mr-1">
+            <div className="flex items-center gap-1 border-r border-asper-gold/30 pr-3 mr-1">
               <a 
                 href="https://www.instagram.com/asper.beauty.box/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 text-gold hover:text-gold-light transition-colors duration-400"
+                className="p-1.5 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <Instagram className="w-4 h-4" strokeWidth={1.5} />
               </a>
@@ -174,7 +176,7 @@ export const Header = () => {
                 href="https://web.facebook.com/robu.sweileh/" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 text-gold hover:text-gold-light transition-colors duration-400"
+                className="p-1.5 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <Facebook className="w-4 h-4" strokeWidth={1.5} />
               </a>
@@ -182,7 +184,7 @@ export const Header = () => {
                 href="https://www.tiktok.com/@asper.pharmacy" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 text-gold hover:text-gold-light transition-colors duration-400"
+                className="p-1.5 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <TikTokIcon className="w-4 h-4" />
               </a>
@@ -190,7 +192,7 @@ export const Header = () => {
                 href="https://wa.me/962790656666" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 text-gold hover:text-gold-light transition-colors duration-400"
+                className="p-1.5 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
               </a>
@@ -198,45 +200,10 @@ export const Header = () => {
 
             {/* Icons - Right (Gold outline) */}
             <div className="flex items-center gap-3 flex-shrink-0">
-              {/* Admin Menu - Only visible for admins */}
-              {isAdmin && (
-                <div className="relative" ref={adminMenuRef}>
-                  <button
-                    onClick={() => setAdminMenuOpen(!adminMenuOpen)}
-                    className="p-2 text-gold hover:text-gold-light transition-colors duration-400"
-                    title="Admin"
-                  >
-                    <Settings className="w-5 h-5" strokeWidth={1.5} />
-                  </button>
-                  
-                  {/* Admin Dropdown */}
-                  {adminMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gold/20 py-2 z-50">
-                      <Link
-                        to="/admin/bulk-upload"
-                        onClick={() => setAdminMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-charcoal hover:bg-cream hover:text-burgundy transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        {language === 'ar' ? 'رفع المنتجات' : 'Bulk Upload'}
-                      </Link>
-                      <Link
-                        to="/admin/orders"
-                        onClick={() => setAdminMenuOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2 text-sm text-charcoal hover:bg-cream hover:text-burgundy transition-colors"
-                      >
-                        <ClipboardList className="w-4 h-4" />
-                        {language === 'ar' ? 'الطلبات' : 'Orders'}
-                      </Link>
-                    </div>
-                  )}
-                </div>
-              )}
-
               {/* Account Icon */}
               <Link 
                 to={user ? "/account" : "/auth"}
-                className="p-2 text-gold hover:text-gold-light transition-colors duration-400"
+                className="p-2 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <User className="w-5 h-5" strokeWidth={1.5} />
               </Link>
@@ -244,11 +211,11 @@ export const Header = () => {
               {/* Wishlist Icon */}
               <button
                 onClick={() => setWishlistOpen(true)}
-                className="relative p-2 text-gold hover:text-gold-light transition-colors duration-400"
+                className="relative p-2 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <Heart className="w-5 h-5" strokeWidth={1.5} />
                 {wishlistItems.length > 0 && (
-                  <span className={`absolute -top-0.5 ${isRTL ? '-left-0.5' : '-right-0.5'} h-4 w-4 rounded-full bg-gold text-burgundy text-[10px] flex items-center justify-center font-body font-semibold`}>
+                  <span className={`absolute -top-0.5 ${isRTL ? '-left-0.5' : '-right-0.5'} h-4 w-4 rounded-full bg-asper-gold text-asper-merlot text-[10px] flex items-center justify-center font-body font-semibold`}>
                     {wishlistItems.length}
                   </span>
                 )}
@@ -257,11 +224,11 @@ export const Header = () => {
               {/* Cart Icon */}
               <button
                 onClick={() => setCartOpen(true)}
-                className="relative p-2 text-gold hover:text-gold-light transition-colors duration-400"
+                className="relative p-2 text-asper-gold hover:text-asper-goldLight transition-colors duration-400"
               >
                 <ShoppingBag className="w-5 h-5" strokeWidth={1.5} />
                 {totalItems > 0 && (
-                  <span className={`absolute -top-0.5 ${isRTL ? '-left-0.5' : '-right-0.5'} h-4 w-4 rounded-full bg-gold text-burgundy text-[10px] flex items-center justify-center font-body font-semibold`}>
+                  <span className={`absolute -top-0.5 ${isRTL ? '-left-0.5' : '-right-0.5'} h-4 w-4 rounded-full bg-asper-gold text-asper-merlot text-[10px] flex items-center justify-center font-body font-semibold`}>
                     {totalItems}
                   </span>
                 )}
@@ -277,7 +244,7 @@ export const Header = () => {
             {/* Left - Hamburger Menu */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gold"
+              className="p-2 text-asper-gold"
             >
               {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" strokeWidth={1.5} />}
             </button>
@@ -296,11 +263,11 @@ export const Header = () => {
             {/* Right - Shopping Bag Only */}
             <button
               onClick={() => setCartOpen(true)}
-              className="relative p-2 text-gold"
+              className="relative p-2 text-asper-gold"
             >
               <ShoppingBag className="w-6 h-6" strokeWidth={1.5} />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-gold text-burgundy text-[10px] flex items-center justify-center font-body font-semibold">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-asper-gold text-asper-merlot text-[10px] flex items-center justify-center font-body font-semibold">
                   {totalItems}
                 </span>
               )}
@@ -310,7 +277,7 @@ export const Header = () => {
       </div>
 
       {/* Mobile Search Bar - Full Width Below Header */}
-      <div className="md:hidden bg-cream border-b border-gold/20 px-4 py-3">
+      <div className="md:hidden bg-asper-ivory border-b border-asper-gold/20 px-4 py-3">
         <div className="relative">
           <input
             ref={mobileSearchInputRef}
@@ -319,10 +286,10 @@ export const Header = () => {
             onChange={e => setSearchQuery(e.target.value)}
             onFocus={() => setMobileSearchFocused(true)}
             placeholder={language === 'ar' ? 'ابحثي عن المنتجات...' : 'Search for products...'}
-            className="w-full px-5 py-3 pl-12 rounded-full border border-gold/30 bg-white text-foreground placeholder:text-muted-foreground font-body text-sm focus:outline-none focus:border-gold transition-colors duration-400"
+            className="w-full px-5 py-3 pl-12 rounded-full border border-asper-gold/30 bg-white text-asper-charcoal placeholder:text-asper-charcoal/50 font-body text-sm focus:outline-none focus:border-asper-gold transition-colors duration-400"
             dir={isRTL ? 'rtl' : 'ltr'}
           />
-          <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-gold`} />
+          <Search className={`absolute ${isRTL ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 w-5 h-5 text-asper-gold`} />
           {searchQuery && (
             <button
               onClick={() => {
@@ -345,9 +312,9 @@ export const Header = () => {
         />
       </div>
 
-      {/* Secondary Navigation Row (Mega Menu) - Cream - Desktop Only */}
+      {/* Secondary Navigation Row (Mega Menu) - Ivory - Desktop Only */}
       <nav
-        className="bg-cream border-b border-gold/30 hidden lg:block"
+        className="bg-asper-ivory border-b border-asper-gold/30 hidden lg:block"
         onMouseLeave={() => setActiveMenu(null)}
       >
         <div className="luxury-container">
@@ -360,7 +327,7 @@ export const Header = () => {
               >
                 <Link
                   to={item.href}
-                  className="flex items-center gap-1 font-display text-sm tracking-wide text-foreground hover:text-gold transition-colors duration-400 whitespace-nowrap group"
+                  className="flex items-center gap-1 font-display text-sm tracking-wide text-asper-charcoal hover:text-asper-gold transition-colors duration-400 whitespace-nowrap group"
                 >
                   {item.name}
                   {item.hasMegaMenu && (
@@ -376,7 +343,7 @@ export const Header = () => {
         {navItems.filter(item => item.hasMegaMenu).map(item => (
           <div
             key={`mega-${item.name}`}
-            className={`absolute left-0 right-0 bg-cream border-t border-gold/30 shadow-xl transition-all duration-400 ease-in-out ${
+            className={`absolute left-0 right-0 bg-asper-ivory border-t border-asper-gold/30 shadow-xl transition-all duration-400 ease-in-out ${
               activeMenu === item.name ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'
             }`}
             onMouseEnter={() => setActiveMenu(item.name)}
@@ -386,7 +353,7 @@ export const Header = () => {
               <div className="grid grid-cols-3 gap-12">
                 {/* Column 1: By Category */}
                 <div>
-                  <h3 className="font-display text-sm font-semibold text-foreground mb-4 pb-2 border-b border-gold/30">
+                  <h3 className="font-display text-sm font-semibold text-asper-charcoal mb-4 pb-2 border-b border-asper-gold/30">
                     {language === 'ar' ? 'حسب الفئة' : 'By Category'}
                   </h3>
                   <ul className="space-y-3">
@@ -394,7 +361,7 @@ export const Header = () => {
                       <li key={subItem.href}>
                         <Link
                           to={subItem.href}
-                          className="font-body text-sm text-muted-foreground hover:text-gold transition-colors duration-400"
+                          className="font-body text-sm text-asper-charcoal/70 hover:text-asper-gold transition-colors duration-400"
                         >
                           {subItem.name}
                         </Link>
@@ -405,7 +372,7 @@ export const Header = () => {
 
                 {/* Column 2: By Concern */}
                 <div>
-                  <h3 className="font-display text-sm font-semibold text-foreground mb-4 pb-2 border-b border-gold/30">
+                  <h3 className="font-display text-sm font-semibold text-asper-charcoal mb-4 pb-2 border-b border-asper-gold/30">
                     {language === 'ar' ? 'حسب المشكلة' : 'By Concern'}
                   </h3>
                   <ul className="space-y-3">
@@ -413,7 +380,7 @@ export const Header = () => {
                       <li key={subItem.href}>
                         <Link
                           to={subItem.href}
-                          className="font-body text-sm text-muted-foreground hover:text-gold transition-colors duration-400"
+                          className="font-body text-sm text-asper-charcoal/70 hover:text-asper-gold transition-colors duration-400"
                         >
                           {subItem.name}
                         </Link>
@@ -424,7 +391,7 @@ export const Header = () => {
 
                 {/* Column 3: Featured Brands */}
                 <div>
-                  <h3 className="font-display text-sm font-semibold text-foreground mb-4 pb-2 border-b border-gold/30">
+                  <h3 className="font-display text-sm font-semibold text-asper-charcoal mb-4 pb-2 border-b border-asper-gold/30">
                     {language === 'ar' ? 'علامات مميزة' : 'Featured Brands'}
                   </h3>
                   <ul className="space-y-3">
@@ -432,7 +399,7 @@ export const Header = () => {
                       <li key={brand.href}>
                         <Link
                           to={brand.href}
-                          className="font-body text-sm text-muted-foreground hover:text-gold transition-colors duration-400"
+                          className="font-body text-sm text-asper-charcoal/70 hover:text-asper-gold transition-colors duration-400"
                         >
                           {brand.name}
                         </Link>
@@ -443,8 +410,8 @@ export const Header = () => {
               </div>
 
               {/* Script tagline */}
-              <div className="mt-8 pt-6 border-t border-gold/20 text-center">
-                <span className="font-script text-2xl text-gold">
+              <div className="mt-8 pt-6 border-t border-asper-gold/20 text-center">
+                <span className="font-script text-2xl text-asper-gold">
                   Elegance in every detail
                 </span>
               </div>
@@ -517,36 +484,6 @@ export const Header = () => {
                   {user ? (language === 'ar' ? 'حسابي' : 'My Account') : (language === 'ar' ? 'تسجيل الدخول' : 'Sign In')}
                 </Link>
               </li>
-              {/* Admin Links - Only visible for admins */}
-              {isAdmin && (
-                <>
-                  <li className="border-t border-gold/30 mt-2 pt-2">
-                    <span className="block px-3 py-2 text-sm text-gold/60 font-body">
-                      {language === 'ar' ? 'لوحة الإدارة' : 'Admin Panel'}
-                    </span>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/bulk-upload"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-3 font-display text-lg text-white hover:text-gold transition-colors duration-400"
-                    >
-                      <Upload className="w-5 h-5" />
-                      {language === 'ar' ? 'رفع المنتجات' : 'Bulk Upload'}
-                    </Link>
-                  </li>
-                  <li>
-                    <Link
-                      to="/admin/orders"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-3 font-display text-lg text-white hover:text-gold transition-colors duration-400"
-                    >
-                      <ClipboardList className="w-5 h-5" />
-                      {language === 'ar' ? 'الطلبات' : 'Orders'}
-                    </Link>
-                  </li>
-                </>
-              )}
             </ul>
           </nav>
 
