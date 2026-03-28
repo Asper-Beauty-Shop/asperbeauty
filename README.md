@@ -2,7 +2,7 @@
 
 A luxury e-commerce storefront for premium skincare and beauty products, built with modern web technologies.
 
-🔗 **Live Site**: [asperbeauty.lovable.app](https://asperbeautyshop.lovable.app)
+🔗 **Live Site**: [asperbeauty.com](https://asperbeauty.com)
 
 ## ✨ Features
 
