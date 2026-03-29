@@ -7,6 +7,7 @@ import {
   updateShopifyCartLine,
   removeLineFromShopifyCart,
   fetchShopifyCart,
+  isShopifyStorefrontConfigured,
 } from '@/lib/shopify';
 
 export interface CartItem {
@@ -55,6 +56,24 @@ export const useCartStore = create<CartStore>()(
       isOpen: false,
 
       addItem: async (item) => {
+        // If Shopify isn't configured, operate in local-only mode (supports COD checkout).
+        if (!isShopifyStorefrontConfigured()) {
+          const { items } = get();
+          const existingItem = items.find(i => i.variantId === item.variantId);
+          if (existingItem) {
+            set({
+              items: items.map(i =>
+                i.variantId === item.variantId
+                  ? { ...i, quantity: i.quantity + item.quantity }
+                  : i
+              ),
+            });
+            return;
+          }
+          set({ items: [...items, { ...item, lineId: null }] });
+          return;
+        }
+
         const { items, cartId, clearCart } = get();
         const existingItem = items.find(i => i.variantId === item.variantId);
         
@@ -128,6 +147,15 @@ export const useCartStore = create<CartStore>()(
           await get().removeItem(variantId);
           return;
         }
+
+        // Local-only mode (no Shopify)
+        if (!isShopifyStorefrontConfigured()) {
+          const { items } = get();
+          set({
+            items: items.map(i => (i.variantId === variantId ? { ...i, quantity } : i)),
+          });
+          return;
+        }
         
         const { items, cartId, clearCart } = get();
         const item = items.find(i => i.variantId === variantId);
@@ -154,6 +182,13 @@ export const useCartStore = create<CartStore>()(
       },
 
       removeItem: async (variantId) => {
+        // Local-only mode (no Shopify)
+        if (!isShopifyStorefrontConfigured()) {
+          const { items } = get();
+          set({ items: items.filter(i => i.variantId !== variantId) });
+          return;
+        }
+
         const { items, cartId, clearCart } = get();
         const item = items.find(i => i.variantId === variantId);
         if (!item?.lineId || !cartId) {
@@ -192,6 +227,7 @@ export const useCartStore = create<CartStore>()(
       getCheckoutUrl: () => get().checkoutUrl,
 
       syncCart: async () => {
+        if (!isShopifyStorefrontConfigured()) return;
         const { cartId, isSyncing, clearCart } = get();
         if (!cartId || isSyncing) return;
 

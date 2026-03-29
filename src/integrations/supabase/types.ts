@@ -158,6 +158,7 @@ export type Database = {
         Row: {
           brand: string | null
           category: string
+          cost_price: number | null
           created_at: string
           description: string | null
           discount_percent: number | null
@@ -169,6 +170,7 @@ export type Database = {
           scent: string | null
           skin_concerns: string[] | null
           source_url: string | null
+          sku: string | null
           subcategory: string | null
           tags: string[] | null
           texture: string | null
@@ -179,6 +181,7 @@ export type Database = {
         Insert: {
           brand?: string | null
           category?: string
+          cost_price?: number | null
           created_at?: string
           description?: string | null
           discount_percent?: number | null
@@ -190,6 +193,7 @@ export type Database = {
           scent?: string | null
           skin_concerns?: string[] | null
           source_url?: string | null
+          sku?: string | null
           subcategory?: string | null
           tags?: string[] | null
           texture?: string | null
@@ -200,6 +204,7 @@ export type Database = {
         Update: {
           brand?: string | null
           category?: string
+          cost_price?: number | null
           created_at?: string
           description?: string | null
           discount_percent?: number | null
@@ -211,6 +216,7 @@ export type Database = {
           scent?: string | null
           skin_concerns?: string[] | null
           source_url?: string | null
+          sku?: string | null
           subcategory?: string | null
           tags?: string[] | null
           texture?: string | null
